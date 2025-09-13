@@ -1185,7 +1185,11 @@ private:
     
     // GIF动图相关
     QMovie* m_zombieMovie;                  // 僵尸GIF动图
+    QMovie* m_zombieEatMovie;               // 僵尸攻击GIF动图
     QPixmap m_currentZombieFrame;           // 当前僵尸帧
+    QPixmap m_currentZombieEatFrame;        // 当前僵尸攻击帧
+    bool m_isZombieAttacking;               // 僵尸是否正在攻击
+    QTimer* m_attackTimer;                  // 攻击动画定时器
     
     // 消除判断器
     LinkJudger m_judger;
@@ -1269,6 +1273,13 @@ private slots:
      * 加载zombie.gif动图并设置动画定时器。
      */
     void initializeZombieAnimation();
+    
+    /**
+     * @brief 触发僵尸攻击动画
+     * 
+     * 在消除方块时播放zombie_eat.gif攻击动画。
+     */
+    void triggerZombieAttackAnimation();
     
     /**
      * @brief 播放方块消除音效

@@ -52,6 +52,7 @@ template <> constexpr inline auto GameWindow::qt_create_metaobjectdata<qt_meta_t
         "status",
         "initializeAudioSystem",
         "initializeZombieAnimation",
+        "triggerZombieAttackAnimation",
         "playEliminationSound",
         "playItemSound",
         "playSelectSound",
@@ -86,28 +87,30 @@ template <> constexpr inline auto GameWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'initializeZombieAnimation'
         QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'playEliminationSound'
+        // Slot 'triggerZombieAttackAnimation'
         QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'playItemSound'
+        // Slot 'playEliminationSound'
         QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'playSelectSound'
+        // Slot 'playItemSound'
         QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'playWinSound'
+        // Slot 'playSelectSound'
         QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'playBackgroundMusic'
+        // Slot 'playWinSound'
         QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'stopBackgroundMusic'
+        // Slot 'playBackgroundMusic'
         QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'initializeCompactMenu'
+        // Slot 'stopBackgroundMusic'
         QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'createGameMenu'
+        // Slot 'initializeCompactMenu'
         QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'createHelpMenu'
+        // Slot 'createGameMenu'
         QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'createSaveMenu'
+        // Slot 'createHelpMenu'
         QtMocHelpers::SlotData<void()>(23, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'createSettingsMenu'
+        // Slot 'createSaveMenu'
         QtMocHelpers::SlotData<void()>(24, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'createSettingsMenu'
+        QtMocHelpers::SlotData<void()>(25, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -139,17 +142,18 @@ void GameWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 5: _t->updateWindowTitle(); break;
         case 6: _t->initializeAudioSystem(); break;
         case 7: _t->initializeZombieAnimation(); break;
-        case 8: _t->playEliminationSound(); break;
-        case 9: _t->playItemSound(); break;
-        case 10: _t->playSelectSound(); break;
-        case 11: _t->playWinSound(); break;
-        case 12: _t->playBackgroundMusic(); break;
-        case 13: _t->stopBackgroundMusic(); break;
-        case 14: _t->initializeCompactMenu(); break;
-        case 15: _t->createGameMenu(); break;
-        case 16: _t->createHelpMenu(); break;
-        case 17: _t->createSaveMenu(); break;
-        case 18: _t->createSettingsMenu(); break;
+        case 8: _t->triggerZombieAttackAnimation(); break;
+        case 9: _t->playEliminationSound(); break;
+        case 10: _t->playItemSound(); break;
+        case 11: _t->playSelectSound(); break;
+        case 12: _t->playWinSound(); break;
+        case 13: _t->playBackgroundMusic(); break;
+        case 14: _t->stopBackgroundMusic(); break;
+        case 15: _t->initializeCompactMenu(); break;
+        case 16: _t->createGameMenu(); break;
+        case 17: _t->createHelpMenu(); break;
+        case 18: _t->createSaveMenu(); break;
+        case 19: _t->createSettingsMenu(); break;
         default: ;
         }
     }
@@ -186,14 +190,14 @@ int GameWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 19)
+        if (_id < 20)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 19;
+        _id -= 20;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 19)
+        if (_id < 20)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 19;
+        _id -= 20;
     }
     return _id;
 }

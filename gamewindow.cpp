@@ -131,7 +131,11 @@ GameWindow::GameWindow(QWidget *parent)
     
     // GIF动图相关
     , m_zombieMovie(nullptr) // 僵尸GIF动图
+    , m_zombieEatMovie(nullptr) // 僵尸攻击GIF动图
     , m_currentZombieFrame() // 当前僵尸帧
+    , m_currentZombieEatFrame() // 当前僵尸攻击帧
+    , m_isZombieAttacking(false) // 僵尸未在攻击
+    , m_attackTimer(new QTimer(this)) // 攻击动画定时器
     
     // 其他组件
     , m_judger(ROWS, COLS) // 连接判断器
@@ -1717,6 +1721,9 @@ void GameWindow::processElimination(int targetRow, int targetCol)
         // 播放消除音效
         playEliminationSound();
         
+        // 触发僵尸攻击动画
+        triggerZombieAttackAnimation();
+        
         // 延迟消除，让玩家看到连接线
         QTimer::singleShot(500, this, [this, r1, c1, r2, c2]() { //延迟500毫秒后消除方块
             m_mapData[r1][c1] = 0;
@@ -2374,24 +2381,37 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
                               cellWidth, cellHeight);
         
         // 绘制僵尸GIF动图
-        if (m_zombieMovie && m_zombieMovie->isValid() && !m_currentZombieFrame.isNull()) {
+        if ((m_zombieMovie && m_zombieMovie->isValid() && !m_currentZombieFrame.isNull()) ||
+            (m_zombieEatMovie && m_zombieEatMovie->isValid() && !m_currentZombieEatFrame.isNull())) {
+            
             // 增大僵尸尺寸，减少边距让僵尸更大
             QRectF zombieRect = playerRect.adjusted(2, 2, -2, -2); // 减少边距，增大僵尸
             
-            // 缩放GIF动图以适应玩家矩形
-            QPixmap scaledZombie = m_currentZombieFrame.scaled(
-                zombieRect.size().toSize(), 
-                Qt::KeepAspectRatio, 
-                Qt::SmoothTransformation
-            );
+            QPixmap currentFrame;
+            if (m_isZombieAttacking && !m_currentZombieEatFrame.isNull()) {
+                // 攻击状态：使用攻击动画帧
+                currentFrame = m_currentZombieEatFrame;
+            } else if (!m_currentZombieFrame.isNull()) {
+                // 普通状态：使用普通动画帧
+                currentFrame = m_currentZombieFrame;
+            }
             
-            // 计算居中位置
-            QPointF drawPos = zombieRect.topLeft();
-            drawPos.setX(drawPos.x() + (zombieRect.width() - scaledZombie.width()) / 2);
-            drawPos.setY(drawPos.y() + (zombieRect.height() - scaledZombie.height()) / 2);
-            
-            // 绘制僵尸GIF动图（无边框，直接融入地图）
-            painter.drawPixmap(drawPos, scaledZombie);
+            if (!currentFrame.isNull()) {
+                // 缩放GIF动图以适应玩家矩形
+                QPixmap scaledZombie = currentFrame.scaled(
+                    zombieRect.size().toSize(), 
+                    Qt::KeepAspectRatio, 
+                    Qt::SmoothTransformation
+                );
+                
+                // 计算居中位置
+                QPointF drawPos = zombieRect.topLeft();
+                drawPos.setX(drawPos.x() + (zombieRect.width() - scaledZombie.width()) / 2);
+                drawPos.setY(drawPos.y() + (zombieRect.height() - scaledZombie.height()) / 2);
+                
+                // 绘制僵尸GIF动图（无边框，直接融入地图）
+                painter.drawPixmap(drawPos, scaledZombie);
+            }
             
             // 玩家状态指示（只在眩晕时显示，且使用透明边框）
             if (player.isDizzy()) {
@@ -2963,7 +2983,7 @@ void GameWindow::initializeAudioSystem()
 // 初始化僵尸GIF动图
 void GameWindow::initializeZombieAnimation()
 {
-    // 创建QMovie对象加载GIF动图
+    // 创建QMovie对象加载普通僵尸GIF动图
     m_zombieMovie = new QMovie(":/zombie.gif", QByteArray(), this);
     
     if (m_zombieMovie->isValid()) {
@@ -2972,12 +2992,66 @@ void GameWindow::initializeZombieAnimation()
         
         // 连接帧改变信号到更新槽
         connect(m_zombieMovie, &QMovie::frameChanged, this, [this]() {
-            m_currentZombieFrame = m_zombieMovie->currentPixmap();
-            update(); // 刷新界面
+            if (!m_isZombieAttacking) { // 只在非攻击状态时更新普通帧
+                m_currentZombieFrame = m_zombieMovie->currentPixmap();
+                update(); // 刷新界面
+            }
         });
         
         // 启动动画
         m_zombieMovie->start();
+    }
+    
+    // 创建QMovie对象加载攻击僵尸GIF动图
+    m_zombieEatMovie = new QMovie(":/zombie_eat.gif", QByteArray(), this);
+    
+    if (m_zombieEatMovie->isValid()) {
+        // 设置动画循环模式
+        m_zombieEatMovie->setCacheMode(QMovie::CacheAll);
+        
+        // 连接帧改变信号到更新槽
+        connect(m_zombieEatMovie, &QMovie::frameChanged, this, [this]() {
+            if (m_isZombieAttacking) { // 只在攻击状态时更新攻击帧
+                m_currentZombieEatFrame = m_zombieEatMovie->currentPixmap();
+                update(); // 刷新界面
+            }
+        });
+        
+        // 攻击动画不自动启动，只在需要时启动
+    }
+    
+    // 设置攻击定时器
+    m_attackTimer->setSingleShot(true); // 单次触发
+    connect(m_attackTimer, &QTimer::timeout, this, [this]() {
+        // 攻击动画结束，恢复普通动画
+        m_isZombieAttacking = false;
+        if (m_zombieEatMovie) {
+            m_zombieEatMovie->stop();
+        }
+        if (m_zombieMovie) {
+            m_zombieMovie->start();
+        }
+        update();
+    });
+}
+
+// 触发僵尸攻击动画
+void GameWindow::triggerZombieAttackAnimation()
+{
+    if (m_zombieEatMovie && m_zombieEatMovie->isValid()) {
+        // 停止普通动画
+        if (m_zombieMovie) {
+            m_zombieMovie->stop();
+        }
+        
+        // 设置攻击状态
+        m_isZombieAttacking = true;
+        
+        // 启动攻击动画
+        m_zombieEatMovie->start();
+        
+        // 设置攻击动画持续时间（根据GIF长度调整，这里设为1.5秒）
+        m_attackTimer->start(1500);
     }
 }
 

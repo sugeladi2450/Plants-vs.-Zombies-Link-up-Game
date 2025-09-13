@@ -14,5 +14,6 @@
         <file>win.wav</file>
         <file>music.wav</file>
         <file>zombie.gif</file>
+        <file>zombie_eat.gif</file>
     </qresource>
 </RCC>
