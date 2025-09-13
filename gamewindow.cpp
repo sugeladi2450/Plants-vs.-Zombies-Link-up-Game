@@ -1846,9 +1846,6 @@ void GameWindow::drawGameInfo(QPainter& painter, int widgetWidth, int widgetHeig
     
     // 显示玩家状态
     drawPlayerStatus(painter);
-    
-    // 显示操作提示
-    drawOperationHints(painter, widgetWidth, widgetHeight);
 }
 
 //绘制玩家状态
@@ -1864,23 +1861,6 @@ void GameWindow::drawPlayerStatus(QPainter& painter)
     }
 }
 
-//绘制操作提示
-void GameWindow::drawOperationHints(QPainter& painter, int widgetWidth, int widgetHeight)
-{
-    painter.setFont(QFont("Arial", 10, QFont::Normal));
-    painter.setPen(QPen(QColorConstants::Svg::lightgray)); //设置操作提示文字颜色为浅灰色
-    painter.drawText(10, widgetHeight - 100, "操作提示:"); //绘制操作提示文字
-    if (m_twoPlayer) {
-        painter.drawText(10, widgetHeight - 85, "玩家1: WASD移动"); //绘制玩家1操作提示文字
-        painter.drawText(10, widgetHeight - 70, "玩家2: 方向键移动"); //绘制玩家2操作提示文字
-    } else {
-        painter.drawText(10, widgetHeight - 85, "WASD/方向键: 移动角色"); //绘制单人模式操作提示文字
-    }
-    painter.drawText(10, widgetHeight - 55, "空格键: 暂停/继续游戏"); //绘制空格键操作提示文字
-    painter.drawText(10, widgetHeight - 40, "F5: 保存游戏  F9: 加载游戏"); //绘制F5和F9操作提示文字
-    painter.drawText(10, widgetHeight - 25, "R: 重新开始  T: 切换模式"); //绘制 R和 T操作提示文字
-}
-    
 //绘制游戏状态
 void GameWindow::drawGameStatus(QPainter& painter, int widgetWidth, int widgetHeight)
 {
@@ -2545,7 +2525,7 @@ void GameWindow::createHelpMenu()
     );
     
     QAction* help = m_helpMenu->addAction("操作指引");
-    QAction* about = m_helpMenu->addAction("关于游戏");
+    QAction* hints = m_helpMenu->addAction("操作提示");
     
     connect(help, &QAction::triggered, this, [this]() {
         QString helpText = 
@@ -2571,12 +2551,17 @@ void GameWindow::createHelpMenu()
         QMessageBox::information(this, "操作指引", helpText);
     });
     
-    connect(about, &QAction::triggered, this, [this]() {
-        QMessageBox::about(this, "关于游戏", 
-            "QLink 连连看游戏\n\n"
-            "版本: 1.0\n"
-            "开发: AI Assistant\n\n"
-            "一款经典的连连看益智游戏，支持单人和双人模式。");
+    connect(hints, &QAction::triggered, this, [this]() {
+        QString hintsText = 
+            "=== 操作提示 ===\n\n"
+            "WASD/方向键: 移动角色\n"
+            "空格键: 暂停/继续游戏\n"
+            "F5: 保存游戏\n"
+            "F9: 加载游戏\n"
+            "R: 重新开始\n"
+            "T: 切换模式";
+        
+        QMessageBox::information(this, "操作提示", hintsText);
     });
 }
 
