@@ -93,7 +93,10 @@ GameWindow::GameWindow(QWidget *parent)
     : QWidget(parent)
     // 游戏状态
     , m_state(MENU_STATE) // 菜单状态
-    , m_option(SINGLE_PLAYER) // 菜单选项，初始选中单人模式
+    , m_option(START_NEW_GAME) // 菜单选项，初始选中开始新游戏
+    , m_gameModeOption(SINGLE_PLAYER) // 游戏模式选项，默认单人模式
+    , m_showGameModeSelection(false) // 不显示游戏模式选择
+    , m_backButtonSelected(false) // 返回按钮未选中
     , m_running(false) // 游戏运行
     , m_paused(false) // 游戏暂停
     , m_twoPlayer(false)  // 双人模式标志，由菜单选择决定
@@ -186,7 +189,9 @@ GameWindow::GameWindow(QWidget *parent)
 void GameWindow::showMenu()
 {
     m_state = MENU_STATE; // 菜单状态
-    m_option = SINGLE_PLAYER; // 默认单人模式
+    m_option = START_NEW_GAME; // 默认开始新游戏
+    m_showGameModeSelection = false; // 不显示游戏模式选择
+    m_backButtonSelected = false; // 返回按钮未选中
     
     // 加载方块图片
     loadBlockImages();
@@ -208,6 +213,26 @@ void GameWindow::hideMenu()
 void GameWindow::selectOption(MenuOption option)
 {
     switch (option) {
+    case START_NEW_GAME: // 开始新游戏
+        m_showGameModeSelection = true; // 显示游戏模式选择
+        update();
+        break;
+        
+    case LOAD_GAME: // 载入游戏
+        loadGame("savegame.txt");
+        QMessageBox::information(this, "载入游戏", "游戏已载入！");
+        break;
+        
+    case EXIT_GAME: // 退出游戏
+        close(); // 关闭窗口
+        break;
+    }
+}
+
+// 选择游戏模式
+void GameWindow::selectGameMode(GameModeOption mode)
+{
+    switch (mode) {
     case SINGLE_PLAYER: // 单人模式
         m_twoPlayer = false;
         hideMenu();
@@ -218,10 +243,6 @@ void GameWindow::selectOption(MenuOption option)
         m_twoPlayer = true;
         hideMenu();
         start();
-        break;
-        
-    case EXIT_GAME: // 退出游戏
-        close(); // 关闭窗口
         break;
     }
 }
@@ -265,28 +286,63 @@ void GameWindow::drawTitle(QPainter& painter)
 // 绘制菜单选项
 void GameWindow::drawOptions(QPainter& painter)
 {
-    static const QString options[] = {"单人模式", "双人模式", "退出游戏"}; // 设置菜单选项
-    static const int startY = 150; // 设置菜单选项起始位置
-    static const int optionHeight = 50; // 设置菜单选项高度
-    static const int spacing = 20; // 设置菜单选项间距
-    static const int cornerRadius = 10; // 设置菜单选项圆角
-    static const int selectionOffset = 5; // 设置菜单选项选中偏移
-    
-    // 绘制菜单选项
-    for (int i = 0; i < OPTIONS; ++i) {
-        QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                        width() - 100, optionHeight); // 设置菜单选项矩形
+    if (m_showGameModeSelection) {
+        // 显示游戏模式选择
+        static const QString gameModeOptions[] = {"返回", "单人模式", "双人模式"}; // 设置选项（包含返回按钮）
+        static const int startY = 150; // 设置菜单选项起始位置
+        static const int optionHeight = 50; // 设置菜单选项高度
+        static const int spacing = 20; // 设置菜单选项间距
+        static const int cornerRadius = 10; // 设置菜单选项圆角
+        static const int selectionOffset = 5; // 设置菜单选项选中偏移
         
-        // 设置菜单选项选中状态
-        bool isSelected = (i == static_cast<int>(m_option)); 
-        
-        // 选中项放大矩形
-        if (isSelected) {
-            optionRect.adjust(-selectionOffset, -selectionOffset, 
-                             selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
+        // 绘制所有选项（包括返回按钮）
+        for (int i = 0; i < 3; ++i) {
+            QRect optionRect(50, startY + i * (optionHeight + spacing), 
+                            width() - 100, optionHeight); // 设置菜单选项矩形
+            
+            // 设置菜单选项选中状态 - 只有一个选项被选中
+            bool isSelected = false;
+            if (i == 0) {
+                // 返回按钮
+                isSelected = m_backButtonSelected;
+            } else {
+                // 游戏模式选项 - 只有在返回按钮未选中时才可能被选中
+                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_gameModeOption));
+            }
+            
+            // 选中项放大矩形
+            if (isSelected) {
+                optionRect.adjust(-selectionOffset, -selectionOffset, 
+                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
+            }
+            
+            drawOption(painter, optionRect, gameModeOptions[i], isSelected);
         }
+    } else {
+        // 显示主菜单选项
+        static const QString options[] = {"开始新游戏", "载入游戏", "退出游戏"}; // 设置菜单选项
+        static const int startY = 150; // 设置菜单选项起始位置
+        static const int optionHeight = 50; // 设置菜单选项高度
+        static const int spacing = 20; // 设置菜单选项间距
+        static const int cornerRadius = 10; // 设置菜单选项圆角
+        static const int selectionOffset = 5; // 设置菜单选项选中偏移
         
-        drawOption(painter, optionRect, options[i], isSelected);
+        // 绘制菜单选项
+        for (int i = 0; i < OPTIONS; ++i) {
+            QRect optionRect(50, startY + i * (optionHeight + spacing), 
+                            width() - 100, optionHeight); // 设置菜单选项矩形
+            
+            // 设置菜单选项选中状态
+            bool isSelected = (i == static_cast<int>(m_option)); 
+            
+            // 选中项放大矩形
+            if (isSelected) {
+                optionRect.adjust(-selectionOffset, -selectionOffset, 
+                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
+            }
+            
+            drawOption(painter, optionRect, options[i], isSelected);
+        }
     }
 }
 
@@ -328,22 +384,50 @@ void GameWindow::handleKey(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Up: // 上键
-        if (m_option > 0) { //不是最上面的选项
-            m_option = static_cast<MenuOption>(m_option - 1); // 选择上一个选项
+        if (m_showGameModeSelection) {
+            if (m_backButtonSelected) {
+                // 从返回按钮移动到最后一个游戏模式选项
+                m_backButtonSelected = false;
+                m_gameModeOption = static_cast<GameModeOption>(1); // 双人模式
+            } else if (m_gameModeOption > 0) {
+                m_gameModeOption = static_cast<GameModeOption>(m_gameModeOption - 1);
+            } else {
+                // 从第一个游戏模式选项移动到返回按钮
+                m_backButtonSelected = true;
+                m_gameModeOption = SINGLE_PLAYER; // 重置游戏模式选项
+            }
+        } else {
+            if (m_option > 0) { //不是最上面的选项
+                m_option = static_cast<MenuOption>(m_option - 1); // 选择上一个选项
         } else {
             // 循环到最后一个选项
-            m_option = static_cast<MenuOption>(OPTIONS - 1); // 选择最后一个选项
+                m_option = static_cast<MenuOption>(OPTIONS - 1); // 选择最后一个选项
+        }
         }
         // 播放菜单选择音效
         playSelectSound();
         update();
         break;
     case Qt::Key_Down:
-        if (m_option < OPTIONS - 1) { //不是最下面的选项
-            m_option = static_cast<MenuOption>(m_option + 1); // 选择下一个选项
+        if (m_showGameModeSelection) {
+            if (m_backButtonSelected) {
+                // 从返回按钮移动到第一个游戏模式选项
+                m_backButtonSelected = false;
+                m_gameModeOption = static_cast<GameModeOption>(0); // 单人模式
+            } else if (m_gameModeOption < 1) {
+                m_gameModeOption = static_cast<GameModeOption>(m_gameModeOption + 1);
+            } else {
+                // 从最后一个游戏模式选项移动到返回按钮
+                m_backButtonSelected = true;
+                m_gameModeOption = SINGLE_PLAYER; // 重置游戏模式选项
+            }
+        } else {
+            if (m_option < OPTIONS - 1) { //不是最下面的选项
+                m_option = static_cast<MenuOption>(m_option + 1); // 选择下一个选项
         } else {
             // 循环到第一个选项
-            m_option = static_cast<MenuOption>(0); // 选择第一个选项
+                m_option = static_cast<MenuOption>(0); // 选择第一个选项
+        }
         }
         // 播放菜单选择音效
         playSelectSound();
@@ -351,10 +435,25 @@ void GameWindow::handleKey(QKeyEvent *event)
         break;
     case Qt::Key_Return:
     case Qt::Key_Enter:
-        selectOption(m_option); // 选择当前选项
+        if (m_showGameModeSelection) {
+            if (m_backButtonSelected) {
+                // 返回主菜单
+                m_showGameModeSelection = false;
+                m_backButtonSelected = false;
+                update();
+            } else {
+                selectGameMode(m_gameModeOption); // 选择当前游戏模式
+            }
+        } else {
+            selectOption(m_option); // 选择当前选项
+        }
         break;
     case Qt::Key_Escape:
-        if (m_running) { // 如果游戏正在运行
+        if (m_showGameModeSelection) {
+            // 从游戏模式选择返回主菜单
+            m_showGameModeSelection = false;
+            update();
+        } else if (m_running) { // 如果游戏正在运行
             //返回菜单
             end();
             showMenu();
@@ -375,31 +474,83 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
     QPoint adjustedPos = event->pos();
     adjustedPos.setY(adjustedPos.y() - menuHeight); // 调整鼠标位置
     
-    int startY = 150; // 设置菜单选项起始位置
-    int optionHeight = 50; // 设置菜单选项高度
-    int spacing = 20; // 设置菜单选项间距
-    
-    for (int i = 0; i < OPTIONS; ++i) { // 遍历菜单选项
-        QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                        width() - 100, optionHeight); // 设置菜单选项矩形
+    if (m_showGameModeSelection) {
+        // 处理游戏模式选择
+        int startY = 150; // 设置菜单选项起始位置
+        int optionHeight = 50; // 设置菜单选项高度
+        int spacing = 20; // 设置菜单选项间距
         
-        if (optionRect.contains(adjustedPos)) {
-            MenuOption oldOption = m_option; // 保存旧的选项
-            m_option = static_cast<MenuOption>(i); // 设置当前选中的菜单选项
+        // 检查所有选项（包括返回按钮）
+        for (int i = 0; i < 3; ++i) {
+            QRect optionRect(50, startY + i * (optionHeight + spacing), 
+                            width() - 100, optionHeight); // 设置菜单选项矩形
+            
+            if (optionRect.contains(adjustedPos)) {
+                if (i == 0) {
+                    // 返回按钮
+                    bool oldSelected = m_backButtonSelected;
+                    m_backButtonSelected = true;
+                    m_gameModeOption = SINGLE_PLAYER; // 重置游戏模式选项
+                    
+                    if (isClick && event->button() == Qt::LeftButton) {
+                        m_showGameModeSelection = false;
+                        m_backButtonSelected = false;
+                        update();
+                    } else if (!isClick && oldSelected != m_backButtonSelected) {
+                        // 播放菜单选择音效
+                        playSelectSound();
+                        update();
+                    }
+                } else {
+                    // 游戏模式选项
+                    GameModeOption oldOption = m_gameModeOption; // 保存旧的选项
+                    m_gameModeOption = static_cast<GameModeOption>(i - 1); // 设置当前选中的游戏模式选项
+                    m_backButtonSelected = false; // 取消返回按钮选中
 
-            if (isClick && event->button() == Qt::LeftButton) {
-                // 鼠标点击：执行选择
-                selectOption(m_option);
-            } else { // 不点击左键
-                // 鼠标移动：只更新高亮显示
-                if (oldOption != m_option) { // 如果选项改变了
-                    qDebug() << "Menu option changed from" << oldOption << "to" << m_option;
-                    // 播放菜单选择音效
-                    playSelectSound();
+                    if (isClick && event->button() == Qt::LeftButton) {
+                        // 鼠标点击：执行选择
+                        selectGameMode(m_gameModeOption);
+                    } else { // 不点击左键
+                        // 鼠标移动：只更新高亮显示
+                        if (oldOption != m_gameModeOption) { // 如果选项改变了
+                            qDebug() << "Game mode option changed from" << oldOption << "to" << m_gameModeOption;
+                            // 播放菜单选择音效
+                            playSelectSound();
+                        }
+                        update();
+                    }
                 }
-                update();
+                break;
             }
+        }
+    } else {
+        // 处理主菜单选项
+        int startY = 150; // 设置菜单选项起始位置
+        int optionHeight = 50; // 设置菜单选项高度
+        int spacing = 20; // 设置菜单选项间距
+        
+        for (int i = 0; i < OPTIONS; ++i) { // 遍历菜单选项
+        QRect optionRect(50, startY + i * (optionHeight + spacing), 
+                            width() - 100, optionHeight); // 设置菜单选项矩形
+            
+            if (optionRect.contains(adjustedPos)) {
+                MenuOption oldOption = m_option; // 保存旧的选项
+                m_option = static_cast<MenuOption>(i); // 设置当前选中的菜单选项
+
+                if (isClick && event->button() == Qt::LeftButton) {
+                    // 鼠标点击：执行选择
+                    selectOption(m_option);
+                } else { // 不点击左键
+                    // 鼠标移动：只更新高亮显示
+                    if (oldOption != m_option) { // 如果选项改变了
+                        qDebug() << "Menu option changed from" << oldOption << "to" << m_option;
+                        // 播放菜单选择音效
+                        playSelectSound();
+                    }
+            update();
+                }
             break;
+            }
         }
     }
 }
@@ -1498,7 +1649,7 @@ void GameWindow::handleFlashMouseClick(QMouseEvent *event)
 //获取鼠标点击位置
 ClickInfo GameWindow::getClickPosition(QMouseEvent *event)
 {
-    int widgetWidth = width();
+        int widgetWidth = width();
     int widgetHeight = height(); //获取窗口宽度高度
     
     // 计算游戏区域（排除菜单栏）

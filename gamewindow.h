@@ -334,9 +334,14 @@ private:
     
     // 菜单选项
     enum MenuOption {
-        SINGLE_PLAYER = 0,
-        TWO_PLAYER = 1,
+        START_NEW_GAME = 0,
+        LOAD_GAME = 1,
         EXIT_GAME = 2
+    };
+    
+    enum GameModeOption {
+        SINGLE_PLAYER = 0,
+        TWO_PLAYER = 1
     };
     
     // 菜单相关函数
@@ -359,11 +364,21 @@ private:
      * @param option 要选择的菜单选项
      * 
      * 根据选择的选项执行相应操作：
-     * - SINGLE_PLAYER: 开始单人游戏
-     * - TWO_PLAYER: 开始双人游戏
+     * - START_NEW_GAME: 显示游戏模式选择
+     * - LOAD_GAME: 载入游戏
      * - EXIT_GAME: 退出游戏
      */
     void selectOption(MenuOption option);
+    
+    /**
+     * @brief 选择游戏模式
+     * @param mode 要选择的游戏模式
+     * 
+     * 根据选择的模式开始游戏：
+     * - SINGLE_PLAYER: 开始单人游戏
+     * - TWO_PLAYER: 开始双人游戏
+     */
+    void selectGameMode(GameModeOption mode);
     
     /**
      * @brief 绘制菜单界面
@@ -1073,6 +1088,9 @@ private:
     // 菜单相关成员
     GameState m_state;                      // 当前状态
     MenuOption m_option;                    // 选中选项
+    GameModeOption m_gameModeOption;        // 选中的游戏模式选项
+    bool m_showGameModeSelection;           // 是否显示游戏模式选择
+    bool m_backButtonSelected;              // 返回按钮是否被选中
     static const int OPTIONS = 3;
     
     // 游戏数据
