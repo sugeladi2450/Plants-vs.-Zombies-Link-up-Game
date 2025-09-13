@@ -9,6 +9,7 @@ D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen/EWIEGA46WW
   C:/Qt/6.9.0/mingw_64/include/QtCore/QTextStream \
   C:/Qt/6.9.0/mingw_64/include/QtCore/QTimer \
   C:/Qt/6.9.0/mingw_64/include/QtCore/q17memory.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/q20algorithm.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/q20functional.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/q20iterator.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/q20memory.h \
@@ -32,6 +33,8 @@ D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen/EWIEGA46WW
   C:/Qt/6.9.0/mingw_64/include/QtCore/qbytearraylist.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qbytearrayview.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qcalendar.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qcborcommon.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qcborvalue.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qchar.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qcompare.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qcompare_impl.h \
@@ -57,6 +60,7 @@ D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen/EWIEGA46WW
   C:/Qt/6.9.0/mingw_64/include/QtCore/qendian.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qeventloop.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qexceptionhandling.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qfactoryinterface.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qfile.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qfiledevice.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qfileinfo.h \
@@ -74,6 +78,10 @@ D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen/EWIEGA46WW
   C:/Qt/6.9.0/mingw_64/include/QtCore/qiodevicebase.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qiterable.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qiterator.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qjsondocument.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qjsonobject.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qjsonparseerror.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qjsonvalue.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qlatin1stringview.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qline.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qlist.h \
@@ -95,10 +103,13 @@ D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen/EWIEGA46WW
   C:/Qt/6.9.0/mingw_64/include/QtCore/qobjectdefs_impl.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qoverload.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qpair.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qplugin.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qpoint.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qpointer.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qprocessordetection.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qrect.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qrefcount.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/qregularexpression.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qscopedpointer.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qscopeguard.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qset.h \
@@ -149,6 +160,7 @@ D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen/EWIEGA46WW
   C:/Qt/6.9.0/mingw_64/include/QtCore/qtypes.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qurl.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qutf8stringview.h \
+  C:/Qt/6.9.0/mingw_64/include/QtCore/quuid.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qvariant.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qvarlengtharray.h \
   C:/Qt/6.9.0/mingw_64/include/QtCore/qversiontagging.h \
@@ -158,6 +170,7 @@ D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen/EWIEGA46WW
   C:/Qt/6.9.0/mingw_64/include/QtGui/QColor \
   C:/Qt/6.9.0/mingw_64/include/QtGui/QKeyEvent \
   C:/Qt/6.9.0/mingw_64/include/QtGui/QMouseEvent \
+  C:/Qt/6.9.0/mingw_64/include/QtGui/QMovie \
   C:/Qt/6.9.0/mingw_64/include/QtGui/QPainter \
   C:/Qt/6.9.0/mingw_64/include/QtGui/QPainterPath \
   C:/Qt/6.9.0/mingw_64/include/QtGui/QTransform \
@@ -176,9 +189,12 @@ D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen/EWIEGA46WW
   C:/Qt/6.9.0/mingw_64/include/QtGui/qguiapplication_platform.h \
   C:/Qt/6.9.0/mingw_64/include/QtGui/qicon.h \
   C:/Qt/6.9.0/mingw_64/include/QtGui/qimage.h \
+  C:/Qt/6.9.0/mingw_64/include/QtGui/qimageiohandler.h \
+  C:/Qt/6.9.0/mingw_64/include/QtGui/qimagereader.h \
   C:/Qt/6.9.0/mingw_64/include/QtGui/qinputdevice.h \
   C:/Qt/6.9.0/mingw_64/include/QtGui/qinputmethod.h \
   C:/Qt/6.9.0/mingw_64/include/QtGui/qkeysequence.h \
+  C:/Qt/6.9.0/mingw_64/include/QtGui/qmovie.h \
   C:/Qt/6.9.0/mingw_64/include/QtGui/qpaintdevice.h \
   C:/Qt/6.9.0/mingw_64/include/QtGui/qpainter.h \
   C:/Qt/6.9.0/mingw_64/include/QtGui/qpainterpath.h \

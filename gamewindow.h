@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 #include <QTimer>
 #include <QMouseEvent>
+#include <QMovie>
 #include <vector>
 #include <QPainter>
 #include <QPainterPath>
@@ -1180,6 +1181,11 @@ private:
     QTimer* m_dizzy1;                       // 眩晕定时器1
     QTimer* m_dizzy2;                       // 眩晕定时器2
     QTimer* m_spawnTimer;                   // 道具生成定时器
+    QTimer* m_animationTimer;               // 动画定时器
+    
+    // GIF动图相关
+    QMovie* m_zombieMovie;                  // 僵尸GIF动图
+    QPixmap m_currentZombieFrame;           // 当前僵尸帧
     
     // 消除判断器
     LinkJudger m_judger;
@@ -1256,6 +1262,13 @@ private slots:
      * 设置所有音效播放器的文件源和音量。
      */
     void initializeAudioSystem();
+    
+    /**
+     * @brief 初始化僵尸GIF动图
+     * 
+     * 加载zombie.gif动图并设置动画定时器。
+     */
+    void initializeZombieAnimation();
     
     /**
      * @brief 播放方块消除音效

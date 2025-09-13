@@ -127,6 +127,11 @@ GameWindow::GameWindow(QWidget *parent)
     , m_dizzy1(new QTimer(this)) // 玩家1眩晕定时器
     , m_dizzy2(new QTimer(this)) // 玩家2眩晕定时器
     , m_spawnTimer(new QTimer(this)) // 道具生成定时器
+    , m_animationTimer(new QTimer(this)) // 动画定时器
+    
+    // GIF动图相关
+    , m_zombieMovie(nullptr) // 僵尸GIF动图
+    , m_currentZombieFrame() // 当前僵尸帧
     
     // 其他组件
     , m_judger(ROWS, COLS) // 连接判断器
@@ -180,6 +185,9 @@ GameWindow::GameWindow(QWidget *parent)
     
     // 初始化音效系统
     initializeAudioSystem();
+    
+    // 初始化GIF动图
+    initializeZombieAnimation();
     
     // 初始化紧凑菜单
     initializeCompactMenu();
@@ -2364,32 +2372,78 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
     if (playerRow >= 0 && playerRow < ROWS && playerCol >= 0 && playerCol < COLS) {
         QRectF playerRect(playerCol * cellWidth, playerRow * cellHeight, //计算玩家矩形
                               cellWidth, cellHeight);
-        playerRect.adjust(5, 5, -5, -5); //调整玩家矩形大小
-    
-        // 绘制玩家阴影效果
-        QRectF shadowRect = playerRect.adjusted(2, 2, 2, 2);
-        painter.setBrush(QColor(0, 0, 0, 100)); //设置玩家阴影效果颜色
-        painter.setPen(Qt::NoPen); //设置玩家阴影效果边框为透明
-        painter.drawEllipse(shadowRect); //绘制玩家阴影效果
-    
-        // 绘制玩家主体
-        painter.setBrush(getPlayerColor(playerId)); //设置玩家主体颜色
-        painter.setPen(QPen(QColorConstants::Svg::black, 2)); //设置玩家主体边框为黑色
-        painter.drawEllipse(playerRect); //绘制玩家主体
         
-        // 玩家状态指示
-        if (player.isDizzy()) {
-        painter.setPen(QPen(QColorConstants::Svg::orange, 3)); //设置玩家眩晕效果边框为橙色
-            painter.drawEllipse(playerRect); //绘制玩家眩晕效果
-    }
+        // 绘制僵尸GIF动图
+        if (m_zombieMovie && m_zombieMovie->isValid() && !m_currentZombieFrame.isNull()) {
+            // 增大僵尸尺寸，减少边距让僵尸更大
+            QRectF zombieRect = playerRect.adjusted(2, 2, -2, -2); // 减少边距，增大僵尸
+            
+            // 缩放GIF动图以适应玩家矩形
+            QPixmap scaledZombie = m_currentZombieFrame.scaled(
+                zombieRect.size().toSize(), 
+                Qt::KeepAspectRatio, 
+                Qt::SmoothTransformation
+            );
+            
+            // 计算居中位置
+            QPointF drawPos = zombieRect.topLeft();
+            drawPos.setX(drawPos.x() + (zombieRect.width() - scaledZombie.width()) / 2);
+            drawPos.setY(drawPos.y() + (zombieRect.height() - scaledZombie.height()) / 2);
+            
+            // 绘制僵尸GIF动图（无边框，直接融入地图）
+            painter.drawPixmap(drawPos, scaledZombie);
+            
+            // 玩家状态指示（只在眩晕时显示，且使用透明边框）
+            if (player.isDizzy()) {
+                painter.setPen(QPen(QColor(255, 165, 0, 150), 2)); // 半透明橙色边框
+                painter.setBrush(Qt::NoBrush); // 无填充
+                painter.drawEllipse(zombieRect); // 绘制眩晕效果边框
+            }
+        } else {
+            // 如果GIF加载失败，绘制原来的圆形玩家
+            playerRect.adjust(5, 5, -5, -5); //调整玩家矩形大小
+            
+            // 绘制玩家阴影效果
+            QRectF shadowRect = playerRect.adjusted(2, 2, 2, 2);
+            painter.setBrush(QColor(0, 0, 0, 100)); //设置玩家阴影效果颜色
+            painter.setPen(Qt::NoPen); //设置玩家阴影效果边框为透明
+            painter.drawEllipse(shadowRect); //绘制玩家阴影效果
+            
+            // 绘制玩家主体
+            painter.setBrush(getPlayerColor(playerId)); //设置玩家主体颜色
+            painter.setPen(QPen(QColorConstants::Svg::black, 2)); //设置玩家主体边框为黑色
+            painter.drawEllipse(playerRect); //绘制玩家主体
+            
+            // 玩家状态指示
+            if (player.isDizzy()) {
+                painter.setPen(QPen(QColorConstants::Svg::orange, 3)); //设置玩家眩晕效果边框为橙色
+                painter.drawEllipse(playerRect); //绘制玩家眩晕效果
+            }
+        }
     
         // 添加玩家标签
-        painter.setPen(QColorConstants::Svg::white);
-        painter.setFont(QFont("Arial", 10, QFont::Bold));
-        if (playerId == 1) {
-            painter.drawText(playerRect.center(), m_twoPlayer ? "P1" : "玩家");
+        if (m_zombieMovie && m_zombieMovie->isValid() && !m_currentZombieFrame.isNull()) {
+            // 僵尸模式下，标签显示在僵尸下方
+            QRectF zombieRect = playerRect.adjusted(2, 2, -2, -2);
+            QPointF labelPos = zombieRect.bottomLeft();
+            labelPos.setY(labelPos.y() + 15); // 在僵尸下方显示标签
+            
+            painter.setPen(QColorConstants::Svg::white);
+            painter.setFont(QFont("Arial", 8, QFont::Bold));
+            if (playerId == 1) {
+                painter.drawText(labelPos, m_twoPlayer ? "P1" : "玩家");
+            } else {
+                painter.drawText(labelPos, "P2");
+            }
         } else {
-            painter.drawText(playerRect.center(), "P2");
+            // 圆形玩家模式下，标签显示在中心
+            painter.setPen(QColorConstants::Svg::white);
+            painter.setFont(QFont("Arial", 10, QFont::Bold));
+            if (playerId == 1) {
+                painter.drawText(playerRect.center(), m_twoPlayer ? "P1" : "玩家");
+            } else {
+                painter.drawText(playerRect.center(), "P2");
+            }
         }
     }
 }
@@ -2904,6 +2958,27 @@ void GameWindow::initializeAudioSystem()
     m_backgroundMusic->setSource(QUrl("qrc:/music.wav"));
     m_backgroundMusic->setLoops(QMediaPlayer::Infinite); // 循环播放
     m_audioOutput->setVolume(0.3f); // 30%音量，避免与音效冲突
+}
+
+// 初始化僵尸GIF动图
+void GameWindow::initializeZombieAnimation()
+{
+    // 创建QMovie对象加载GIF动图
+    m_zombieMovie = new QMovie(":/zombie.gif", QByteArray(), this);
+    
+    if (m_zombieMovie->isValid()) {
+        // 设置动画循环模式
+        m_zombieMovie->setCacheMode(QMovie::CacheAll);
+        
+        // 连接帧改变信号到更新槽
+        connect(m_zombieMovie, &QMovie::frameChanged, this, [this]() {
+            m_currentZombieFrame = m_zombieMovie->currentPixmap();
+            update(); // 刷新界面
+        });
+        
+        // 启动动画
+        m_zombieMovie->start();
+    }
 }
 
 // 播放方块消除音效
