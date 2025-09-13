@@ -344,6 +344,12 @@ private:
         TWO_PLAYER = 1
     };
     
+    enum SaveSlot {
+        SAVE_SLOT_1 = 0,
+        SAVE_SLOT_2 = 1,
+        SAVE_SLOT_3 = 2
+    };
+    
     // 菜单相关函数
     /**
      * @brief 显示菜单界面
@@ -379,6 +385,44 @@ private:
      * - TWO_PLAYER: 开始双人游戏
      */
     void selectGameMode(GameModeOption mode);
+    
+    /**
+     * @brief 选择存档槽位
+     * @param slot 要选择的存档槽位
+     * 
+     * 根据选择的槽位进行存档操作：
+     * - SAVE_SLOT_1: 存档槽位1
+     * - SAVE_SLOT_2: 存档槽位2
+     * - SAVE_SLOT_3: 存档槽位3
+     */
+    void selectSaveSlot(SaveSlot slot);
+    
+    /**
+     * @brief 检查存档是否存在
+     * @param slot 存档槽位
+     * @return 存档是否存在
+     */
+    bool isSaveSlotExists(SaveSlot slot);
+    
+    /**
+     * @brief 获取存档文件名
+     * @param slot 存档槽位
+     * @return 存档文件名
+     */
+    QString getSaveFileName(SaveSlot slot);
+    
+    /**
+     * @brief 获取存档显示名称
+     * @param slot 存档槽位
+     * @return 存档显示名称
+     */
+    QString getSaveDisplayName(SaveSlot slot);
+    
+    /**
+     * @brief 删除存档
+     * @param slot 要删除的存档槽位
+     */
+    void deleteSaveSlot(SaveSlot slot);
     
     /**
      * @brief 绘制菜单界面
@@ -1091,6 +1135,10 @@ private:
     GameModeOption m_gameModeOption;        // 选中的游戏模式选项
     bool m_showGameModeSelection;           // 是否显示游戏模式选择
     bool m_backButtonSelected;              // 返回按钮是否被选中
+    bool m_showLoadSlots;                   // 是否显示载入存档槽位选择
+    bool m_showSaveSlots;                   // 是否显示保存存档槽位选择
+    bool m_showDeleteSlots;                 // 是否显示删除存档槽位选择
+    SaveSlot m_selectedSaveSlot;            // 选中的存档槽位
     static const int OPTIONS = 3;
     
     // 游戏数据
