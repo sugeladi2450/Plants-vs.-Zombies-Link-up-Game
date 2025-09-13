@@ -15,5 +15,6 @@
         <file>music.wav</file>
         <file>zombie.gif</file>
         <file>zombie_eat.gif</file>
+        <file>background.jpg</file>
     </qresource>
 </RCC>

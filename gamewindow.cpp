@@ -137,6 +137,9 @@ GameWindow::GameWindow(QWidget *parent)
     , m_isZombieAttacking(false) // 僵尸未在攻击
     , m_attackTimer(new QTimer(this)) // 攻击动画定时器
     
+    // 背景图片相关
+    , m_menuBackground() // 菜单背景图片
+    
     // 其他组件
     , m_judger(ROWS, COLS) // 连接判断器
     , m_imagesLoaded(false) // 图片加载标志
@@ -192,6 +195,12 @@ GameWindow::GameWindow(QWidget *parent)
     
     // 初始化GIF动图
     initializeZombieAnimation();
+    
+    // 加载菜单背景图片
+    loadMenuBackground();
+    
+    // 根据背景图片比例调整窗口大小
+    adjustWindowSizeToBackground();
     
     // 初始化紧凑菜单
     initializeCompactMenu();
@@ -363,6 +372,32 @@ void GameWindow::drawTitle(QPainter& painter)
 // 绘制菜单选项
 void GameWindow::drawOptions(QPainter& painter)
 {
+    // 绘制菜单背景图片
+    if (!m_menuBackground.isNull()) {
+        // 获取窗口尺寸
+        int windowWidth = width();
+        int windowHeight = height();
+        
+        // 使用Qt::KeepAspectRatioByExpanding确保图片完全填满窗口，边框完全贴合
+        QPixmap scaledBackground = m_menuBackground.scaled(
+            QSize(windowWidth, windowHeight), 
+            Qt::KeepAspectRatioByExpanding, // 保持宽高比，完全填满窗口
+            Qt::SmoothTransformation
+        );
+        
+        // 计算绘制位置，使图片居中（可能会超出窗口边界）
+        QPoint drawPos(0, 0);
+        if (scaledBackground.width() > windowWidth) {
+            drawPos.setX((scaledBackground.width() - windowWidth) / 2);
+        }
+        if (scaledBackground.height() > windowHeight) {
+            drawPos.setY((scaledBackground.height() - windowHeight) / 2);
+        }
+        
+        // 绘制背景图片（只绘制窗口范围内的部分）
+        painter.drawPixmap(0, 0, scaledBackground, drawPos.x(), drawPos.y(), windowWidth, windowHeight);
+    }
+    
     if (m_showLoadSlots) {
         // 显示载入存档槽位选择
         static const int startY = 150; // 设置菜单选项起始位置
@@ -3033,6 +3068,70 @@ void GameWindow::initializeZombieAnimation()
         }
         update();
     });
+}
+
+// 加载菜单背景图片
+void GameWindow::loadMenuBackground()
+{
+    // 加载背景图片
+    m_menuBackground = QPixmap(":/background.jpg");
+    
+    if (m_menuBackground.isNull()) {
+        // 如果加载失败，创建一个默认背景
+        m_menuBackground = QPixmap(800, 600);
+        m_menuBackground.fill(QColor(50, 50, 100)); // 深蓝色背景
+    } else {
+        // 输出背景图片信息用于调试
+        qDebug() << "Background image loaded successfully:";
+        qDebug() << "Size:" << m_menuBackground.size();
+        qDebug() << "Aspect ratio:" << (double)m_menuBackground.width() / m_menuBackground.height();
+    }
+}
+
+// 根据背景图片比例调整窗口大小
+void GameWindow::adjustWindowSizeToBackground()
+{
+    if (!m_menuBackground.isNull()) {
+        // 获取背景图片尺寸
+        QSize imageSize = m_menuBackground.size();
+        double imageRatio = (double)imageSize.width() / imageSize.height();
+        
+        // 设置基础窗口大小
+        int baseWidth = 1000;
+        int baseHeight = 700;
+        
+        // 根据图片比例计算最佳窗口尺寸
+        int newWidth, newHeight;
+        if (imageRatio > (double)baseWidth / baseHeight) {
+            // 图片更宽，以宽度为准
+            newWidth = baseWidth;
+            newHeight = (int)(baseWidth / imageRatio);
+        } else {
+            // 图片更高，以高度为准
+            newHeight = baseHeight;
+            newWidth = (int)(baseHeight * imageRatio);
+        }
+        
+        // 确保窗口不会太小
+        if (newWidth < 800) {
+            newWidth = 800;
+            newHeight = (int)(800 / imageRatio);
+        }
+        if (newHeight < 600) {
+            newHeight = 600;
+            newWidth = (int)(600 * imageRatio);
+        }
+        
+        // 设置窗口大小
+        resize(newWidth, newHeight);
+        
+        // 输出调试信息
+        qDebug() << "Window size adjusted to match background image:";
+        qDebug() << "Image size:" << imageSize;
+        qDebug() << "Image ratio:" << imageRatio;
+        qDebug() << "Window size:" << newWidth << "x" << newHeight;
+        qDebug() << "Window ratio:" << (double)newWidth / newHeight;
+    }
 }
 
 // 触发僵尸攻击动画

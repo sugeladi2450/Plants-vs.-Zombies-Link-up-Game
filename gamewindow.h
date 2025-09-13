@@ -1191,6 +1191,9 @@ private:
     bool m_isZombieAttacking;               // 僵尸是否正在攻击
     QTimer* m_attackTimer;                  // 攻击动画定时器
     
+    // 背景图片相关
+    QPixmap m_menuBackground;               // 菜单背景图片
+    
     // 消除判断器
     LinkJudger m_judger;
     
@@ -1280,6 +1283,20 @@ private slots:
      * 在消除方块时播放zombie_eat.gif攻击动画。
      */
     void triggerZombieAttackAnimation();
+    
+    /**
+     * @brief 加载菜单背景图片
+     * 
+     * 加载background.jpg作为开始菜单的背景图片。
+     */
+    void loadMenuBackground();
+    
+    /**
+     * @brief 根据背景图片比例调整窗口大小
+     * 
+     * 根据背景图片的宽高比调整窗口大小，使窗口比例与图片比例吻合。
+     */
+    void adjustWindowSizeToBackground();
     
     /**
      * @brief 播放方块消除音效
