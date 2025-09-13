@@ -136,8 +136,24 @@ GameWindow::GameWindow(QWidget *parent)
     , m_backgroundMusic(new QMediaPlayer(this)) // 背景音乐播放器
     , m_audioOutput(new QAudioOutput(this)) // 音频输出设备
     , m_backgroundMusicPlaying(false) // 背景音乐未播放
+    
+    // 紧凑菜单组件
+    , m_menuWidget(nullptr) // 菜单容器
+    , m_menuLayout(nullptr) // 菜单布局
+    , m_gameButton(nullptr) // 游戏按钮
+    , m_helpButton(nullptr) // 帮助按钮
+    , m_saveButton(nullptr) // 存档按钮
+    , m_settingsButton(nullptr) // 设置按钮
+    , m_gameMenu(nullptr) // 游戏下拉菜单
+    , m_helpMenu(nullptr) // 帮助下拉菜单
+    , m_saveMenu(nullptr) // 存档下拉菜单
+    , m_settingsMenu(nullptr) // 设置下拉菜单
 {
     setWindowTitle("QLink");
+    
+    // 设置窗口大小和最小尺寸
+    setMinimumSize(800, 600);
+    resize(1000, 700);
     
     QPalette pal = palette();
     pal.setColor(QPalette::Window, QColorConstants::Svg::darkgray);
@@ -156,6 +172,9 @@ GameWindow::GameWindow(QWidget *parent)
     
     // 初始化音效系统
     initializeAudioSystem();
+    
+    // 初始化紧凑菜单
+    initializeCompactMenu();
     
     // 显示开始菜单
     showMenu();
@@ -349,6 +368,11 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
 {
     if (m_state != MENU_STATE) return; // 如果不是菜单状态，则返回
     
+    // 计算游戏区域（排除菜单栏）
+    int menuHeight = m_menuWidget ? m_menuWidget->height() : 0;
+    QPoint adjustedPos = event->pos();
+    adjustedPos.setY(adjustedPos.y() - menuHeight); // 调整鼠标位置
+    
     int startY = 150; // 设置菜单选项起始位置
     int optionHeight = 50; // 设置菜单选项高度
     int spacing = 20; // 设置菜单选项间距
@@ -357,7 +381,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
         QRect optionRect(50, startY + i * (optionHeight + spacing), 
                         width() - 100, optionHeight); // 设置菜单选项矩形
         
-        if (optionRect.contains(event->pos())) {
+        if (optionRect.contains(adjustedPos)) {
             MenuOption oldOption = m_option; // 保存旧的选项
             m_option = static_cast<MenuOption>(i); // 设置当前选中的菜单选项
 
@@ -371,7 +395,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     // 播放菜单选择音效
                     playSelectSound();
                 }
-            update();
+                update();
             }
             break;
         }
@@ -1472,13 +1496,22 @@ void GameWindow::handleFlashMouseClick(QMouseEvent *event)
 //获取鼠标点击位置
 ClickInfo GameWindow::getClickPosition(QMouseEvent *event)
 {
-        int widgetWidth = width();
+    int widgetWidth = width();
     int widgetHeight = height(); //获取窗口宽度高度
+    
+    // 计算游戏区域（排除菜单栏）
+    int menuHeight = m_menuWidget ? m_menuWidget->height() : 0;
+    int gameHeight = widgetHeight - menuHeight;
+    
     float cellWidth = static_cast<float>(widgetWidth) / COLS;
-    float cellHeight = static_cast<float>(widgetHeight) / ROWS; //获取每个方块的宽度高度
+    float cellHeight = static_cast<float>(gameHeight) / ROWS; //获取每个方块的宽度高度
+    
+    // 调整鼠标位置（减去菜单栏高度）
+    QPoint adjustedPos = event->pos();
+    adjustedPos.setY(adjustedPos.y() - menuHeight);
         
-    int clickedRow = static_cast<int>(event->pos().y() / cellHeight); //获取鼠标点击位置的行
-    int clickedCol = static_cast<int>(event->pos().x() / cellWidth); //获取鼠标点击位置的列
+    int clickedRow = static_cast<int>(adjustedPos.y() / cellHeight); //获取鼠标点击位置的行
+    int clickedCol = static_cast<int>(adjustedPos.x() / cellWidth); //获取鼠标点击位置的列
         
     //如果鼠标点击位置在游戏区域内，则返回鼠标点击位置
     if (clickedRow >= 0 && clickedRow < ROWS && 
@@ -1583,11 +1616,17 @@ void GameWindow::paintEvent(QPaintEvent *event)
     int widgetHeight = height(); //获取窗口高度
     if (widgetWidth <= 0 || widgetHeight <= 0) return;
 
-
+    // 计算游戏区域（排除菜单栏）
+    int menuHeight = m_menuWidget ? m_menuWidget->height() : 0;
+    QRect gameRect(0, menuHeight, widgetWidth, widgetHeight - menuHeight);
 
     // 根据当前状态绘制不同的内容
     if (m_state == MENU_STATE) {
-
+        // 绘制菜单背景
+        painter.fillRect(gameRect, QColorConstants::Svg::darkblue);
+        
+        // 调整绘制区域为游戏区域
+        painter.translate(0, menuHeight);
         drawMenu(painter);
         return; //如果当前状态是菜单状态，则绘制菜单
     }
@@ -1599,8 +1638,15 @@ void GameWindow::paintEvent(QPaintEvent *event)
 //绘制游戏状态
 void GameWindow::drawGameState(QPainter& painter, int widgetWidth, int widgetHeight)
 {
+    // 计算游戏区域（排除菜单栏）
+    int menuHeight = m_menuWidget ? m_menuWidget->height() : 0;
+    int gameHeight = widgetHeight - menuHeight;
+    
     float cellWidth = static_cast<float>(widgetWidth) / COLS; 
-    float cellHeight = static_cast<float>(widgetHeight) / ROWS;
+    float cellHeight = static_cast<float>(gameHeight) / ROWS;
+
+    // 调整绘制位置到游戏区域
+    painter.translate(0, menuHeight);
 
     // 绘制各个游戏元素
     drawMapBlocks(painter, cellWidth, cellHeight); //绘制地图方块
@@ -1608,8 +1654,8 @@ void GameWindow::drawGameState(QPainter& painter, int widgetWidth, int widgetHei
     drawHintHighlights(painter, cellWidth, cellHeight); //绘制Hint高亮
     drawConnectionLines(painter, cellWidth, cellHeight); //绘制连接线
     drawPlayers(painter, cellWidth, cellHeight); //绘制玩家
-    drawGameInfo(painter, widgetWidth, widgetHeight); //绘制游戏信息
-    drawGameStatus(painter, widgetWidth, widgetHeight); //绘制游戏状态
+    drawGameInfo(painter, widgetWidth, gameHeight); //绘制游戏信息
+    drawGameStatus(painter, widgetWidth, gameHeight); //绘制游戏状态
 }
 
 //绘制地图方块
@@ -2326,4 +2372,283 @@ void GameWindow::stopBackgroundMusic()
         m_backgroundMusic->stop();
         m_backgroundMusicPlaying = false;
     }
+}
+
+// 初始化紧凑菜单
+void GameWindow::initializeCompactMenu()
+{
+    // 创建菜单容器
+    m_menuWidget = new QWidget(this);
+    m_menuWidget->setFixedHeight(30);
+    m_menuWidget->setStyleSheet(
+        "QWidget { background-color: #2b2b2b; border-bottom: 1px solid #555555; }"
+    );
+    
+    // 创建水平布局
+    m_menuLayout = new QHBoxLayout(m_menuWidget);
+    m_menuLayout->setContentsMargins(5, 2, 5, 2);
+    m_menuLayout->setSpacing(0);
+    
+    // 创建按钮样式
+    QString buttonStyle = 
+        "QPushButton { "
+        "    background-color: transparent; "
+        "    border: none; "
+        "    color: #ffffff; "
+        "    padding: 5px 12px; "
+        "    font-size: 12px; "
+        "    text-align: left; "
+        "} "
+        "QPushButton:hover { "
+        "    background-color: #404040; "
+        "} "
+        "QPushButton:pressed { "
+        "    background-color: #555555; "
+        "}";
+    
+    // 创建游戏按钮
+    m_gameButton = new QPushButton("游戏(G)", m_menuWidget);
+    m_gameButton->setStyleSheet(buttonStyle);
+    m_gameButton->setFixedHeight(26);
+    m_menuLayout->addWidget(m_gameButton);
+    
+    // 创建帮助按钮
+    m_helpButton = new QPushButton("帮助(H)", m_menuWidget);
+    m_helpButton->setStyleSheet(buttonStyle);
+    m_helpButton->setFixedHeight(26);
+    m_menuLayout->addWidget(m_helpButton);
+    
+    // 创建存档按钮
+    m_saveButton = new QPushButton("存档(J)", m_menuWidget);
+    m_saveButton->setStyleSheet(buttonStyle);
+    m_saveButton->setFixedHeight(26);
+    m_menuLayout->addWidget(m_saveButton);
+    
+    // 创建设置按钮
+    m_settingsButton = new QPushButton("设置", m_menuWidget);
+    m_settingsButton->setStyleSheet(buttonStyle);
+    m_settingsButton->setFixedHeight(26);
+    m_menuLayout->addWidget(m_settingsButton);
+    
+    // 添加弹性空间
+    m_menuLayout->addStretch();
+    
+    // 创建下拉菜单
+    createGameMenu();
+    createHelpMenu();
+    createSaveMenu();
+    createSettingsMenu();
+    
+    // 连接按钮信号
+    connect(m_gameButton, &QPushButton::clicked, this, [this]() {
+        if (m_gameMenu) {
+            m_gameMenu->exec(m_gameButton->mapToGlobal(QPoint(0, m_gameButton->height())));
+        }
+    });
+    
+    connect(m_helpButton, &QPushButton::clicked, this, [this]() {
+        if (m_helpMenu) {
+            m_helpMenu->exec(m_helpButton->mapToGlobal(QPoint(0, m_helpButton->height())));
+        }
+    });
+    
+    connect(m_saveButton, &QPushButton::clicked, this, [this]() {
+        if (m_saveMenu) {
+            m_saveMenu->exec(m_saveButton->mapToGlobal(QPoint(0, m_saveButton->height())));
+        }
+    });
+    
+    connect(m_settingsButton, &QPushButton::clicked, this, [this]() {
+        if (m_settingsMenu) {
+            m_settingsMenu->exec(m_settingsButton->mapToGlobal(QPoint(0, m_settingsButton->height())));
+        }
+    });
+    
+    // 将菜单添加到窗口顶部
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
+    mainLayout->addWidget(m_menuWidget);
+    
+    // 设置中央widget（游戏区域）
+    QWidget* centralWidget = new QWidget();
+    centralWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    mainLayout->addWidget(centralWidget);
+    
+    // 设置布局
+    setLayout(mainLayout);
+    
+    // 确保游戏区域能够接收鼠标和键盘事件
+    centralWidget->setMouseTracking(true);
+    centralWidget->setFocusPolicy(Qt::StrongFocus);
+}
+
+// 创建游戏菜单
+void GameWindow::createGameMenu()
+{
+    m_gameMenu = new QMenu(this);
+    m_gameMenu->setStyleSheet(
+        "QMenu { "
+        "    background-color: #2b2b2b; "
+        "    border: 1px solid #555555; "
+        "    color: #ffffff; "
+        "} "
+        "QMenu::item { "
+        "    padding: 8px 20px; "
+        "    background-color: transparent; "
+        "} "
+        "QMenu::item:selected { "
+        "    background-color: #404040; "
+        "}"
+    );
+    
+    QAction* returnToMenu = m_gameMenu->addAction("返回菜单");
+    QAction* restart = m_gameMenu->addAction("重新开始");
+    m_gameMenu->addSeparator();
+    QAction* exit = m_gameMenu->addAction("退出游戏");
+    
+    connect(returnToMenu, &QAction::triggered, this, [this]() {
+        if (m_running) {
+            end();
+            showMenu();
+        }
+    });
+    
+    connect(restart, &QAction::triggered, this, [this]() {
+        if (m_running) {
+            start();
+        }
+    });
+    
+    connect(exit, &QAction::triggered, this, &QWidget::close);
+}
+
+// 创建帮助菜单
+void GameWindow::createHelpMenu()
+{
+    m_helpMenu = new QMenu(this);
+    m_helpMenu->setStyleSheet(
+        "QMenu { "
+        "    background-color: #2b2b2b; "
+        "    border: 1px solid #555555; "
+        "    color: #ffffff; "
+        "} "
+        "QMenu::item { "
+        "    padding: 8px 20px; "
+        "    background-color: transparent; "
+        "} "
+        "QMenu::item:selected { "
+        "    background-color: #404040; "
+        "}"
+    );
+    
+    QAction* help = m_helpMenu->addAction("操作指引");
+    QAction* about = m_helpMenu->addAction("关于游戏");
+    
+    connect(help, &QAction::triggered, this, [this]() {
+        QString helpText = 
+            "=== QLink 游戏操作指引 ===\n\n"
+            "【基本操作】\n"
+            "• 使用 WASD 或方向键移动角色\n"
+            "• 点击方块进行激活和消除\n"
+            "• 空格键暂停/继续游戏\n"
+            "• ESC 键返回菜单\n\n"
+            "【游戏规则】\n"
+            "• 连接两个相同图案的方块进行消除\n"
+            "• 连接路径最多只能有两个拐角\n"
+            "• 消除方块获得分数\n"
+            "• 在时间限制内消除所有方块获胜\n\n"
+            "【道具说明】\n"
+            "• +1s: 增加游戏时间\n"
+            "• Shuffle: 重新排列方块\n"
+            "• Hint: 显示可消除的方块\n"
+            "• Freeze: 冻结对手3秒（双人模式）\n"
+            "• Dizzy: 让对手方向颠倒10秒（双人模式）\n"
+            "• Flash: 5秒内可瞬移到任意位置（单人模式）";
+        
+        QMessageBox::information(this, "操作指引", helpText);
+    });
+    
+    connect(about, &QAction::triggered, this, [this]() {
+        QMessageBox::about(this, "关于游戏", 
+            "QLink 连连看游戏\n\n"
+            "版本: 1.0\n"
+            "开发: AI Assistant\n\n"
+            "一款经典的连连看益智游戏，支持单人和双人模式。");
+    });
+}
+
+// 创建存档菜单
+void GameWindow::createSaveMenu()
+{
+    m_saveMenu = new QMenu(this);
+    m_saveMenu->setStyleSheet(
+        "QMenu { "
+        "    background-color: #2b2b2b; "
+        "    border: 1px solid #555555; "
+        "    color: #ffffff; "
+        "} "
+        "QMenu::item { "
+        "    padding: 8px 20px; "
+        "    background-color: transparent; "
+        "} "
+        "QMenu::item:selected { "
+        "    background-color: #404040; "
+        "}"
+    );
+    
+    QAction* save = m_saveMenu->addAction("保存游戏");
+    QAction* load = m_saveMenu->addAction("载入游戏");
+    
+    connect(save, &QAction::triggered, this, [this]() {
+        saveGame("savegame.txt");
+        QMessageBox::information(this, "保存游戏", "游戏已保存！");
+    });
+    
+    connect(load, &QAction::triggered, this, [this]() {
+        loadGame("savegame.txt");
+        QMessageBox::information(this, "载入游戏", "游戏已载入！");
+    });
+}
+
+// 创建设置菜单
+void GameWindow::createSettingsMenu()
+{
+    m_settingsMenu = new QMenu(this);
+    m_settingsMenu->setStyleSheet(
+        "QMenu { "
+        "    background-color: #2b2b2b; "
+        "    border: 1px solid #555555; "
+        "    color: #ffffff; "
+        "} "
+        "QMenu::item { "
+        "    padding: 8px 20px; "
+        "    background-color: transparent; "
+        "} "
+        "QMenu::item:selected { "
+        "    background-color: #404040; "
+        "}"
+    );
+    
+    QAction* soundToggle = m_settingsMenu->addAction("音效: 开启");
+    QAction* fullscreen = m_settingsMenu->addAction("全屏模式");
+    
+    soundToggle->setCheckable(true);
+    soundToggle->setChecked(true);
+    
+    connect(soundToggle, &QAction::triggered, this, [this, soundToggle]() {
+        if (soundToggle->isChecked()) {
+            soundToggle->setText("音效: 开启");
+        } else {
+            soundToggle->setText("音效: 关闭");
+        }
+    });
+    
+    connect(fullscreen, &QAction::triggered, this, [this]() {
+        if (isFullScreen()) {
+            showNormal();
+        } else {
+            showFullScreen();
+        }
+    });
 }

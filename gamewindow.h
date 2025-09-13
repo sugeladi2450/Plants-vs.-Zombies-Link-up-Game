@@ -17,6 +17,12 @@
 #include <QSoundEffect>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QWidget>
 #include "linkjudger.h"
 
 /**
@@ -1122,6 +1128,18 @@ private:
     QMediaPlayer* m_backgroundMusic;     ///< 背景音乐播放器
     QAudioOutput* m_audioOutput;         ///< 音频输出设备
     bool m_backgroundMusicPlaying;       ///< 背景音乐是否正在播放
+    
+    // 紧凑菜单系统
+    QWidget* m_menuWidget;               ///< 菜单容器
+    QHBoxLayout* m_menuLayout;           ///< 菜单布局
+    QPushButton* m_gameButton;           ///< 游戏按钮
+    QPushButton* m_helpButton;           ///< 帮助按钮
+    QPushButton* m_saveButton;           ///< 存档按钮
+    QPushButton* m_settingsButton;       ///< 设置按钮
+    QMenu* m_gameMenu;                   ///< 游戏下拉菜单
+    QMenu* m_helpMenu;                   ///< 帮助下拉菜单
+    QMenu* m_saveMenu;                   ///< 存档下拉菜单
+    QMenu* m_settingsMenu;               ///< 设置下拉菜单
 
 private slots:
     /**
@@ -1213,6 +1231,42 @@ private slots:
      * 停止背景音乐播放。
      */
     void stopBackgroundMusic();
+    
+    // 紧凑菜单系统
+    /**
+     * @brief 初始化紧凑菜单
+     * 
+     * 创建并设置紧凑的菜单栏。
+     */
+    void initializeCompactMenu();
+    
+    /**
+     * @brief 创建游戏菜单
+     * 
+     * 创建游戏相关的下拉菜单。
+     */
+    void createGameMenu();
+    
+    /**
+     * @brief 创建帮助菜单
+     * 
+     * 创建帮助相关的下拉菜单。
+     */
+    void createHelpMenu();
+    
+    /**
+     * @brief 创建存档菜单
+     * 
+     * 创建存档相关的下拉菜单。
+     */
+    void createSaveMenu();
+    
+    /**
+     * @brief 创建设置菜单
+     * 
+     * 创建设置相关的下拉菜单。
+     */
+    void createSettingsMenu();
     
 };
 
