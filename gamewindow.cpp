@@ -1,5 +1,4 @@
 #include "gamewindow.h"
-#include <QDebug>
 #include <QCoreApplication>
 #include <QDir>
 
@@ -792,7 +791,6 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     } else { // 不点击左键
                         // 鼠标移动：只更新高亮显示
                         if (oldSlot != m_selectedSaveSlot) { // 如果选项改变了
-                            qDebug() << "Save slot changed from" << oldSlot << "to" << m_selectedSaveSlot;
                             // 播放菜单选择音效
                             playSelectSound();
                         }
@@ -841,7 +839,6 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     } else { // 不点击左键
                         // 鼠标移动：只更新高亮显示
                         if (oldSlot != m_selectedSaveSlot) { // 如果选项改变了
-                            qDebug() << "Save slot changed from" << oldSlot << "to" << m_selectedSaveSlot;
                             // 播放菜单选择音效
                             playSelectSound();
                         }
@@ -890,7 +887,6 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     } else { // 不点击左键
                         // 鼠标移动：只更新高亮显示
                         if (oldSlot != m_selectedSaveSlot) { // 如果选项改变了
-                            qDebug() << "Save slot changed from" << oldSlot << "to" << m_selectedSaveSlot;
                             // 播放菜单选择音效
                             playSelectSound();
                         }
@@ -939,7 +935,6 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     } else { // 不点击左键
                         // 鼠标移动：只更新高亮显示
                         if (oldOption != m_gameModeOption) { // 如果选项改变了
-                            qDebug() << "Game mode option changed from" << oldOption << "to" << m_gameModeOption;
                             // 播放菜单选择音效
                             playSelectSound();
                         }
@@ -969,7 +964,6 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                 } else { // 不点击左键
                     // 鼠标移动：只更新高亮显示
                     if (oldOption != m_option) { // 如果选项改变了
-                        qDebug() << "Menu option changed from" << oldOption << "to" << m_option;
                         // 播放菜单选择音效
                         playSelectSound();
                     }
@@ -2799,13 +2793,10 @@ void GameWindow::loadBlockImages()
         m_blockImages.push_back(pixmap);
         if (!pixmap.isNull()) {
             ++loaded;
-            qDebug() << "Successfully loaded image:" << imagePath;
         } else {
-            qDebug() << "Failed to load image:" << imagePath;
         }
     } 
     m_imagesLoaded = (loaded == 8);
-    qDebug() << "Images loaded:" << loaded << "/8, m_imagesLoaded:" << m_imagesLoaded;
     
 }
 
@@ -2813,7 +2804,6 @@ void GameWindow::loadBlockImages()
 void GameWindow::drawBlockImage(QPainter& painter, const QRectF& rect, int blockType, bool isActivated)
 {
     if (!m_imagesLoaded) { 
-        qDebug() << "Images not loaded, drawing colored block for type:" << blockType;
         // 绘制彩色方块作为备用
         QColor colors[] = {Qt::red, Qt::green, Qt::blue, Qt::yellow, Qt::magenta, Qt::cyan, Qt::darkGreen, Qt::darkBlue};
         painter.setBrush(colors[(blockType - 1) % 8]);
