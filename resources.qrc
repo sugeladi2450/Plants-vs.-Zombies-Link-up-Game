@@ -13,9 +13,12 @@
         <file>select.wav</file>
         <file>win.wav</file>
         <file>music.wav</file>
+        <file>music2.mp3</file>
         <file>zombie.gif</file>
         <file>zombie_eat.gif</file>
         <file>background.jpg</file>
         <file>map.jpg</file>
+        <file>save.jpg</file>
+        <file>brain.png</file>
     </qresource>
 </RCC>

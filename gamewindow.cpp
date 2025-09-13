@@ -140,6 +140,8 @@ GameWindow::GameWindow(QWidget *parent)
     // 背景图片相关
     , m_menuBackground() // 菜单背景图片
     , m_gameBackground() // 游戏背景图片
+    , m_saveBackground() // 保存/载入背景图片
+    , m_brainPropImage() // 大脑道具图片
     
     // 其他组件
     , m_judger(ROWS, COLS) // 连接判断器
@@ -153,8 +155,11 @@ GameWindow::GameWindow(QWidget *parent)
     
     // 背景音乐组件
     , m_backgroundMusic(new QMediaPlayer(this)) // 背景音乐播放器
+    , m_gameMusic(new QMediaPlayer(this)) // 游戏背景音乐播放器
     , m_audioOutput(new QAudioOutput(this)) // 音频输出设备
+    , m_gameAudioOutput(new QAudioOutput(this)) // 游戏音频输出设备
     , m_backgroundMusicPlaying(false) // 背景音乐未播放
+    , m_gameMusicPlaying(false) // 游戏背景音乐未播放
     
     // 紧凑菜单组件
     , m_menuWidget(nullptr) // 菜单容器
@@ -203,6 +208,12 @@ GameWindow::GameWindow(QWidget *parent)
     // 加载游戏背景图片
     loadGameBackground();
     
+    // 加载保存/载入背景图片
+    loadSaveBackground();
+    
+    // 加载大脑道具图片
+    loadBrainPropImage();
+    
     // 根据背景图片比例调整窗口大小
     adjustWindowSizeToBackground();
     
@@ -226,6 +237,9 @@ void GameWindow::showMenu()
     
     // 加载方块图片
     loadBlockImages();
+    
+    // 停止游戏背景音乐
+    stopGameMusic();
     
     // 播放背景音乐
     playBackgroundMusic();
@@ -371,6 +385,111 @@ void GameWindow::drawTitle(QPainter& painter)
     QRect titleRect = rect(); // 设置标题矩形
     titleRect.setHeight(100); // 设置标题矩形高度
     painter.drawText(titleRect, Qt::AlignCenter, "QLink 连连看游戏"); // 设置标题文字
+}
+
+// 绘制存档菜单选项（不绘制背景图片）
+void GameWindow::drawSaveOptions(QPainter& painter)
+{
+    if (m_showLoadSlots) {
+        // 显示载入存档槽位选择
+        static const int startY = 150; // 设置菜单选项起始位置
+        static const int optionHeight = 50; // 设置菜单选项高度
+        static const int spacing = 20; // 设置菜单选项间距
+        static const int cornerRadius = 10; // 设置菜单选项圆角
+        static const int selectionOffset = 5; // 设置菜单选项选中偏移
+        
+        // 绘制返回按钮和存档槽位
+        QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
+        
+        for (int i = 0; i < 4; ++i) {
+        QRect optionRect(50, startY + i * (optionHeight + spacing), 
+                            width() - 100, optionHeight); // 设置菜单选项矩形
+            
+            // 设置菜单选项选中状态
+            bool isSelected = false;
+            if (i == 0) {
+                // 返回按钮
+                isSelected = m_backButtonSelected;
+            } else {
+                // 存档槽位 - 只有在返回按钮未选中时才可能被选中
+                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
+            }
+            
+            // 选中项放大矩形
+        if (isSelected) {
+                optionRect.adjust(-selectionOffset, -selectionOffset, 
+                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
+            }
+            
+            drawOption(painter, optionRect, options[i], isSelected);
+        }
+    } else if (m_showSaveSlots) {
+        // 显示保存存档槽位选择
+        static const int startY = 150; // 设置菜单选项起始位置
+        static const int optionHeight = 50; // 设置菜单选项高度
+        static const int spacing = 20; // 设置菜单选项间距
+        static const int cornerRadius = 10; // 设置菜单选项圆角
+        static const int selectionOffset = 5; // 设置菜单选项选中偏移
+        
+        // 绘制返回按钮和存档槽位
+        QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
+        
+        for (int i = 0; i < 4; ++i) {
+        QRect optionRect(50, startY + i * (optionHeight + spacing), 
+                            width() - 100, optionHeight); // 设置菜单选项矩形
+            
+            // 设置菜单选项选中状态
+            bool isSelected = false;
+            if (i == 0) {
+                // 返回按钮
+                isSelected = m_backButtonSelected;
+            } else {
+                // 存档槽位 - 只有在返回按钮未选中时才可能被选中
+                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
+            }
+            
+            // 选中项放大矩形
+        if (isSelected) {
+                optionRect.adjust(-selectionOffset, -selectionOffset, 
+                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
+            }
+            
+            drawOption(painter, optionRect, options[i], isSelected);
+        }
+    } else if (m_showDeleteSlots) {
+        // 显示删除存档槽位选择
+        static const int startY = 150; // 设置菜单选项起始位置
+        static const int optionHeight = 50; // 设置菜单选项高度
+        static const int spacing = 20; // 设置菜单选项间距
+        static const int cornerRadius = 10; // 设置菜单选项圆角
+        static const int selectionOffset = 5; // 设置菜单选项选中偏移
+        
+        // 绘制返回按钮和存档槽位
+        QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
+        
+        for (int i = 0; i < 4; ++i) {
+        QRect optionRect(50, startY + i * (optionHeight + spacing), 
+                            width() - 100, optionHeight); // 设置菜单选项矩形
+            
+            // 设置菜单选项选中状态
+            bool isSelected = false;
+            if (i == 0) {
+                // 返回按钮
+                isSelected = m_backButtonSelected;
+            } else {
+                // 存档槽位 - 只有在返回按钮未选中时才可能被选中
+                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
+            }
+            
+            // 选中项放大矩形
+        if (isSelected) {
+                optionRect.adjust(-selectionOffset, -selectionOffset, 
+                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
+            }
+            
+            drawOption(painter, optionRect, options[i], isSelected);
+        }
+    }
 }
 
 // 绘制菜单选项
@@ -1041,6 +1160,9 @@ void GameWindow::start()
     // 停止背景音乐
     stopBackgroundMusic();
     
+    // 播放游戏背景音乐
+    playGameMusic();
+    
     m_hintTime = 0;
     m_hintR1 = m_hintC1 = m_hintR2 = m_hintC2 = -1; // 重置提示位置
     m_activeRow = m_activeCol = -1; // 重置激活位置
@@ -1088,6 +1210,9 @@ void GameWindow::end()
     m_running = false;
     stopAllTimers(); // 停止所有计时器
     resetGameEffects(); // 重置游戏效果
+    
+    // 停止游戏背景音乐
+    stopGameMusic();
     
     // 播放游戏胜利音效
     playWinSound();
@@ -1319,6 +1444,9 @@ void GameWindow::checkItemCollision(Player& player)
             m_items.erase(it); //删除碰撞的道具
             // 播放道具拾取音效
             playItemSound();
+            
+            // 触发僵尸攻击动画（吃道具）
+            triggerZombieAttackAnimation();
     }
 }
 
@@ -2241,6 +2369,17 @@ void GameWindow::paintEvent(QPaintEvent *event)
     int menuHeight = m_menuWidget ? m_menuWidget->height() : 0;
     QRect gameRect(0, menuHeight, widgetWidth, widgetHeight - menuHeight);
 
+    // 检查是否显示存档槽位选择界面（优先检查，无论当前状态如何）
+    if (m_showSaveSlots || m_showLoadSlots || m_showDeleteSlots) {
+        // 绘制保存/载入背景图片（使用save.jpg）
+        drawSaveBackground(painter, widgetWidth, widgetHeight - menuHeight);
+        
+        // 调整绘制区域为游戏区域
+        painter.translate(0, menuHeight);
+        drawSaveMenu(painter);
+        return;
+    }
+
     // 根据当前状态绘制不同的内容
     if (m_state == MENU_STATE) {
         // 绘制菜单背景
@@ -2252,19 +2391,30 @@ void GameWindow::paintEvent(QPaintEvent *event)
         return; //如果当前状态是菜单状态，则绘制菜单
     }
 
-    // 检查是否显示存档槽位选择界面
-    if (m_showSaveSlots || m_showLoadSlots || m_showDeleteSlots) {
-        // 绘制存档槽位选择背景
-        painter.fillRect(gameRect, QColorConstants::Svg::darkblue);
-        
-        // 调整绘制区域为游戏区域
-        painter.translate(0, menuHeight);
-        drawMenu(painter);
-        return;
-    }
-
     // 绘制游戏状态
     drawGameState(painter, widgetWidth, widgetHeight); 
+}
+
+//绘制存档菜单（不绘制背景图片）
+void GameWindow::drawSaveMenu(QPainter& painter)
+{
+    // 抗锯齿
+    painter.setRenderHint(QPainter::Antialiasing, true); // 图形抗锯齿
+    painter.setRenderHint(QPainter::TextAntialiasing, true); // 文本抗锯齿
+    
+    // 绘制标题
+    drawTitle(painter);
+    
+    // 绘制菜单选项（不绘制背景图片）
+    drawSaveOptions(painter);
+    
+    // 绘制操作提示
+    painter.setPen(QColorConstants::Svg::white); // 设置白色画笔
+    painter.setFont(QFont("Arial", 12)); // 设置字体
+    QRect hintRect = rect(); // 设置提示矩形
+    hintRect.setTop(height() - 100); // 设置提示矩形顶部位置
+    painter.drawText(hintRect, Qt::AlignCenter, // 设置提示文字居中
+                    "使用 ↑↓ 键选择，Enter 键确认，或使用鼠标点击选项"); // 设置提示文字
 }
 
 //绘制游戏状态
@@ -2341,6 +2491,55 @@ void GameWindow::drawGameBackground(QPainter& painter, int widgetWidth, int widg
     }
 }
 
+//绘制保存/载入背景
+void GameWindow::drawSaveBackground(QPainter& painter, int widgetWidth, int widgetHeight)
+{
+    // 绘制保存/载入背景图片
+    if (!m_saveBackground.isNull()) {
+        // 计算背景图片的缩放比例，保持宽高比
+        QSize imageSize = m_saveBackground.size();
+        double imageRatio = (double)imageSize.width() / imageSize.height();
+        double widgetRatio = (double)widgetWidth / widgetHeight;
+        
+        QPixmap scaledBackground;
+        QPoint drawPos(0, 0);
+        
+        if (imageRatio > widgetRatio) {
+            // 图片更宽，以高度为准进行缩放
+            int scaledHeight = widgetHeight;
+            int scaledWidth = static_cast<int>(widgetHeight * imageRatio);
+            scaledBackground = m_saveBackground.scaled(scaledWidth, scaledHeight, 
+                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            
+            // 水平居中
+            if (scaledBackground.width() > widgetWidth) {
+                drawPos.setX((scaledBackground.width() - widgetWidth) / 2);
+            }
+        } else {
+            // 图片更高，以宽度为准进行缩放
+            int scaledWidth = widgetWidth;
+            int scaledHeight = static_cast<int>(widgetWidth / imageRatio);
+            scaledBackground = m_saveBackground.scaled(scaledWidth, scaledHeight, 
+                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            
+            // 垂直居中
+            if (scaledBackground.height() > widgetHeight) {
+                drawPos.setY((scaledBackground.height() - widgetHeight) / 2);
+            }
+        }
+        
+        // 绘制背景图片（只绘制窗口范围内的部分）
+        painter.drawPixmap(0, 0, scaledBackground, drawPos.x(), drawPos.y(), widgetWidth, widgetHeight);
+        
+        // 添加一个半透明的遮罩层，让背景图片稍微暗一些，突出菜单选项
+        painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(0, 0, 0, 40));
+    } else {
+        // 如果背景图片加载失败，使用明显的默认背景色（红色，便于识别问题）
+        painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(255, 0, 0));
+        qDebug() << "Drawing RED default background for save/load interface";
+    }
+}
+
 //绘制地图方块
 void GameWindow::drawMapBlocks(QPainter& painter, float cellWidth, float cellHeight)
 {
@@ -2372,39 +2571,73 @@ void GameWindow::drawMapBlocks(QPainter& painter, float cellWidth, float cellHei
 //绘制道具函数
 void GameWindow::drawItems(QPainter& painter, float cellWidth, float cellHeight)
 {
-    // 绘制道具 - 根据道具类型画不同的颜色和图标
+    // 绘制道具 - 使用大脑形状并绘制字母
     for (const auto& item : m_items) {
         QRectF itemRect(item.col * cellWidth, item.row * cellHeight,
                        cellWidth, cellHeight);
         itemRect.adjust(3, 3, -3, -3);
         
-        QColor itemColor;
-        switch (item.type) {
-        case TIME_BONUS: itemColor = QColor(0x00ff00); break;  // 绿色
-        case SHUFFLE: itemColor = QColor(0xff00ff); break;     // 紫色
-        case HINT: itemColor = QColor(0xffff00); break;        // 黄色
-        case DIZZY: itemColor = QColor(0xff8800); break;       // 橙色
-        case FLASH: itemColor = QColor(0x00ffff); break;       // 青色
+        // 绘制大脑形状的道具
+        if (!m_brainPropImage.isNull()) {
+            // 使用大脑图片作为道具形状
+            painter.drawPixmap(itemRect, m_brainPropImage, m_brainPropImage.rect());
+        } else {
+            // 如果大脑图片加载失败，使用默认的椭圆形状
+            QColor itemColor;
+            switch (item.type) {
+            case TIME_BONUS: itemColor = QColor(0x00ff00); break;  // 绿色
+            case SHUFFLE: itemColor = QColor(0xff00ff); break;     // 紫色
+            case HINT: itemColor = QColor(0xffff00); break;        // 黄色
+            case DIZZY: itemColor = QColor(0xff8800); break;       // 橙色
+            case FLASH: itemColor = QColor(0x00ffff); break;       // 青色
+            }
+            
+            painter.setBrush(itemColor);
+            painter.setPen(QPen(QColorConstants::Svg::black, 2));
+            painter.drawEllipse(itemRect); //绘制道具，形状为椭圆
         }
         
-        painter.setBrush(itemColor);
-        painter.setPen(QPen(QColorConstants::Svg::black, 2));
-        painter.drawEllipse(itemRect); //绘制道具，形状为椭圆
-        
-        // 绘制道具图标
-        painter.setPen(QColorConstants::Svg::black); //设置画笔颜色为黑色
-        painter.setFont(QFont("Arial", 8, QFont::Bold)); //设置字体
+        // 绘制道具字母标识
+        painter.setFont(QFont("Arial", 10, QFont::Bold)); //设置字体，稍微大一些
         QString itemText;
+        QColor textColor;
+        
         switch (item.type) {
-        case TIME_BONUS: itemText = "T"; break;
-        case SHUFFLE: itemText = "S"; break;
-        case HINT: itemText = "H"; break;
-        case DIZZY: itemText = "D"; break;
-        case FLASH: itemText = "F"; break;
+        case TIME_BONUS: 
+            itemText = "T"; 
+            textColor = QColor(0, 255, 0); // 亮绿色 - 时间加成
+            break;
+        case SHUFFLE: 
+            itemText = "S"; 
+            textColor = QColor(255, 0, 255); // 亮紫色 - 重新排列
+            break;
+        case HINT: 
+            itemText = "H"; 
+            textColor = QColor(255, 255, 0); // 亮黄色 - 提示
+            break;
+        case DIZZY: 
+            itemText = "D"; 
+            textColor = QColor(255, 100, 0); // 亮橙色 - 眩晕
+            break;
+        case FLASH: 
+            itemText = "F"; 
+            textColor = QColor(0, 200, 255); // 亮蓝色 - 闪烁
+            break;
         }
-        painter.drawText(itemRect, Qt::AlignCenter, itemText); //绘制道具图标，文字为T、S、H、D、F
+        
+        // 绘制字母描边（黑色描边提高可见性）
+        painter.setPen(QPen(QColor(0, 0, 0), 3)); // 黑色描边，3像素宽度
+        QRectF textRect = itemRect;
+        textRect.adjust(2, 2, -2, -2); // 稍微缩小文字区域
+        
+        // 先绘制描边
+        painter.drawText(textRect, Qt::AlignCenter, itemText);
+        
+        // 再绘制主颜色
+        painter.setPen(QPen(textColor, 2)); // 主颜色，2像素宽度
+        painter.drawText(textRect, Qt::AlignCenter, itemText);
     }
-    }
+}
 
 //绘制Hint高亮
 void GameWindow::drawHintHighlights(QPainter& painter, float cellWidth, float cellHeight)
@@ -3069,7 +3302,15 @@ void GameWindow::initializeAudioSystem()
     m_backgroundMusic->setAudioOutput(m_audioOutput);
     m_backgroundMusic->setSource(QUrl("qrc:/music.wav"));
     m_backgroundMusic->setLoops(QMediaPlayer::Infinite); // 循环播放
+    qDebug() << "Background music initialized: music.wav";
+    
+    // 初始化游戏背景音乐
+    m_gameMusic->setAudioOutput(m_gameAudioOutput);
+    m_gameMusic->setSource(QUrl("qrc:/music2.mp3"));
+    m_gameMusic->setLoops(QMediaPlayer::Infinite); // 循环播放
+    
     m_audioOutput->setVolume(0.3f); // 30%音量，避免与音效冲突
+    m_gameAudioOutput->setVolume(0.3f); // 30%音量，避免与音效冲突
 }
 
 // 初始化僵尸GIF动图
@@ -3161,6 +3402,45 @@ void GameWindow::loadGameBackground()
         qDebug() << "Game background image loaded successfully:";
         qDebug() << "Size:" << m_gameBackground.size();
         qDebug() << "Aspect ratio:" << (double)m_gameBackground.width() / m_gameBackground.height();
+    }
+}
+
+// 加载保存/载入背景图片
+void GameWindow::loadSaveBackground()
+{
+    // 加载保存/载入背景图片
+    m_saveBackground = QPixmap(":/save.jpg");
+    
+    if (m_saveBackground.isNull()) {
+        // 如果加载失败，创建一个明显的默认背景（红色，便于识别）
+        m_saveBackground = QPixmap(800, 600);
+        m_saveBackground.fill(QColor(255, 0, 0)); // 红色背景，便于识别问题
+        qDebug() << "Failed to load save background image, using RED default background";
+        qDebug() << "This indicates a problem with save.jpg loading";
+    } else {
+        // 输出背景图片信息用于调试
+        qDebug() << "Save background image loaded successfully:";
+        qDebug() << "Size:" << m_saveBackground.size();
+        qDebug() << "Aspect ratio:" << (double)m_saveBackground.width() / m_saveBackground.height();
+    }
+}
+
+// 加载大脑道具图片
+void GameWindow::loadBrainPropImage()
+{
+    // 加载大脑道具图片
+    m_brainPropImage = QPixmap(":/brain.png");
+    
+    if (m_brainPropImage.isNull()) {
+        // 如果加载失败，创建一个默认背景
+        m_brainPropImage = QPixmap(32, 32);
+        m_brainPropImage.fill(QColor(200, 150, 200)); // 浅紫色背景
+        qDebug() << "Failed to load brain prop image, using default background";
+    } else {
+        // 输出背景图片信息用于调试
+        qDebug() << "Brain prop image loaded successfully:";
+        qDebug() << "Size:" << m_brainPropImage.size();
+        qDebug() << "Aspect ratio:" << (double)m_brainPropImage.width() / m_brainPropImage.height();
     }
 }
 
@@ -3266,8 +3546,14 @@ void GameWindow::playWinSound()
 void GameWindow::playBackgroundMusic()
 {
     if (m_backgroundMusic && !m_backgroundMusicPlaying && m_musicEnabled) {
+        qDebug() << "Playing background music (music.wav)";
         m_backgroundMusic->play();
         m_backgroundMusicPlaying = true;
+    } else {
+        qDebug() << "Cannot play background music:";
+        qDebug() << "  m_backgroundMusic:" << (m_backgroundMusic ? "OK" : "NULL");
+        qDebug() << "  m_backgroundMusicPlaying:" << m_backgroundMusicPlaying;
+        qDebug() << "  m_musicEnabled:" << m_musicEnabled;
     }
 }
 
@@ -3277,6 +3563,24 @@ void GameWindow::stopBackgroundMusic()
     if (m_backgroundMusic && m_backgroundMusicPlaying) {
         m_backgroundMusic->stop();
         m_backgroundMusicPlaying = false;
+    }
+}
+
+// 播放游戏背景音乐
+void GameWindow::playGameMusic()
+{
+    if (m_gameMusic && !m_gameMusicPlaying && m_musicEnabled) {
+        m_gameMusic->play();
+        m_gameMusicPlaying = true;
+    }
+}
+
+// 停止游戏背景音乐
+void GameWindow::stopGameMusic()
+{
+    if (m_gameMusic && m_gameMusicPlaying) {
+        m_gameMusic->stop();
+        m_gameMusicPlaying = false;
     }
 }
 
@@ -3584,10 +3888,15 @@ void GameWindow::createSettingsMenu()
             if (m_state == MENU_STATE && !m_backgroundMusicPlaying) {
                 playBackgroundMusic();
             }
+            // 如果当前在游戏状态且游戏音乐未播放，则开始播放
+            if (m_state == GAME_STATE && !m_gameMusicPlaying) {
+                playGameMusic();
+            }
         } else {
             musicToggle->setText("音乐: 关闭");
-            // 立即停止背景音乐
+            // 立即停止所有背景音乐
             stopBackgroundMusic();
+            stopGameMusic();
         }
     });
     

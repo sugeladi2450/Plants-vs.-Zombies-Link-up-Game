@@ -434,6 +434,22 @@ private:
     void drawMenu(QPainter& painter);
     
     /**
+     * @brief 绘制存档菜单（不绘制背景图片）
+     * @param painter 绘制器对象
+     * 
+     * 绘制存档菜单界面，不绘制背景图片，只绘制标题和选项。
+     */
+    void drawSaveMenu(QPainter& painter);
+    
+    /**
+     * @brief 绘制存档菜单选项（不绘制背景图片）
+     * @param painter 绘制器对象
+     * 
+     * 绘制存档菜单选项列表，不绘制背景图片。
+     */
+    void drawSaveOptions(QPainter& painter);
+    
+    /**
      * @brief 绘制游戏标题
      * @param painter 绘制器对象
      * 
@@ -480,6 +496,16 @@ private:
      * 绘制游戏地图的背景图片，确保美观且不违和。
      */
     void drawGameBackground(QPainter& painter, int widgetWidth, int widgetHeight);
+    
+    /**
+     * @brief 绘制保存/载入背景
+     * @param painter 绘制器对象
+     * @param widgetWidth 窗口宽度
+     * @param widgetHeight 窗口高度
+     * 
+     * 绘制保存和载入游戏时的背景图片。
+     */
+    void drawSaveBackground(QPainter& painter, int widgetWidth, int widgetHeight);
     
     /**
      * @brief 绘制地图方块
@@ -1204,6 +1230,8 @@ private:
     // 背景图片相关
     QPixmap m_menuBackground;               // 菜单背景图片
     QPixmap m_gameBackground;               // 游戏背景图片
+    QPixmap m_saveBackground;               // 保存/载入背景图片
+    QPixmap m_brainPropImage;               // 大脑道具图片
     
     // 消除判断器
     LinkJudger m_judger;
@@ -1215,9 +1243,12 @@ private:
     QSoundEffect* m_winSound;            ///< 游戏胜利音效播放器
     
     // 背景音乐系统
-    QMediaPlayer* m_backgroundMusic;     ///< 背景音乐播放器
+    QMediaPlayer* m_backgroundMusic;     ///< 背景音乐播放器（菜单音乐）
+    QMediaPlayer* m_gameMusic;           ///< 游戏背景音乐播放器
     QAudioOutput* m_audioOutput;         ///< 音频输出设备
+    QAudioOutput* m_gameAudioOutput;     ///< 游戏音频输出设备
     bool m_backgroundMusicPlaying;       ///< 背景音乐是否正在播放
+    bool m_gameMusicPlaying;             ///< 游戏背景音乐是否正在播放
     
     // 紧凑菜单系统
     QWidget* m_menuWidget;               ///< 菜单容器
@@ -1310,6 +1341,20 @@ private slots:
     void loadGameBackground();
     
     /**
+     * @brief 加载保存/载入背景图片
+     * 
+     * 加载save.jpg作为保存和载入游戏时的背景图片。
+     */
+    void loadSaveBackground();
+    
+    /**
+     * @brief 加载大脑道具图片
+     * 
+     * 加载brain.jpg作为道具的形状图片。
+     */
+    void loadBrainPropImage();
+    
+    /**
      * @brief 根据背景图片比例调整窗口大小
      * 
      * 根据背景图片的宽高比调整窗口大小，使窗口比例与图片比例吻合。
@@ -1358,6 +1403,20 @@ private slots:
      * 停止背景音乐播放。
      */
     void stopBackgroundMusic();
+    
+    /**
+     * @brief 播放游戏背景音乐
+     * 
+     * 在游戏界面播放背景音乐，循环播放。
+     */
+    void playGameMusic();
+    
+    /**
+     * @brief 停止游戏背景音乐
+     * 
+     * 停止游戏背景音乐播放。
+     */
+    void stopGameMusic();
     
     // 紧凑菜单系统
     /**

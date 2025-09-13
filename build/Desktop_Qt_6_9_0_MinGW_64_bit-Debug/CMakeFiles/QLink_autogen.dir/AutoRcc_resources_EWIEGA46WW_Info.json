@@ -14,6 +14,7 @@
 		"D:/qt/linking/4.png",
 		"D:/qt/linking/7.png",
 		"D:/qt/linking/6.png",
+		"D:/qt/linking/music2.mp3",
 		"D:/qt/linking/music.wav",
 		"D:/qt/linking/1.png",
 		"D:/qt/linking/item.wav",
@@ -23,8 +24,10 @@
 		"D:/qt/linking/zombie.gif",
 		"D:/qt/linking/5.png",
 		"D:/qt/linking/win.wav",
+		"D:/qt/linking/save.jpg",
 		"D:/qt/linking/zombie_eat.gif",
 		"D:/qt/linking/map.jpg",
+		"D:/qt/linking/brain.png",
 		"D:/qt/linking/background.jpg"
 	],
 	"LOCK_FILE" : "D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/CMakeFiles/QLink_autogen.dir/AutoRcc_resources_EWIEGA46WW_Lock.lock",
