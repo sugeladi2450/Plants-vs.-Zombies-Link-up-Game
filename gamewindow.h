@@ -472,6 +472,16 @@ private:
     void drawGameState(QPainter& painter, int widgetWidth, int widgetHeight);
     
     /**
+     * @brief 绘制游戏背景
+     * @param painter 绘制器对象
+     * @param widgetWidth 窗口宽度
+     * @param widgetHeight 窗口高度
+     * 
+     * 绘制游戏地图的背景图片，确保美观且不违和。
+     */
+    void drawGameBackground(QPainter& painter, int widgetWidth, int widgetHeight);
+    
+    /**
      * @brief 绘制地图方块
      * @param painter 绘制器对象
      * @param cellWidth 单个方块的宽度
@@ -1193,6 +1203,7 @@ private:
     
     // 背景图片相关
     QPixmap m_menuBackground;               // 菜单背景图片
+    QPixmap m_gameBackground;               // 游戏背景图片
     
     // 消除判断器
     LinkJudger m_judger;
@@ -1290,6 +1301,13 @@ private slots:
      * 加载background.jpg作为开始菜单的背景图片。
      */
     void loadMenuBackground();
+    
+    /**
+     * @brief 加载游戏背景图片
+     * 
+     * 加载map.jpg作为游戏地图的背景图片。
+     */
+    void loadGameBackground();
     
     /**
      * @brief 根据背景图片比例调整窗口大小

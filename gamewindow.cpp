@@ -139,6 +139,7 @@ GameWindow::GameWindow(QWidget *parent)
     
     // 背景图片相关
     , m_menuBackground() // 菜单背景图片
+    , m_gameBackground() // 游戏背景图片
     
     // 其他组件
     , m_judger(ROWS, COLS) // 连接判断器
@@ -198,6 +199,9 @@ GameWindow::GameWindow(QWidget *parent)
     
     // 加载菜单背景图片
     loadMenuBackground();
+    
+    // 加载游戏背景图片
+    loadGameBackground();
     
     // 根据背景图片比例调整窗口大小
     adjustWindowSizeToBackground();
@@ -951,7 +955,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
         
         // 检查所有选项（包括返回按钮）
         for (int i = 0; i < 3; ++i) {
-            QRect optionRect(50, startY + i * (optionHeight + spacing), 
+        QRect optionRect(50, startY + i * (optionHeight + spacing), 
                             width() - 100, optionHeight); // 设置菜单选项矩形
             
             if (optionRect.contains(adjustedPos)) {
@@ -964,7 +968,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     if (isClick && event->button() == Qt::LeftButton) {
                         m_showGameModeSelection = false;
                         m_backButtonSelected = false;
-                        update();
+            update();
                     } else if (!isClick && oldSelected != m_backButtonSelected) {
                         // 播放菜单选择音效
                         playSelectSound();
@@ -988,7 +992,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                         update();
                     }
                 }
-                break;
+            break;
             }
         }
     } else {
@@ -2276,6 +2280,9 @@ void GameWindow::drawGameState(QPainter& painter, int widgetWidth, int widgetHei
     // 调整绘制位置到游戏区域
     painter.translate(0, menuHeight);
 
+    // 绘制游戏背景图片
+    drawGameBackground(painter, widgetWidth, gameHeight);
+
     // 绘制各个游戏元素
     drawMapBlocks(painter, cellWidth, cellHeight); //绘制地图方块
     drawItems(painter, cellWidth, cellHeight); //绘制道具
@@ -2284,6 +2291,54 @@ void GameWindow::drawGameState(QPainter& painter, int widgetWidth, int widgetHei
     drawPlayers(painter, cellWidth, cellHeight); //绘制玩家
     drawGameInfo(painter, widgetWidth, gameHeight); //绘制游戏信息
     drawGameStatus(painter, widgetWidth, gameHeight); //绘制游戏状态
+}
+
+//绘制游戏背景
+void GameWindow::drawGameBackground(QPainter& painter, int widgetWidth, int widgetHeight)
+{
+    // 绘制游戏背景图片
+    if (!m_gameBackground.isNull()) {
+        // 计算背景图片的缩放比例，保持宽高比
+        QSize imageSize = m_gameBackground.size();
+        double imageRatio = (double)imageSize.width() / imageSize.height();
+        double widgetRatio = (double)widgetWidth / widgetHeight;
+        
+        QPixmap scaledBackground;
+        QPoint drawPos(0, 0);
+        
+        if (imageRatio > widgetRatio) {
+            // 图片更宽，以高度为准进行缩放
+            int scaledHeight = widgetHeight;
+            int scaledWidth = static_cast<int>(widgetHeight * imageRatio);
+            scaledBackground = m_gameBackground.scaled(scaledWidth, scaledHeight, 
+                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            
+            // 水平居中
+            if (scaledBackground.width() > widgetWidth) {
+                drawPos.setX((scaledBackground.width() - widgetWidth) / 2);
+            }
+        } else {
+            // 图片更高，以宽度为准进行缩放
+            int scaledWidth = widgetWidth;
+            int scaledHeight = static_cast<int>(widgetWidth / imageRatio);
+            scaledBackground = m_gameBackground.scaled(scaledWidth, scaledHeight, 
+                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            
+            // 垂直居中
+            if (scaledBackground.height() > widgetHeight) {
+                drawPos.setY((scaledBackground.height() - widgetHeight) / 2);
+            }
+        }
+        
+        // 绘制背景图片（只绘制窗口范围内的部分）
+        painter.drawPixmap(0, 0, scaledBackground, drawPos.x(), drawPos.y(), widgetWidth, widgetHeight);
+        
+        // 添加一个半透明的遮罩层，让背景图片稍微暗一些，突出游戏元素
+        painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(0, 0, 0, 30));
+    } else {
+        // 如果背景图片加载失败，使用默认背景色
+        painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(30, 30, 60));
+    }
 }
 
 //绘制地图方块
@@ -2413,14 +2468,14 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
         // 确保位置在有效范围内
     if (playerRow >= 0 && playerRow < ROWS && playerCol >= 0 && playerCol < COLS) {
         QRectF playerRect(playerCol * cellWidth, playerRow * cellHeight, //计算玩家矩形
-                              cellWidth, cellHeight);
+                          cellWidth, cellHeight);
         
         // 绘制僵尸GIF动图
         if ((m_zombieMovie && m_zombieMovie->isValid() && !m_currentZombieFrame.isNull()) ||
             (m_zombieEatMovie && m_zombieEatMovie->isValid() && !m_currentZombieEatFrame.isNull())) {
             
-            // 增大僵尸尺寸，减少边距让僵尸更大
-            QRectF zombieRect = playerRect.adjusted(2, 2, -2, -2); // 减少边距，增大僵尸
+            // 增大僵尸尺寸，让僵尸占据更大的区域（增大两倍）
+            QRectF zombieRect = playerRect.adjusted(-cellWidth/4, -cellHeight/4, cellWidth/4, cellHeight/4); // 僵尸增大两倍
             
             QPixmap currentFrame;
             if (m_isZombieAttacking && !m_currentZombieEatFrame.isNull()) {
@@ -2479,9 +2534,9 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
         // 添加玩家标签
         if (m_zombieMovie && m_zombieMovie->isValid() && !m_currentZombieFrame.isNull()) {
             // 僵尸模式下，标签显示在僵尸下方
-            QRectF zombieRect = playerRect.adjusted(2, 2, -2, -2);
+            QRectF zombieRect = playerRect.adjusted(-cellWidth/4, -cellHeight/4, cellWidth/4, cellHeight/4);
             QPointF labelPos = zombieRect.bottomLeft();
-            labelPos.setY(labelPos.y() + 15); // 在僵尸下方显示标签
+            labelPos.setY(labelPos.y() + 20); // 在僵尸下方显示标签，调整位置
             
             painter.setPen(QColorConstants::Svg::white);
             painter.setFont(QFont("Arial", 8, QFont::Bold));
@@ -2492,8 +2547,8 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
             }
         } else {
             // 圆形玩家模式下，标签显示在中心
-            painter.setPen(QColorConstants::Svg::white);
-            painter.setFont(QFont("Arial", 10, QFont::Bold));
+        painter.setPen(QColorConstants::Svg::white);
+        painter.setFont(QFont("Arial", 10, QFont::Bold));
             if (playerId == 1) {
                 painter.drawText(playerRect.center(), m_twoPlayer ? "P1" : "玩家");
             } else {
@@ -2948,8 +3003,10 @@ void GameWindow::drawBlockImage(QPainter& painter, const QRectF& rect, int block
     painter.setBrush(Qt::transparent);
     painter.drawRoundedRect(rect, 5.0, 5.0);
     
-    // 绘制图片，缩放到方块大小
+    // 绘制图片，缩放到方块大小，添加透明度让背景透过来
+    painter.setOpacity(0.85); // 设置85%的不透明度，让背景图片能够透过来
     painter.drawPixmap(rect, pixmap, pixmap.rect());
+    painter.setOpacity(1.0); // 恢复完全不透明
 }
 
 
@@ -3085,6 +3142,25 @@ void GameWindow::loadMenuBackground()
         qDebug() << "Background image loaded successfully:";
         qDebug() << "Size:" << m_menuBackground.size();
         qDebug() << "Aspect ratio:" << (double)m_menuBackground.width() / m_menuBackground.height();
+    }
+}
+
+// 加载游戏背景图片
+void GameWindow::loadGameBackground()
+{
+    // 加载游戏背景图片
+    m_gameBackground = QPixmap(":/map.jpg");
+    
+    if (m_gameBackground.isNull()) {
+        // 如果加载失败，创建一个默认背景
+        m_gameBackground = QPixmap(800, 600);
+        m_gameBackground.fill(QColor(30, 30, 60)); // 深蓝灰色背景
+        qDebug() << "Failed to load game background image, using default background";
+    } else {
+        // 输出背景图片信息用于调试
+        qDebug() << "Game background image loaded successfully:";
+        qDebug() << "Size:" << m_gameBackground.size();
+        qDebug() << "Aspect ratio:" << (double)m_gameBackground.width() / m_gameBackground.height();
     }
 }
 
