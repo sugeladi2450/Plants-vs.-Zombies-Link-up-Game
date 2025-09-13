@@ -1,0 +1,105 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "QLink",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "QLink::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-QLink-Debug-d729c2bdd9c63bb7e4d4.json",
+					"name" : "QLink",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "QLinkTest::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-QLinkTest-Debug-3e032c683ede4faa7571.json",
+					"name" : "QLinkTest",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "QLinkTest_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-QLinkTest_autogen-Debug-b03af64728fcc956bfbf.json",
+					"name" : "QLinkTest_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "QLinkTest_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-QLinkTest_autogen_timestamp_deps-Debug-c3007c55310d99fb76d0.json",
+					"name" : "QLinkTest_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "QLink_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-QLink_autogen-Debug-7464cfa7d16fbff95de0.json",
+					"name" : "QLink_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "QLink_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-QLink_autogen_timestamp_deps-Debug-302aeaa1af44d5f1cca3.json",
+					"name" : "QLink_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug",
+		"source" : "D:/qt/linking"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

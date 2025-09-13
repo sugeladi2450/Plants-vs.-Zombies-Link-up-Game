@@ -1,0 +1,37 @@
+{
+	"BUILD_DIR" : "D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen",
+	"CMAKE_BINARY_DIR" : "D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug",
+	"CMAKE_CURRENT_BINARY_DIR" : "D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug",
+	"CMAKE_CURRENT_SOURCE_DIR" : "D:/qt/linking",
+	"CMAKE_SOURCE_DIR" : "D:/qt/linking",
+	"CROSS_CONFIG" : false,
+	"GENERATOR" : "Ninja",
+	"INCLUDE_DIR" : "D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/QLink_autogen/include",
+	"INPUTS" : 
+	[
+		"D:/qt/linking/2.png",
+		"D:/qt/linking/3.png",
+		"D:/qt/linking/4.png",
+		"D:/qt/linking/7.png",
+		"D:/qt/linking/6.png",
+		"D:/qt/linking/music.wav",
+		"D:/qt/linking/1.png",
+		"D:/qt/linking/item.wav",
+		"D:/qt/linking/select.wav",
+		"D:/qt/linking/8.png",
+		"D:/qt/linking/elimination.wav",
+		"D:/qt/linking/5.png",
+		"D:/qt/linking/win.wav"
+	],
+	"LOCK_FILE" : "D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/CMakeFiles/QLink_autogen.dir/AutoRcc_resources_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "--no-zstd", "-name", "resources" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_resources.cpp",
+	"RCC_EXECUTABLE" : "C:/Qt/6.9.0/mingw_64/bin/rcc.exe",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "D:/qt/linking/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/CMakeFiles/QLink_autogen.dir/AutoRcc_resources_EWIEGA46WW_Used.txt",
+	"SOURCE" : "D:/qt/linking/resources.qrc",
+	"USE_BETTER_GRAPH" : true,
+	"VERBOSITY" : 0
+}
