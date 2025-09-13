@@ -1140,6 +1140,8 @@ private:
     QMenu* m_helpMenu;                   ///< 帮助下拉菜单
     QMenu* m_saveMenu;                   ///< 存档下拉菜单
     QMenu* m_settingsMenu;               ///< 设置下拉菜单
+    bool m_soundEnabled;                 ///< 音效是否启用
+    bool m_musicEnabled;                 ///< 背景音乐是否启用
 
 private slots:
     /**

@@ -148,6 +148,8 @@ GameWindow::GameWindow(QWidget *parent)
     , m_helpMenu(nullptr) // 帮助下拉菜单
     , m_saveMenu(nullptr) // 存档下拉菜单
     , m_settingsMenu(nullptr) // 设置下拉菜单
+    , m_soundEnabled(true) // 音效默认启用
+    , m_musicEnabled(true) // 背景音乐默认启用
 {
     setWindowTitle("QLink");
     
@@ -2327,7 +2329,7 @@ void GameWindow::initializeAudioSystem()
 // 播放方块消除音效
 void GameWindow::playEliminationSound()
 {
-    if (m_eliminationSound) {
+    if (m_eliminationSound && m_soundEnabled) {
         m_eliminationSound->play();
     }
 }
@@ -2335,7 +2337,7 @@ void GameWindow::playEliminationSound()
 // 播放道具拾取音效
 void GameWindow::playItemSound()
 {
-    if (m_itemSound) {
+    if (m_itemSound && m_soundEnabled) {
         m_itemSound->play();
     }
 }
@@ -2343,7 +2345,7 @@ void GameWindow::playItemSound()
 // 播放菜单选择音效
 void GameWindow::playSelectSound()
 {
-    if (m_selectSound) {
+    if (m_selectSound && m_soundEnabled) {
         m_selectSound->play();
     }
 }
@@ -2351,7 +2353,7 @@ void GameWindow::playSelectSound()
 // 播放游戏胜利音效
 void GameWindow::playWinSound()
 {
-    if (m_winSound) {
+    if (m_winSound && m_soundEnabled) {
         m_winSound->play();
     }
 }
@@ -2359,7 +2361,7 @@ void GameWindow::playWinSound()
 // 播放背景音乐
 void GameWindow::playBackgroundMusic()
 {
-    if (m_backgroundMusic && !m_backgroundMusicPlaying) {
+    if (m_backgroundMusic && !m_backgroundMusicPlaying && m_musicEnabled) {
         m_backgroundMusic->play();
         m_backgroundMusicPlaying = true;
     }
@@ -2631,16 +2633,35 @@ void GameWindow::createSettingsMenu()
     );
     
     QAction* soundToggle = m_settingsMenu->addAction("音效: 开启");
+    QAction* musicToggle = m_settingsMenu->addAction("音乐: 开启");
     QAction* fullscreen = m_settingsMenu->addAction("全屏模式");
     
     soundToggle->setCheckable(true);
     soundToggle->setChecked(true);
+    musicToggle->setCheckable(true);
+    musicToggle->setChecked(true);
     
     connect(soundToggle, &QAction::triggered, this, [this, soundToggle]() {
-        if (soundToggle->isChecked()) {
+        m_soundEnabled = soundToggle->isChecked();
+        if (m_soundEnabled) {
             soundToggle->setText("音效: 开启");
         } else {
             soundToggle->setText("音效: 关闭");
+        }
+    });
+    
+    connect(musicToggle, &QAction::triggered, this, [this, musicToggle]() {
+        m_musicEnabled = musicToggle->isChecked();
+        if (m_musicEnabled) {
+            musicToggle->setText("音乐: 开启");
+            // 如果当前在菜单状态且音乐未播放，则开始播放
+            if (m_state == MENU_STATE && !m_backgroundMusicPlaying) {
+                playBackgroundMusic();
+            }
+        } else {
+            musicToggle->setText("音乐: 关闭");
+            // 立即停止背景音乐
+            stopBackgroundMusic();
         }
     });
     
