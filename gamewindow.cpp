@@ -2536,7 +2536,6 @@ void GameWindow::drawSaveBackground(QPainter& painter, int widgetWidth, int widg
     } else {
         // 如果背景图片加载失败，使用明显的默认背景色（红色，便于识别问题）
         painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(255, 0, 0));
-        qDebug() << "Drawing RED default background for save/load interface";
     }
 }
 
@@ -3302,7 +3301,6 @@ void GameWindow::initializeAudioSystem()
     m_backgroundMusic->setAudioOutput(m_audioOutput);
     m_backgroundMusic->setSource(QUrl("qrc:/music.wav"));
     m_backgroundMusic->setLoops(QMediaPlayer::Infinite); // 循环播放
-    qDebug() << "Background music initialized: music.wav";
     
     // 初始化游戏背景音乐
     m_gameMusic->setAudioOutput(m_gameAudioOutput);
@@ -3379,10 +3377,6 @@ void GameWindow::loadMenuBackground()
         m_menuBackground = QPixmap(800, 600);
         m_menuBackground.fill(QColor(50, 50, 100)); // 深蓝色背景
     } else {
-        // 输出背景图片信息用于调试
-        qDebug() << "Background image loaded successfully:";
-        qDebug() << "Size:" << m_menuBackground.size();
-        qDebug() << "Aspect ratio:" << (double)m_menuBackground.width() / m_menuBackground.height();
     }
 }
 
@@ -3396,12 +3390,7 @@ void GameWindow::loadGameBackground()
         // 如果加载失败，创建一个默认背景
         m_gameBackground = QPixmap(800, 600);
         m_gameBackground.fill(QColor(30, 30, 60)); // 深蓝灰色背景
-        qDebug() << "Failed to load game background image, using default background";
     } else {
-        // 输出背景图片信息用于调试
-        qDebug() << "Game background image loaded successfully:";
-        qDebug() << "Size:" << m_gameBackground.size();
-        qDebug() << "Aspect ratio:" << (double)m_gameBackground.width() / m_gameBackground.height();
     }
 }
 
@@ -3415,13 +3404,7 @@ void GameWindow::loadSaveBackground()
         // 如果加载失败，创建一个明显的默认背景（红色，便于识别）
         m_saveBackground = QPixmap(800, 600);
         m_saveBackground.fill(QColor(255, 0, 0)); // 红色背景，便于识别问题
-        qDebug() << "Failed to load save background image, using RED default background";
-        qDebug() << "This indicates a problem with save.jpg loading";
     } else {
-        // 输出背景图片信息用于调试
-        qDebug() << "Save background image loaded successfully:";
-        qDebug() << "Size:" << m_saveBackground.size();
-        qDebug() << "Aspect ratio:" << (double)m_saveBackground.width() / m_saveBackground.height();
     }
 }
 
@@ -3435,12 +3418,7 @@ void GameWindow::loadBrainPropImage()
         // 如果加载失败，创建一个默认背景
         m_brainPropImage = QPixmap(32, 32);
         m_brainPropImage.fill(QColor(200, 150, 200)); // 浅紫色背景
-        qDebug() << "Failed to load brain prop image, using default background";
     } else {
-        // 输出背景图片信息用于调试
-        qDebug() << "Brain prop image loaded successfully:";
-        qDebug() << "Size:" << m_brainPropImage.size();
-        qDebug() << "Aspect ratio:" << (double)m_brainPropImage.width() / m_brainPropImage.height();
     }
 }
 
@@ -3481,12 +3459,6 @@ void GameWindow::adjustWindowSizeToBackground()
         // 设置窗口大小
         resize(newWidth, newHeight);
         
-        // 输出调试信息
-        qDebug() << "Window size adjusted to match background image:";
-        qDebug() << "Image size:" << imageSize;
-        qDebug() << "Image ratio:" << imageRatio;
-        qDebug() << "Window size:" << newWidth << "x" << newHeight;
-        qDebug() << "Window ratio:" << (double)newWidth / newHeight;
     }
 }
 
@@ -3546,14 +3518,9 @@ void GameWindow::playWinSound()
 void GameWindow::playBackgroundMusic()
 {
     if (m_backgroundMusic && !m_backgroundMusicPlaying && m_musicEnabled) {
-        qDebug() << "Playing background music (music.wav)";
         m_backgroundMusic->play();
         m_backgroundMusicPlaying = true;
     } else {
-        qDebug() << "Cannot play background music:";
-        qDebug() << "  m_backgroundMusic:" << (m_backgroundMusic ? "OK" : "NULL");
-        qDebug() << "  m_backgroundMusicPlaying:" << m_backgroundMusicPlaying;
-        qDebug() << "  m_musicEnabled:" << m_musicEnabled;
     }
 }
 
