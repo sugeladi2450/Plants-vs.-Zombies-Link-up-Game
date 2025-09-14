@@ -3062,8 +3062,8 @@ void GameWindow::loadGame(const QString& filename)
         m_dizzy2->start(1000);
     }
     
-    // 播放背景音乐
-    playBackgroundMusic();
+    // 播放游戏背景音乐
+    playGameMusic();
     
     // 刷新界面
     update();
