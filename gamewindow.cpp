@@ -153,12 +153,10 @@ GameWindow::GameWindow(QWidget *parent)
     
     // 其他组件
     , m_judger(ROWS, COLS) // 连接判断器
-    , m_imagesLoaded(false) // 图片加载标志
     
     // 音效组件 - 每个音效使用独立的QSoundEffect实例以支持同时播放
     , m_eliminationSound(new QSoundEffect(this)) // 方块消除音效播放器
     , m_itemSound(new QSoundEffect(this)) // 道具拾取音效播放器
-    , m_selectSound(new QSoundEffect(this)) // 菜单选择音效播放器
     , m_winSound(new QSoundEffect(this)) // 游戏胜利音效播放器
     
     // 背景音乐组件
@@ -3219,61 +3217,31 @@ void GameWindow::loadGameEffects(QTextStream& in)
 //加载方块图片
 void GameWindow::loadBlockImages()
 {
-
     m_blockImages.clear();
-    m_imagesLoaded = false;
     
     QStringList imageFiles = {":/1.png", ":/2.png", ":/3.png", ":/4.png", ":/5.png", ":/6.png", ":/7.png", ":/8.png"};
 
-    int loaded = 0;
     for (int i = 0; i < imageFiles.size(); ++i) {
         const QString& imagePath = imageFiles[i];
         QPixmap pixmap(imagePath);
         m_blockImages.push_back(pixmap);
-        if (!pixmap.isNull()) {
-            ++loaded;
-        } else {
-        }
     } 
-    m_imagesLoaded = (loaded == 8);
     
 }
 
 //绘制方块图片
 void GameWindow::drawBlockImage(QPainter& painter, const QRectF& rect, int blockType, bool isActivated)
 {
-    if (!m_imagesLoaded) { 
-        // 绘制彩色方块作为备用
-        QColor colors[] = {Qt::red, Qt::green, Qt::blue, Qt::yellow, Qt::magenta, Qt::cyan, Qt::darkGreen, Qt::darkBlue};
-        painter.setBrush(colors[(blockType - 1) % 8]);
-        painter.setPen(Qt::black);
-        painter.drawRoundedRect(rect, 5.0, 5.0);
-        return;
-    }
-    
-    if (blockType < 1 || blockType > 8) { 
-        return;
-    }
-    
     int imageIndex = blockType - 1; 
-    
-    if (imageIndex >= m_blockImages.size()) { 
-        return;
-    }
-    
     // 获取对应的图片
     const QPixmap& pixmap = m_blockImages[imageIndex];
-    if (pixmap.isNull()) { 
-        return;
-    }
-    
     // 绘制边框
     if (isActivated) {
         // 激活状态：红色边框
         painter.setPen(QPen(Qt::red, 3));
     } else {
         // 普通状态：黑色边框
-        painter.setPen(QPen(QColorConstants::Svg::black, 1));
+        painter.setPen(QPen(Qt::black, 1));
     }
     painter.setBrush(Qt::transparent);
     painter.drawRoundedRect(rect, 5.0, 5.0);
@@ -3331,27 +3299,25 @@ void GameWindow::initializeAudioSystem()
     // 设置音效文件源
     m_eliminationSound->setSource(QUrl("qrc:/elimination.wav"));
     m_itemSound->setSource(QUrl("qrc:/item.wav"));
-    m_selectSound->setSource(QUrl("qrc:/select.wav"));
     m_winSound->setSource(QUrl("qrc:/win.wav"));
     
     // 设置音量
     m_eliminationSound->setVolume(0.7f); // 70%音量
     m_itemSound->setVolume(0.7f); // 70%音量
-    m_selectSound->setVolume(0.6f); // 60%音量
-    m_winSound->setVolume(0.8f); // 80%音量
+    m_winSound->setVolume(0.7f); // 70%音量
     
     // 初始化背景音乐
-    m_backgroundMusic->setAudioOutput(m_audioOutput);
-    m_backgroundMusic->setSource(QUrl("qrc:/music.wav"));
+    m_backgroundMusic->setAudioOutput(m_audioOutput); // 设置音频输出设备
+    m_backgroundMusic->setSource(QUrl("qrc:/music.wav")); // 设置背景音乐文件
     m_backgroundMusic->setLoops(QMediaPlayer::Infinite); // 循环播放
     
     // 初始化游戏背景音乐
-    m_gameMusic->setAudioOutput(m_gameAudioOutput);
-    m_gameMusic->setSource(QUrl("qrc:/music2.mp3"));
+    m_gameMusic->setAudioOutput(m_gameAudioOutput); // 设置音频输出设备
+    m_gameMusic->setSource(QUrl("qrc:/music2.mp3")); // 设置游戏背景音乐文件
     m_gameMusic->setLoops(QMediaPlayer::Infinite); // 循环播放
-    
-    m_audioOutput->setVolume(0.3f); // 30%音量，避免与音效冲突
-    m_gameAudioOutput->setVolume(0.3f); // 30%音量，避免与音效冲突
+
+    m_audioOutput->setVolume(0.3f); // 30%音量
+    m_gameAudioOutput->setVolume(0.3f); // 30%音量
 }
 
 // 初始化僵尸GIF动图
@@ -3380,7 +3346,7 @@ void GameWindow::initializeZombieAnimation()
     m_zombieEatMovie = new QMovie(":/zombie_eat.gif", QByteArray(), this);
     
     if (m_zombieEatMovie->isValid()) {
-        // 设置动画循环模式
+        // 设置缓存模式为CacheAll，将所有帧缓存到内存中，提高播放性能，避免重复解码GIF文件
         m_zombieEatMovie->setCacheMode(QMovie::CacheAll);
         
         // 连接帧改变信号到更新槽
@@ -3397,7 +3363,6 @@ void GameWindow::initializeZombieAnimation()
     // 设置攻击定时器
     m_attackTimer->setSingleShot(true); // 单次触发
     connect(m_attackTimer, &QTimer::timeout, this, [this]() {
-        // 攻击动画结束，恢复普通动画
         m_isZombieAttacking = false;
         if (m_zombieEatMovie) {
             m_zombieEatMovie->stop();
@@ -3416,7 +3381,7 @@ void GameWindow::initializeZombie2Animation()
     m_zombie2Movie = new QMovie(":/zombie2.gif", QByteArray(), this);
     
     if (m_zombie2Movie->isValid()) {
-        // 设置动画循环模式
+        // 设置缓存模式为CacheAll，将所有帧缓存到内存中，提高播放性能，避免重复解码GIF文件
         m_zombie2Movie->setCacheMode(QMovie::CacheAll);
         
         // 连接帧改变信号到更新槽
@@ -3445,8 +3410,6 @@ void GameWindow::initializeZombie2Animation()
                 update(); // 刷新界面
             }
         });
-        
-        // 攻击动画不自动启动，只在需要时启动
     }
     
     // 设置玩家2攻击定时器
@@ -3454,12 +3417,8 @@ void GameWindow::initializeZombie2Animation()
     connect(m_attack2Timer, &QTimer::timeout, this, [this]() {
         // 攻击动画结束，恢复普通动画
         m_isZombie2Attacking = false;
-        if (m_zombie2EatMovie) {
-            m_zombie2EatMovie->stop();
-        }
-        if (m_zombie2Movie) {
-            m_zombie2Movie->start();
-        }
+        m_zombie2EatMovie->stop();
+        m_zombie2Movie->start();
         update();
     });
 }
@@ -3467,64 +3426,30 @@ void GameWindow::initializeZombie2Animation()
 // 加载菜单背景图片
 void GameWindow::loadMenuBackground()
 {
-    // 加载背景图片
     m_menuBackground = QPixmap(":/background.jpg");
-    
-    if (m_menuBackground.isNull()) {
-        // 如果加载失败，创建一个默认背景
-        m_menuBackground = QPixmap(800, 600);
-        m_menuBackground.fill(QColor(50, 50, 100)); // 深蓝色背景
-    } else {
-    }
 }
 
 // 加载游戏背景图片
 void GameWindow::loadGameBackground()
 {
-    // 加载游戏背景图片
     m_gameBackground = QPixmap(":/map.jpg");
-    
-    if (m_gameBackground.isNull()) {
-        // 如果加载失败，创建一个默认背景
-        m_gameBackground = QPixmap(800, 600);
-        m_gameBackground.fill(QColor(30, 30, 60)); // 深蓝灰色背景
-    } else {
-    }
 }
 
 // 加载保存/载入背景图片
 void GameWindow::loadSaveBackground()
 {
-    // 加载保存/载入背景图片
     m_saveBackground = QPixmap(":/save.jpg");
-    
-    if (m_saveBackground.isNull()) {
-        // 如果加载失败，创建一个明显的默认背景（红色，便于识别）
-        m_saveBackground = QPixmap(800, 600);
-        m_saveBackground.fill(QColor(255, 0, 0)); // 红色背景，便于识别问题
-    } else {
-    }
 }
 
 // 加载大脑道具图片
 void GameWindow::loadBrainPropImage()
 {
-    // 加载大脑道具图片
     m_brainPropImage = QPixmap(":/brain.png");
-    
-    if (m_brainPropImage.isNull()) {
-        // 如果加载失败，创建一个默认背景
-        m_brainPropImage = QPixmap(32, 32);
-        m_brainPropImage.fill(QColor(200, 150, 200)); // 浅紫色背景
-    } else {
-    }
 }
 
-// 根据背景图片比例调整窗口大小
 void GameWindow::adjustWindowSizeToBackground()
 {
     if (!m_menuBackground.isNull()) {
-        // 获取背景图片尺寸
         QSize imageSize = m_menuBackground.size();
         double imageRatio = (double)imageSize.width() / imageSize.height();
         
@@ -3564,7 +3489,6 @@ void GameWindow::adjustWindowSizeToBackground()
 void GameWindow::triggerZombieAttackAnimation()
 {
     if (m_zombieEatMovie && m_zombieEatMovie->isValid()) {
-        // 停止普通动画
         if (m_zombieMovie) {
             m_zombieMovie->stop();
         }
@@ -3575,7 +3499,6 @@ void GameWindow::triggerZombieAttackAnimation()
         // 启动攻击动画
         m_zombieEatMovie->start();
         
-        // 设置攻击动画持续时间（根据GIF长度调整，这里设为1.5秒）
         m_attackTimer->start(1500);
     }
 }
@@ -3589,13 +3512,10 @@ void GameWindow::triggerZombie2AttackAnimation()
             m_zombie2Movie->stop();
         }
         
-        // 设置攻击状态
         m_isZombie2Attacking = true;
         
-        // 启动攻击动画
         m_zombie2EatMovie->start();
         
-        // 设置攻击动画持续时间（根据GIF长度调整，这里设为1.5秒）
         m_attack2Timer->start(1500);
     }
 }
@@ -3616,13 +3536,6 @@ void GameWindow::playItemSound()
     }
 }
 
-// 播放菜单选择音效
-void GameWindow::playSelectSound()
-{
-    if (m_selectSound && m_soundEnabled) {
-        m_selectSound->play();
-    }
-}
 
 // 播放游戏胜利音效
 void GameWindow::playWinSound()
@@ -3638,8 +3551,7 @@ void GameWindow::playBackgroundMusic()
     if (m_backgroundMusic && !m_backgroundMusicPlaying && m_musicEnabled) {
         m_backgroundMusic->play();
         m_backgroundMusicPlaying = true;
-    } else {
-    }
+    } 
 }
 
 // 停止背景音乐
@@ -3674,47 +3586,47 @@ void GameWindow::initializeCompactMenu()
 {
     // 创建菜单容器
     m_menuWidget = new QWidget(this);
-    m_menuWidget->setFixedHeight(30);
+    m_menuWidget->setFixedHeight(30); // 设置菜单容器高度
     m_menuWidget->setStyleSheet(
         "QWidget { background-color: #2b2b2b; border-bottom: 1px solid #555555; }"
     );
     
     // 创建水平布局
     m_menuLayout = new QHBoxLayout(m_menuWidget);
-    m_menuLayout->setContentsMargins(5, 2, 5, 2);
-    m_menuLayout->setSpacing(0);
+    m_menuLayout->setContentsMargins(5, 2, 5, 2); 
+    m_menuLayout->setSpacing(0); 
     
     // 创建按钮样式
     QString buttonStyle = 
         "QPushButton { "
         "    background-color: transparent; "
         "    border: none; "
-        "    color: #ffffff; "
-        "    padding: 5px 12px; "
-        "    font-size: 12px; "
-        "    text-align: left; "
+        "    color: #ffffff; " // 白色文字
+        "    padding: 5px 12px; " // 按钮内边距
+        "    font-size: 12px; " // 按钮字体大小
+        "    text-align: left; " // 按钮文字居左
         "} "
         "QPushButton:hover { "
-        "    background-color: #404040; "
+        "    background-color: #404040; " // 鼠标悬停时呈现中灰色
         "} "
         "QPushButton:pressed { "
-        "    background-color: #555555; "
+        "    background-color: #555555; " // 按下时呈现深灰色
         "}";
     
     // 创建游戏按钮
-    m_gameButton = new QPushButton("游戏(G)", m_menuWidget);
+    m_gameButton = new QPushButton("游戏", m_menuWidget);
     m_gameButton->setStyleSheet(buttonStyle);
     m_gameButton->setFixedHeight(26);
     m_menuLayout->addWidget(m_gameButton);
     
     // 创建帮助按钮
-    m_helpButton = new QPushButton("帮助(H)", m_menuWidget);
+    m_helpButton = new QPushButton("帮助", m_menuWidget);
     m_helpButton->setStyleSheet(buttonStyle);
     m_helpButton->setFixedHeight(26);
     m_menuLayout->addWidget(m_helpButton);
     
     // 创建存档按钮
-    m_saveButton = new QPushButton("存档(J)", m_menuWidget);
+    m_saveButton = new QPushButton("存档", m_menuWidget);
     m_saveButton->setStyleSheet(buttonStyle);
     m_saveButton->setFixedHeight(26);
     m_menuLayout->addWidget(m_saveButton);
@@ -3799,7 +3711,6 @@ void GameWindow::createGameMenu()
     
     QAction* returnToMenu = m_gameMenu->addAction("返回菜单");
     QAction* restart = m_gameMenu->addAction("重新开始");
-    m_gameMenu->addSeparator();
     QAction* exit = m_gameMenu->addAction("退出游戏");
     
     connect(returnToMenu, &QAction::triggered, this, [this]() {
@@ -3846,7 +3757,7 @@ void GameWindow::createHelpMenu()
             "=== QLink 游戏操作指引 ===\n\n"
             "【基本操作】\n"
             "• 使用 WASD 或方向键移动角色\n"
-            "• 点击方块进行激活和消除\n"
+            "• 移动到方块周围后再向方块方向移动一次进行激活和消除\n"
             "• 空格键暂停/继续游戏\n"
             "• ESC 键返回菜单\n\n"
             "【游戏规则】\n"
@@ -3855,16 +3766,16 @@ void GameWindow::createHelpMenu()
             "• 消除方块获得阳光值\n"
             "• 在时间限制内消除所有方块获胜\n\n"
             "【道具说明】\n"
-            "• +1s: 增加游戏时间\n"
-            "• Shuffle: 重新排列方块\n"
-            "• Hint: 显示可消除的方块\n"
-            "• Freeze: 冻结对手3秒（双人模式）\n"
-            "• Dizzy: 让对手方向颠倒10秒（双人模式）\n"
-            "• Flash: 5秒内可瞬移到任意位置（单人模式）";
+            "• T(+1s): 增加游戏时间\n"
+            "• S(Shuffle): 重新排列方块\n"
+            "• H(Hint): 显示可消除的方块\n"
+            "• D(Dizzy): 让对手方向颠倒10秒（双人模式）\n"
+            "• F(Flash): 5秒内可瞬移到任意位置（单人模式）";
         
-        QMessageBox::information(this, "操作指引", helpText);
+        QMessageBox::information(this, "操作指引", helpText); // 显示操作指引
     });
     
+    //得分规则
     connect(scoreRules, &QAction::triggered, this, [this]() {
         QString scoreText = 
             "=== 植物大战僵尸方块得分规则 ===\n\n"
@@ -3876,14 +3787,12 @@ void GameWindow::createHelpMenu()
             "坚果 : 50 阳光\n"
             "双胞向日葵 : 150 阳光\n"
             "向日葵 : 50 阳光\n"
-            "寒冰射手 : 150 阳光\n\n"
-            "【得分说明】\n"
-            "• 消除相同类型的方块对可获得对应阳光值\n"
-            "• 合理规划消除顺序，优先消除高分方块";
+            "寒冰射手 : 150 阳光";
         
         QMessageBox::information(this, "得分规则", scoreText);
     });
     
+    //操作提示
     connect(hints, &QAction::triggered, this, [this]() {
         QString hintsText = 
             "=== 操作提示 ===\n\n"
@@ -3899,8 +3808,8 @@ void GameWindow::createHelpMenu()
 // 创建存档菜单
 void GameWindow::createSaveMenu()
 {
-    m_saveMenu = new QMenu(this);
-    m_saveMenu->setStyleSheet(
+    m_saveMenu = new QMenu(this); // 创建存档菜单
+    m_saveMenu->setStyleSheet( // 设置菜单样式
         "QMenu { "
         "    background-color: #2b2b2b; "
         "    border: 1px solid #555555; "
@@ -3952,18 +3861,18 @@ void GameWindow::createSaveMenu()
 void GameWindow::createSettingsMenu()
 {
     m_settingsMenu = new QMenu(this);
-    m_settingsMenu->setStyleSheet(
+    m_settingsMenu->setStyleSheet( // 设置菜单样式
         "QMenu { "
-        "    background-color: #2b2b2b; "
-        "    border: 1px solid #555555; "
-        "    color: #ffffff; "
+        "    background-color: #2b2b2b; " // 深灰色背景
+        "    border: 1px solid #555555; " // 灰色边框
+        "    color: #ffffff; " // 白色文字
         "} "
         "QMenu::item { "
-        "    padding: 8px 20px; "
-        "    background-color: transparent; "
+        "    padding: 8px 20px; " // 内边距
+        "    background-color: transparent; " // 透明背景
         "} "
         "QMenu::item:selected { "
-        "    background-color: #404040; "
+        "    background-color: #404040; " // 选中时呈现中灰色
         "}"
     );
     
@@ -3989,7 +3898,7 @@ void GameWindow::createSettingsMenu()
         m_musicEnabled = musicToggle->isChecked();
         if (m_musicEnabled) {
             musicToggle->setText("音乐: 开启");
-            // 如果当前在菜单状态且音乐未播放，则开始播放
+            // 如果当前在菜单状态且菜单音乐未播放，则开始播放
             if (m_state == MENU_STATE && !m_backgroundMusicPlaying) {
                 playBackgroundMusic();
             }

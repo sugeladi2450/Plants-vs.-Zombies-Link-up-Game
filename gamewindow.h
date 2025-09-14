@@ -303,7 +303,6 @@ protected:
 private:
     // 图片资源
     std::vector<QPixmap> m_blockImages;  ///< 方块图片资源数组
-    bool m_imagesLoaded;                 ///< 图片是否已加载完成
     
     
     // 图片加载和绘制函数
@@ -312,7 +311,7 @@ private:
      * 
      * 从可执行文件目录加载1.png到8.png的方块图片文件。
      * 如果加载失败，会尝试从源代码目录加载。
-     * 加载完成后设置m_imagesLoaded标志。
+     * 加载完成后设置图片加载状态。
      */
     void loadBlockImages();
     
@@ -1258,7 +1257,6 @@ private:
     // 音效系统 - 每个音效使用独立的QSoundEffect实例以支持同时播放
     QSoundEffect* m_eliminationSound;    ///< 方块消除音效播放器
     QSoundEffect* m_itemSound;           ///< 道具拾取音效播放器
-    QSoundEffect* m_selectSound;         ///< 菜单选择音效播放器
     QSoundEffect* m_winSound;            ///< 游戏胜利音效播放器
     
     // 背景音乐系统
@@ -1408,12 +1406,6 @@ private slots:
      */
     void playItemSound();
     
-    /**
-     * @brief 播放菜单选择音效
-     * 
-     * 当在菜单中选中选项时播放音效。
-     */
-    void playSelectSound();
     
     /**
      * @brief 播放游戏胜利音效
