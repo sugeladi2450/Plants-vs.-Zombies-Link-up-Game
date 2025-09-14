@@ -10,6 +10,7 @@
 	"INPUTS" : 
 	[
 		"D:/qt/linking/2.png",
+		"D:/qt/linking/zombie2_eat.gif",
 		"D:/qt/linking/3.png",
 		"D:/qt/linking/4.png",
 		"D:/qt/linking/7.png",
@@ -19,6 +20,7 @@
 		"D:/qt/linking/1.png",
 		"D:/qt/linking/item.wav",
 		"D:/qt/linking/select.wav",
+		"D:/qt/linking/zombie2.gif",
 		"D:/qt/linking/8.png",
 		"D:/qt/linking/elimination.wav",
 		"D:/qt/linking/zombie.gif",

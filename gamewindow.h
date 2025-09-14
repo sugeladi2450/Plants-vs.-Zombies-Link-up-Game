@@ -1231,12 +1231,20 @@ private:
     QTimer* m_animationTimer;               // 动画定时器
     
     // GIF动图相关
-    QMovie* m_zombieMovie;                  // 僵尸GIF动图
-    QMovie* m_zombieEatMovie;               // 僵尸攻击GIF动图
-    QPixmap m_currentZombieFrame;           // 当前僵尸帧
-    QPixmap m_currentZombieEatFrame;        // 当前僵尸攻击帧
-    bool m_isZombieAttacking;               // 僵尸是否正在攻击
-    QTimer* m_attackTimer;                  // 攻击动画定时器
+    QMovie* m_zombieMovie;                  // 玩家1僵尸GIF动图
+    QMovie* m_zombieEatMovie;               // 玩家1僵尸攻击GIF动图
+    QPixmap m_currentZombieFrame;           // 玩家1当前僵尸帧
+    QPixmap m_currentZombieEatFrame;        // 玩家1当前僵尸攻击帧
+    bool m_isZombieAttacking;               // 玩家1僵尸是否正在攻击
+    QTimer* m_attackTimer;                  // 玩家1攻击动画定时器
+    
+    // 玩家2 GIF动图相关
+    QMovie* m_zombie2Movie;                 // 玩家2僵尸GIF动图
+    QMovie* m_zombie2EatMovie;              // 玩家2僵尸攻击GIF动图
+    QPixmap m_currentZombie2Frame;          // 玩家2当前僵尸帧
+    QPixmap m_currentZombie2EatFrame;       // 玩家2当前僵尸攻击帧
+    bool m_isZombie2Attacking;              // 玩家2僵尸是否正在攻击
+    QTimer* m_attack2Timer;                 // 玩家2攻击动画定时器
     
     // 背景图片相关
     QPixmap m_menuBackground;               // 菜单背景图片
@@ -1331,11 +1339,25 @@ private slots:
     void initializeZombieAnimation();
     
     /**
+     * @brief 初始化玩家2僵尸GIF动图
+     * 
+     * 加载zombie2.gif动图并设置动画定时器。
+     */
+    void initializeZombie2Animation();
+    
+    /**
      * @brief 触发僵尸攻击动画
      * 
      * 在消除方块时播放zombie_eat.gif攻击动画。
      */
     void triggerZombieAttackAnimation();
+    
+    /**
+     * @brief 触发玩家2僵尸攻击动画
+     * 
+     * 在消除方块时播放zombie2_eat.gif攻击动画。
+     */
+    void triggerZombie2AttackAnimation();
     
     /**
      * @brief 加载菜单背景图片
