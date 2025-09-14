@@ -23,7 +23,6 @@
 #include <QAction>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QWidget>
 #include "linkjudger.h"
 
 /**

@@ -2069,10 +2069,7 @@ void GameWindow::shuffleMap()
     update();
 }
 
-//重新初始化玩家位置函数
-
-
-
+// 查找有效的玩家位置
 std::pair<int, int> GameWindow::findValidPlayerPosition(std::mt19937& gen,
                                                        std::uniform_int_distribution<>& rowDist,
                                                        std::uniform_int_distribution<>& colDist)
@@ -2363,7 +2360,8 @@ void GameWindow::mouseMoveEvent(QMouseEvent *event)
 void GameWindow::paintEvent(QPaintEvent *event)
 {
     QPainter painter(static_cast<QWidget*>(this)); //创建绘制器
-    painter.setRenderHint(QPainter::Antialiasing); //抗锯齿
+    painter.setRenderHint(QPainter::Antialiasing, true); // 图形抗锯齿
+    painter.setRenderHint(QPainter::TextAntialiasing, true); // 文本抗锯齿
 
     int widgetWidth = width(); //获取窗口宽度
     int widgetHeight = height(); //获取窗口高度
@@ -3074,15 +3072,14 @@ bool GameWindow::loadGameHeader(QTextStream& in)
         QMessageBox::warning(static_cast<QWidget*>(this), "加载失败", "不是有效的存档文件！");
         return false;
     }
-    
-    in.readLine(); // 版本号
+    in.readLine(); 
     QString twoPlayerLine = in.readLine();
     QStringList twoPlayerParts = twoPlayerLine.split(" ");
     if (twoPlayerParts.size() >= 2) {
         m_twoPlayer = (twoPlayerParts[1] == "1");
     }
     
-    in.readLine(); // 空行
+    in.readLine(); 
     return true;
 }
     
@@ -3133,7 +3130,7 @@ void GameWindow::loadGamePlayers(QTextStream& in)
         m_activeCol = activatedParts[2].toInt();
     }
     
-    in.readLine(); 
+    in.readLine();
 }
     
 void GameWindow::loadGameMap(QTextStream& in)
@@ -3149,7 +3146,7 @@ void GameWindow::loadGameMap(QTextStream& in)
         }
     }
     in.readLine();
-    }
+}
     
 void GameWindow::loadGameItems(QTextStream& in)
 {
