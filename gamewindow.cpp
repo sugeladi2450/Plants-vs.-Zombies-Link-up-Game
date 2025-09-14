@@ -783,8 +783,7 @@ void GameWindow::handleKey(QKeyEvent *event)
                 m_option = static_cast<MenuOption>(OPTIONS - 1); // 选择最后一个选项
         }
         }
-        // 播放菜单选择音效
-        playSelectSound();
+        // 键盘导航：更新高亮显示
         update();
         break;
     case Qt::Key_Down:
@@ -844,8 +843,7 @@ void GameWindow::handleKey(QKeyEvent *event)
                 m_option = static_cast<MenuOption>(0); // 选择第一个选项
         }
         }
-        // 播放菜单选择音效
-        playSelectSound();
+        // 键盘导航：更新高亮显示
         update();
         break;
     case Qt::Key_Return:
@@ -954,8 +952,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                         m_backButtonSelected = false;
                         update();
                     } else if (!isClick && oldSelected != m_backButtonSelected) {
-                        // 播放菜单选择音效
-                        playSelectSound();
+                        // 鼠标移动：只更新高亮显示
                         update();
                     }
                 } else {
@@ -970,8 +967,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     } else { // 不点击左键
                         // 鼠标移动：只更新高亮显示
                         if (oldSlot != m_selectedSaveSlot) { // 如果选项改变了
-                            // 播放菜单选择音效
-                            playSelectSound();
+                            // 选项改变，更新显示
                         }
                         update();
                     }
@@ -1002,8 +998,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                         m_backButtonSelected = false;
                         update();
                     } else if (!isClick && oldSelected != m_backButtonSelected) {
-                        // 播放菜单选择音效
-                        playSelectSound();
+                        // 鼠标移动：只更新高亮显示
                         update();
                     }
                 } else {
@@ -1018,8 +1013,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     } else { // 不点击左键
                         // 鼠标移动：只更新高亮显示
                         if (oldSlot != m_selectedSaveSlot) { // 如果选项改变了
-                            // 播放菜单选择音效
-                            playSelectSound();
+                            // 选项改变，更新显示
                         }
                         update();
                     }
@@ -1050,8 +1044,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                         m_backButtonSelected = false;
                         update();
                     } else if (!isClick && oldSelected != m_backButtonSelected) {
-                        // 播放菜单选择音效
-                        playSelectSound();
+                        // 鼠标移动：只更新高亮显示
                         update();
                     }
                 } else {
@@ -1066,8 +1059,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     } else { // 不点击左键
                         // 鼠标移动：只更新高亮显示
                         if (oldSlot != m_selectedSaveSlot) { // 如果选项改变了
-                            // 播放菜单选择音效
-                            playSelectSound();
+                            // 选项改变，更新显示
                         }
                         update();
                     }
@@ -1098,8 +1090,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                         m_backButtonSelected = false;
             update();
                     } else if (!isClick && oldSelected != m_backButtonSelected) {
-                        // 播放菜单选择音效
-                        playSelectSound();
+                        // 鼠标移动：只更新高亮显示
                         update();
                     }
                 } else {
@@ -1114,8 +1105,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     } else { // 不点击左键
                         // 鼠标移动：只更新高亮显示
                         if (oldOption != m_gameModeOption) { // 如果选项改变了
-                            // 播放菜单选择音效
-                            playSelectSound();
+                            // 选项改变，更新显示
                         }
                         update();
                     }
@@ -1143,8 +1133,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                 } else { // 不点击左键
                     // 鼠标移动：只更新高亮显示
                     if (oldOption != m_option) { // 如果选项改变了
-                        // 播放菜单选择音效
-                        playSelectSound();
+                        // 鼠标移动：只更新高亮显示
                     }
             update();
                 }
@@ -3880,18 +3869,16 @@ void GameWindow::createHelpMenu()
         QString scoreText = 
             "=== 植物大战僵尸方块得分规则 ===\n\n"
             "【方块类型与阳光值】\n"
-            "🔥 火爆辣椒 (图片1): 125 阳光\n"
-            "🔥 火炬树桩 (图片2): 175 阳光\n"
-            "🔫 机枪豌豆 (图片3): 250 阳光\n"
-            "🌱 豌豆射手 (图片4): 100 阳光\n"
-            "🥜 坚果 (图片5): 50 阳光\n"
-            "🌻 双胞向日葵 (图片6): 150 阳光\n"
-            "🌻 向日葵 (图片7): 50 阳光\n"
-            "❄️ 寒冰射手 (图片8): 150 阳光\n\n"
+            "火爆辣椒 : 125 阳光\n"
+            "火炬树桩 : 175 阳光\n"
+            "机枪豌豆 : 250 阳光\n"
+            "豌豆射手 : 100 阳光\n"
+            "坚果 : 50 阳光\n"
+            "双胞向日葵 : 150 阳光\n"
+            "向日葵 : 50 阳光\n"
+            "寒冰射手 : 150 阳光\n\n"
             "【得分说明】\n"
             "• 消除相同类型的方块对可获得对应阳光值\n"
-            "• 阳光值越高，方块越稀有，得分越多\n"
-            "• 机枪豌豆得分最高，坚果和向日葵得分最低\n"
             "• 合理规划消除顺序，优先消除高分方块";
         
         QMessageBox::information(this, "得分规则", scoreText);
