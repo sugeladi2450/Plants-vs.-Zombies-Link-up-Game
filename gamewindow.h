@@ -1054,6 +1054,17 @@ private:
      */
     QColor getPlayerColor(int id);
     
+    /**
+     * @brief 获取方块对应的阳光值
+     * @param blockType 方块类型 (1-8)
+     * @return 对应的阳光值
+     * 
+     * 根据方块类型返回对应的阳光值：
+     * 1-火爆辣椒: 125, 2-火炬树桩: 175, 3-机枪豌豆: 250, 4-豌豆射手: 100
+     * 5-坚果: 50, 6-双胞向日葵: 150, 7-向日葵: 50, 8-寒冰射手: 150
+     */
+    int getBlockSunlight(int blockType);
+    
 
 
     

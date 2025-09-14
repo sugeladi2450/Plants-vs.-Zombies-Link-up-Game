@@ -30,7 +30,7 @@ void Player::setPosition(int row, int col)
     m_col = col;
 }
 
-// 增加玩家分数
+// 增加玩家阳光值
 void Player::addScore(int points)
 {
     m_score += points;
@@ -1186,8 +1186,8 @@ void GameWindow::start()
     }
     
     m_active = &m_p1;
-    m_p1.addScore(-m_p1.getScore()); // 重置分数
-    m_p2.addScore(-m_p2.getScore()); // 重置分数
+    m_p1.addScore(-m_p1.getScore()); // 重置阳光值
+    m_p2.addScore(-m_p2.getScore()); // 重置阳光值
     
     generateItems(); //在地图的空白位置随机生成道具，包括时间加成、重新排列、提示等。 根据游戏模式（单人/双人）生成不同的道具类型。
     m_time = TIME;
@@ -1272,17 +1272,17 @@ void GameWindow::showGameResult()
         int score2 = m_p2.getScore();
         
         if (score1 > score2) {
-            result = QString("游戏结束！\n玩家1获胜！\n玩家1分数：%1\n玩家2分数：%2")
+            result = QString("游戏结束！\n玩家1获胜！\n玩家1阳光：%1\n玩家2阳光：%2")
                     .arg(score1).arg(score2);
         } else if (score2 > score1) {
-            result = QString("游戏结束！\n玩家2获胜！\n玩家1分数：%1\n玩家2分数：%2")
+            result = QString("游戏结束！\n玩家2获胜！\n玩家1阳光：%1\n玩家2阳光：%2")
                     .arg(score1).arg(score2);
         } else {
-            result = QString("游戏结束！\n平局！\n玩家1分数：%1\n玩家2分数：%2")
+            result = QString("游戏结束！\n平局！\n玩家1阳光：%1\n玩家2阳光：%2")
                     .arg(score1).arg(score2);
         }
     } else { //单人模式
-        result = QString("游戏结束！\n最终分数：%1\n剩余时间：%2秒")
+        result = QString("游戏结束！\n最终阳光：%1\n剩余时间：%2秒")
                 .arg(m_p1.getScore()).arg(m_time);
     }
     
@@ -1876,7 +1876,7 @@ void GameWindow::processElimination(int targetRow, int targetCol)
     if (m_judger.canEliminate(r1, c1, r2, c2, m_mapData)) {
 
         int blockType = m_mapData[r1][c1]; //方块类型
-        int points = blockType * 10; //分数
+        int points = getBlockSunlight(blockType); //根据方块类型获取阳光值
         
         // 给当前玩家加分
         m_active->addScore(points);
@@ -2793,7 +2793,7 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
 //绘制游戏信息
 void GameWindow::drawGameInfo(QPainter& painter, int widgetWidth, int widgetHeight)
 {
-    // 绘制时间和分数信息
+    // 绘制时间和阳光信息
     painter.setPen(QColorConstants::Svg::white);
     painter.setFont(QFont("Arial", 12, QFont::Bold));
     
@@ -2803,12 +2803,12 @@ void GameWindow::drawGameInfo(QPainter& painter, int widgetWidth, int widgetHeig
     QString timeText = QString("时间: %1:%2").arg(minutes, 2, 10, QChar('0')).arg(seconds, 2, 10, QChar('0'));
     painter.drawText(10, 25, timeText);
     
-    // 显示分数
+    // 显示阳光值
     if (m_twoPlayer) {
-        painter.drawText(10, 45, QString("玩家1分数: %1").arg(m_p1.getScore()));
-        painter.drawText(10, 65, QString("玩家2分数: %1").arg(m_p2.getScore()));
+        painter.drawText(10, 45, QString("玩家1阳光: %1").arg(m_p1.getScore()));
+        painter.drawText(10, 65, QString("玩家2阳光: %1").arg(m_p2.getScore()));
     } else {
-        painter.drawText(10, 45, QString("分数: %1").arg(m_p1.getScore()));
+        painter.drawText(10, 45, QString("阳光: %1").arg(m_p1.getScore()));
     }
     
     // 显示道具状态
@@ -2875,6 +2875,22 @@ QColor GameWindow::getPlayerColor(int playerId)
     case 1: return QColor(0xff0000); // 红色，更明显
     case 2: return QColor(0xff00ff); // 紫色
     default: return QColorConstants::Svg::white;
+    }
+}
+
+//根据方块类型获取阳光值
+int GameWindow::getBlockSunlight(int blockType)
+{
+    switch (blockType) {
+    case 1: return 125; // 火爆辣椒
+    case 2: return 175; // 火炬树桩
+    case 3: return 250; // 机枪豌豆
+    case 4: return 100; // 豌豆射手
+    case 5: return 50;  // 坚果
+    case 6: return 150; // 双胞向日葵
+    case 7: return 50;  // 向日葵
+    case 8: return 150; // 寒冰射手
+    default: return 0;  // 未知类型
     }
 } 
 
@@ -3721,6 +3737,7 @@ void GameWindow::createHelpMenu()
     
     QAction* help = m_helpMenu->addAction("操作指引");
     QAction* hints = m_helpMenu->addAction("操作提示");
+    QAction* scoreRules = m_helpMenu->addAction("得分规则");
     
     connect(help, &QAction::triggered, this, [this]() {
         QString helpText = 
@@ -3733,7 +3750,7 @@ void GameWindow::createHelpMenu()
             "【游戏规则】\n"
             "• 连接两个相同图案的方块进行消除\n"
             "• 连接路径最多只能有两个拐角\n"
-            "• 消除方块获得分数\n"
+            "• 消除方块获得阳光值\n"
             "• 在时间限制内消除所有方块获胜\n\n"
             "【道具说明】\n"
             "• +1s: 增加游戏时间\n"
@@ -3744,6 +3761,27 @@ void GameWindow::createHelpMenu()
             "• Flash: 5秒内可瞬移到任意位置（单人模式）";
         
         QMessageBox::information(this, "操作指引", helpText);
+    });
+    
+    connect(scoreRules, &QAction::triggered, this, [this]() {
+        QString scoreText = 
+            "=== 植物大战僵尸方块得分规则 ===\n\n"
+            "【方块类型与阳光值】\n"
+            "🔥 火爆辣椒 (图片1): 125 阳光\n"
+            "🔥 火炬树桩 (图片2): 175 阳光\n"
+            "🔫 机枪豌豆 (图片3): 250 阳光\n"
+            "🌱 豌豆射手 (图片4): 100 阳光\n"
+            "🥜 坚果 (图片5): 50 阳光\n"
+            "🌻 双胞向日葵 (图片6): 150 阳光\n"
+            "🌻 向日葵 (图片7): 50 阳光\n"
+            "❄️ 寒冰射手 (图片8): 150 阳光\n\n"
+            "【得分说明】\n"
+            "• 消除相同类型的方块对可获得对应阳光值\n"
+            "• 阳光值越高，方块越稀有，得分越多\n"
+            "• 机枪豌豆得分最高，坚果和向日葵得分最低\n"
+            "• 合理规划消除顺序，优先消除高分方块";
+        
+        QMessageBox::information(this, "得分规则", scoreText);
     });
     
     connect(hints, &QAction::triggered, this, [this]() {
