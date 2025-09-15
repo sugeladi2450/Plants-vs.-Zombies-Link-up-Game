@@ -3,14 +3,6 @@
 #include <QDir>
 
 // Player类实现
-/**
- * @brief Player构造函数实现
- * @param id 玩家ID
- * @param startRow 初始行坐标
- * @param startCol 初始列坐标
- * 
- * 初始化玩家对象的所有成员变量
- */
 Player::Player(int id, int startRow, int startCol)
     : m_id(id)
     , m_row(startRow)
@@ -50,12 +42,7 @@ void Player::setFlashActive(bool active, int time)
     m_flashTime = time;
 }
 
-/**
- * @brief 更新状态效果实现
- * 
- * 每调用一次，所有状态效果的剩余时间减1秒。
- * 当时间归零时，自动解除对应状态。
- */
+//更新状态效果实现
 void Player::updateEffects()
 {
     // 更新眩晕效果
@@ -87,10 +74,9 @@ void Player::move(int deltaRow, int deltaCol)
     m_col += deltaCol;
 }
 
-//GameWindow构造函数实现
+//GameWindow构造函数
 GameWindow::GameWindow(QWidget *parent)
     : QWidget(parent)
-    // 游戏状态
     , m_state(MENU_STATE) // 菜单状态
     , m_option(START_NEW_GAME) // 菜单选项，初始选中开始新游戏
     , m_gameModeOption(SINGLE_PLAYER) // 游戏模式选项，默认单人模式
@@ -104,13 +90,9 @@ GameWindow::GameWindow(QWidget *parent)
     , m_paused(false) // 游戏暂停
     , m_twoPlayer(false)  // 双人模式标志，由菜单选择决定
     , m_time(TIME)  // 游戏时间
-    
-    // 玩家相关
     , m_p1(1, 0, 0) // 玩家1，初始位置为(0,0)
     , m_p2(2, 0, 0) // 玩家2，初始位置为(0,0)
     , m_active(&m_p1)
-    
-    // 游戏交互
     , m_activeRow(-1) // 激活行
     , m_activeCol(-1) // 激活列
     , m_hintOn(false) // 提示开启
@@ -129,7 +111,6 @@ GameWindow::GameWindow(QWidget *parent)
     , m_spawnTimer(new QTimer(this)) // 道具生成定时器
     , m_animationTimer(new QTimer(this)) // 动画定时器
     
-    // GIF动图相关
     , m_zombieMovie(nullptr) // 玩家1僵尸GIF动图
     , m_zombieEatMovie(nullptr) // 玩家1僵尸攻击GIF动图
     , m_currentZombieFrame() // 玩家1当前僵尸帧
@@ -242,6 +223,9 @@ void GameWindow::showMenu()
     m_showSaveSlots = false; // 不显示保存存档槽位选择
     m_showDeleteSlots = false; // 不显示删除存档槽位选择
     
+    // 重置窗口标题为初始状态
+    setWindowTitle("QLink");
+    
     // 加载方块图片
     loadBlockImages();
     
@@ -340,10 +324,10 @@ QString GameWindow::getSaveFileName(SaveSlot slot)
 QString GameWindow::getSaveDisplayName(SaveSlot slot)
 {
     QString baseName = QString("存档%1").arg(slot + 1);
-    if (isSaveSlotExists(slot)) {
-        return baseName;
+    if (isSaveSlotExists(slot)) { 
+        return baseName; // 如果存档存在，则返回存档名称
     } else {
-        return QString("%1 (空)").arg(baseName);
+        return QString("%1 (空)").arg(baseName); // 如果存档不存在，则返回存档名称(空)
     }
 }
 
@@ -352,9 +336,9 @@ void GameWindow::deleteSaveSlot(SaveSlot slot)
 {
     QString fileName = getSaveFileName(slot);
     if (QFile::exists(fileName)) {
-        QFile::remove(fileName);
+        QFile::remove(fileName); // 如果存档存在，则删除存档
     }
-    m_showDeleteSlots = false;
+    m_showDeleteSlots = false; // 关闭删除存档槽位选择
     update();
 }
 
@@ -368,9 +352,6 @@ void GameWindow::drawMenu(QPainter& painter)
     // 绘制背景
     painter.fillRect(rect(), QColorConstants::Svg::darkblue);
     
-    // 绘制标题
-    drawTitle(painter);
-    
     // 绘制菜单选项
     drawOptions(painter);
     
@@ -378,23 +359,13 @@ void GameWindow::drawMenu(QPainter& painter)
     painter.setPen(QColorConstants::Svg::white); // 设置白色画笔
     painter.setFont(QFont("Arial", 12)); // 设置字体
     QRect hintRect = rect(); // 设置提示矩形
-    hintRect.setTop(height() - 100); // 设置提示矩形顶部位置
+    hintRect.setTop(height() - 100); // 设置提示矩形顶部位置,100是提示矩形高度
     painter.drawText(hintRect, Qt::AlignCenter, // 设置提示文字居中
                     "使用 ↑↓ 键选择，Enter 键确认，或使用鼠标点击选项"); // 设置提示文字
 }
 
-// 绘制标题
-void GameWindow::drawTitle(QPainter& painter)
-{
-    painter.setPen(QColorConstants::Svg::white); // 设置白色画笔
-    painter.setFont(QFont("Arial", 24, QFont::Bold)); // 设置字体
-    
-    QRect titleRect = rect(); // 设置标题矩形
-    titleRect.setHeight(100); // 设置标题矩形高度
-    painter.drawText(titleRect, Qt::AlignCenter, "QLink 连连看游戏"); // 设置标题文字
-}
 
-// 绘制存档菜单选项（不绘制背景图片）
+// 绘制存档菜单选项
 void GameWindow::drawSaveOptions(QPainter& painter)
 {
     if (m_showLoadSlots) {
@@ -927,6 +898,9 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
     QPoint adjustedPos = event->pos();
     adjustedPos.setY(adjustedPos.y() - menuHeight); // 调整鼠标位置
     
+    // 默认设置为普通光标
+    bool isOverOption = false;
+    
     if (m_showLoadSlots) {
         // 处理载入存档槽位选择
         int startY = 150; // 设置菜单选项起始位置
@@ -939,6 +913,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                             width() - 100, optionHeight); // 设置菜单选项矩形
             
             if (optionRect.contains(adjustedPos)) {
+                isOverOption = true; // 鼠标在选项上，设置为小手光标
                 if (i == 0) {
                     // 返回按钮
                     bool oldSelected = m_backButtonSelected;
@@ -985,6 +960,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                             width() - 100, optionHeight); // 设置菜单选项矩形
             
             if (optionRect.contains(adjustedPos)) {
+                isOverOption = true; // 鼠标在选项上，设置为小手光标
                 if (i == 0) {
                     // 返回按钮
                     bool oldSelected = m_backButtonSelected;
@@ -1031,6 +1007,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                             width() - 100, optionHeight); // 设置菜单选项矩形
             
             if (optionRect.contains(adjustedPos)) {
+                isOverOption = true; // 鼠标在选项上，设置为小手光标
                 if (i == 0) {
                     // 返回按钮
                     bool oldSelected = m_backButtonSelected;
@@ -1077,6 +1054,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                             width() - 100, optionHeight); // 设置菜单选项矩形
             
             if (optionRect.contains(adjustedPos)) {
+                isOverOption = true; // 鼠标在选项上，设置为小手光标
                 if (i == 0) {
                     // 返回按钮
                     bool oldSelected = m_backButtonSelected;
@@ -1122,6 +1100,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                             width() - 100, optionHeight); // 设置菜单选项矩形
             
             if (optionRect.contains(adjustedPos)) {
+                isOverOption = true; // 鼠标在选项上，设置为小手光标
                 MenuOption oldOption = m_option; // 保存旧的选项
                 m_option = static_cast<MenuOption>(i); // 设置当前选中的菜单选项
 
@@ -1137,6 +1116,15 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                 }
             break;
             }
+        }
+    }
+    
+    // 根据鼠标是否在选项上设置光标样式
+    if (!isClick) { // 只在鼠标移动时设置光标，点击时不需要
+        if (isOverOption) {
+            setCursor(Qt::PointingHandCursor); // 设置小手光标
+        } else {
+            setCursor(Qt::ArrowCursor); // 设置默认箭头光标
         }
     }
 }
@@ -2403,9 +2391,6 @@ void GameWindow::drawSaveMenu(QPainter& painter)
     // 抗锯齿
     painter.setRenderHint(QPainter::Antialiasing, true); // 图形抗锯齿
     painter.setRenderHint(QPainter::TextAntialiasing, true); // 文本抗锯齿
-    
-    // 绘制标题
-    drawTitle(painter);
     
     // 绘制菜单选项（不绘制背景图片）
     drawSaveOptions(painter);

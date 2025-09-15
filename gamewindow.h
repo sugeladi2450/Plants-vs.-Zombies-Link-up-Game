@@ -215,8 +215,6 @@ private:
     // 绘制存档菜单选项
     void drawSaveOptions(QPainter& painter);
     
-    // 绘制游戏标题
-    void drawTitle(QPainter& painter);
     
     // 绘制菜单选项列表
     void drawOptions(QPainter& painter);
