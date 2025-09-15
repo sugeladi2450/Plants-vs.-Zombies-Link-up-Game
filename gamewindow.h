@@ -222,6 +222,9 @@ private:
     // 绘制单个菜单选项
     void drawOption(QPainter& painter, const QRect& rect, const QString& text, bool selected);
     
+    // 绘制菜单选项的通用辅助函数
+    void drawMenuOptionsHelper(QPainter& painter, const std::initializer_list<QString>& options, int optionCount, bool hasReturnButton);
+    
     // 绘制游戏状态界面
     void drawGameState(QPainter& painter, int widgetWidth, int widgetHeight);
     

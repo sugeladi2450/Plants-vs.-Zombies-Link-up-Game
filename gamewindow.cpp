@@ -368,105 +368,37 @@ void GameWindow::drawMenu(QPainter& painter)
 // 绘制存档菜单选项
 void GameWindow::drawSaveOptions(QPainter& painter)
 {
-    if (m_showLoadSlots) {
-        // 显示载入存档槽位选择
-        static const int startY = 150; // 设置菜单选项起始位置
-        static const int optionHeight = 50; // 设置菜单选项高度
-        static const int spacing = 20; // 设置菜单选项间距
-        static const int cornerRadius = 10; // 设置菜单选项圆角
-        static const int selectionOffset = 5; // 设置菜单选项选中偏移
-        
-        // 绘制返回按钮和存档槽位
-        QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
-        
-        for (int i = 0; i < 4; ++i) {
+    // 菜单选项参数
+    static const int startY = 150; // 设置菜单选项起始位置
+    static const int optionHeight = 50; // 设置菜单选项高度
+    static const int spacing = 20; // 设置菜单选项间距
+    static const int selectionOffset = 5; // 设置菜单选项选中偏移
+    
+    // 准备选项文本
+    QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
+    
+    // 绘制所有选项（返回按钮 + 存档槽位）
+    for (int i = 0; i < 4; ++i) {
         QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                            width() - 100, optionHeight); // 设置菜单选项矩形
-            
-            // 设置菜单选项选中状态
-            bool isSelected = false;
-            if (i == 0) {
-                // 返回按钮
-                isSelected = m_backButtonSelected;
-            } else {
-                // 存档槽位 - 只有在返回按钮未选中时才可能被选中
-                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
-            }
-            
-            // 选中项放大矩形
-        if (isSelected) {
-                optionRect.adjust(-selectionOffset, -selectionOffset, 
-                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
-            }
-            
-            drawOption(painter, optionRect, options[i], isSelected);
+                        width() - 100, optionHeight); // 设置菜单选项矩形
+        
+        // 设置菜单选项选中状态
+        bool isSelected = false;
+        if (i == 0) {
+            // 返回按钮
+            isSelected = m_backButtonSelected;
+        } else {
+            // 存档槽位 - 只有在返回按钮未选中时才可能被选中
+            isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
         }
-    } else if (m_showSaveSlots) {
-        // 显示保存存档槽位选择
-        static const int startY = 150; // 设置菜单选项起始位置
-        static const int optionHeight = 50; // 设置菜单选项高度
-        static const int spacing = 20; // 设置菜单选项间距
-        static const int cornerRadius = 10; // 设置菜单选项圆角
-        static const int selectionOffset = 5; // 设置菜单选项选中偏移
         
-        // 绘制返回按钮和存档槽位
-        QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
-        
-        for (int i = 0; i < 4; ++i) {
-        QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                            width() - 100, optionHeight); // 设置菜单选项矩形
-            
-            // 设置菜单选项选中状态
-            bool isSelected = false;
-            if (i == 0) {
-                // 返回按钮
-                isSelected = m_backButtonSelected;
-            } else {
-                // 存档槽位 - 只有在返回按钮未选中时才可能被选中
-                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
-            }
-            
-            // 选中项放大矩形
+        // 选中项放大矩形
         if (isSelected) {
-                optionRect.adjust(-selectionOffset, -selectionOffset, 
-                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
-            }
-            
-            drawOption(painter, optionRect, options[i], isSelected);
+            optionRect.adjust(-selectionOffset, -selectionOffset, 
+                             selectionOffset, selectionOffset); // 左边，上边，右边，下边的偏移量
         }
-    } else if (m_showDeleteSlots) {
-        // 显示删除存档槽位选择
-        static const int startY = 150; // 设置菜单选项起始位置
-        static const int optionHeight = 50; // 设置菜单选项高度
-        static const int spacing = 20; // 设置菜单选项间距
-        static const int cornerRadius = 10; // 设置菜单选项圆角
-        static const int selectionOffset = 5; // 设置菜单选项选中偏移
         
-        // 绘制返回按钮和存档槽位
-        QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
-        
-        for (int i = 0; i < 4; ++i) {
-        QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                            width() - 100, optionHeight); // 设置菜单选项矩形
-            
-            // 设置菜单选项选中状态
-            bool isSelected = false;
-            if (i == 0) {
-                // 返回按钮
-                isSelected = m_backButtonSelected;
-            } else {
-                // 存档槽位 - 只有在返回按钮未选中时才可能被选中
-                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
-            }
-            
-            // 选中项放大矩形
-        if (isSelected) {
-                optionRect.adjust(-selectionOffset, -selectionOffset, 
-                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
-            }
-            
-            drawOption(painter, optionRect, options[i], isSelected);
-        }
+        drawOption(painter, optionRect, options[i], isSelected);
     }
 }
 
@@ -475,186 +407,72 @@ void GameWindow::drawOptions(QPainter& painter)
 {
     // 绘制菜单背景图片
     if (!m_menuBackground.isNull()) {
-        // 获取窗口尺寸
         int windowWidth = width();
         int windowHeight = height();
         
-        // 使用Qt::KeepAspectRatioByExpanding确保图片完全填满窗口，边框完全贴合
+        // 缩放图片以完全填满窗口，图片完整显示但可能改变宽高比
         QPixmap scaledBackground = m_menuBackground.scaled(
             QSize(windowWidth, windowHeight), 
-            Qt::KeepAspectRatioByExpanding, // 保持宽高比，完全填满窗口
+            Qt::IgnoreAspectRatio, // 忽略宽高比，完全填满窗口
             Qt::SmoothTransformation
         );
         
-        // 计算绘制位置，使图片居中（可能会超出窗口边界）
-        QPoint drawPos(0, 0);
-        if (scaledBackground.width() > windowWidth) {
-            drawPos.setX((scaledBackground.width() - windowWidth) / 2);
-        }
-        if (scaledBackground.height() > windowHeight) {
-            drawPos.setY((scaledBackground.height() - windowHeight) / 2);
-        }
-        
-        // 绘制背景图片（只绘制窗口范围内的部分）
-        painter.drawPixmap(0, 0, scaledBackground, drawPos.x(), drawPos.y(), windowWidth, windowHeight);
+        // 绘制完整的背景图片，填满整个窗口
+        painter.drawPixmap(0, 0, scaledBackground);
     }
     
-    if (m_showLoadSlots) {
-        // 显示载入存档槽位选择
-        static const int startY = 150; // 设置菜单选项起始位置
-        static const int optionHeight = 50; // 设置菜单选项高度
-        static const int spacing = 20; // 设置菜单选项间距
-        static const int cornerRadius = 10; // 设置菜单选项圆角
-        static const int selectionOffset = 5; // 设置菜单选项选中偏移
-        
-        // 绘制返回按钮和存档槽位
-        QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
-        
-        for (int i = 0; i < 4; ++i) {
-        QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                            width() - 100, optionHeight); // 设置菜单选项矩形
-            
-            // 设置菜单选项选中状态
-            bool isSelected = false;
-            if (i == 0) {
-                // 返回按钮
-                isSelected = m_backButtonSelected;
-            } else {
-                // 存档槽位 - 只有在返回按钮未选中时才可能被选中
-                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
-            }
-            
-            // 选中项放大矩形
-        if (isSelected) {
-                optionRect.adjust(-selectionOffset, -selectionOffset, 
-                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
-            }
-            
-            drawOption(painter, optionRect, options[i], isSelected);
-        }
-    } else if (m_showSaveSlots) {
-        // 显示保存存档槽位选择
-        static const int startY = 150; // 设置菜单选项起始位置
-        static const int optionHeight = 50; // 设置菜单选项高度
-        static const int spacing = 20; // 设置菜单选项间距
-        static const int cornerRadius = 10; // 设置菜单选项圆角
-        static const int selectionOffset = 5; // 设置菜单选项选中偏移
-        
-        // 绘制返回按钮和存档槽位
-        QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
-        
-        for (int i = 0; i < 4; ++i) {
-            QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                            width() - 100, optionHeight); // 设置菜单选项矩形
-            
-            // 设置菜单选项选中状态
-            bool isSelected = false;
-            if (i == 0) {
-                // 返回按钮
-                isSelected = m_backButtonSelected;
-            } else {
-                // 存档槽位 - 只有在返回按钮未选中时才可能被选中
-                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
-            }
-            
-            // 选中项放大矩形
-            if (isSelected) {
-                optionRect.adjust(-selectionOffset, -selectionOffset, 
-                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
-            }
-            
-            drawOption(painter, optionRect, options[i], isSelected);
-        }
-    } else if (m_showDeleteSlots) {
-        // 显示删除存档槽位选择
-        static const int startY = 150; // 设置菜单选项起始位置
-        static const int optionHeight = 50; // 设置菜单选项高度
-        static const int spacing = 20; // 设置菜单选项间距
-        static const int cornerRadius = 10; // 设置菜单选项圆角
-        static const int selectionOffset = 5; // 设置菜单选项选中偏移
-        
-        // 绘制返回按钮和存档槽位
-        QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
-        
-        for (int i = 0; i < 4; ++i) {
-            QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                            width() - 100, optionHeight); // 设置菜单选项矩形
-            
-            // 设置菜单选项选中状态
-            bool isSelected = false;
-            if (i == 0) {
-                // 返回按钮
-                isSelected = m_backButtonSelected;
-            } else {
-                // 存档槽位 - 只有在返回按钮未选中时才可能被选中
-                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
-            }
-            
-            // 选中项放大矩形
-            if (isSelected) {
-                optionRect.adjust(-selectionOffset, -selectionOffset, 
-                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
-            }
-            
-            drawOption(painter, optionRect, options[i], isSelected);
-        }
+    if (m_showLoadSlots || m_showSaveSlots || m_showDeleteSlots) {
+        // 显示存档相关界面，调用专门的存档选项绘制函数
+        drawSaveOptions(painter);
     } else if (m_showGameModeSelection) {
         // 显示游戏模式选择
-        static const QString gameModeOptions[] = {"返回", "单人模式", "双人模式"}; // 设置选项（包含返回按钮）
-        static const int startY = 150; // 设置菜单选项起始位置
-        static const int optionHeight = 50; // 设置菜单选项高度
-        static const int spacing = 20; // 设置菜单选项间距
-        static const int cornerRadius = 10; // 设置菜单选项圆角
-        static const int selectionOffset = 5; // 设置菜单选项选中偏移
+        drawMenuOptionsHelper(painter, {"返回", "单人模式", "双人模式"}, 3, true);
+    } else {
+        // 显示主菜单选项
+        drawMenuOptionsHelper(painter, {"开始新游戏", "载入游戏", "退出游戏"}, OPTIONS, false);
+    }
+}
+
+// 绘制菜单选项的通用辅助函数
+void GameWindow::drawMenuOptionsHelper(QPainter& painter, const std::initializer_list<QString>& options, int optionCount, bool hasReturnButton)
+{
+    // 统一的菜单选项参数
+    static const int startY = 150; // 设置菜单选项起始位置
+    static const int optionHeight = 50; // 设置菜单选项高度
+    static const int spacing = 20; // 设置菜单选项间距
+    static const int selectionOffset = 5; // 设置菜单选项选中偏移
+    
+    // 将选项列表转换为数组以便索引访问
+    std::vector<QString> optionArray(options);
+    
+    // 绘制所有选项
+    for (int i = 0; i < optionCount; ++i) {
+        QRect optionRect(50, startY + i * (optionHeight + spacing), 
+                        width() - 100, optionHeight); // 设置菜单选项矩形
         
-        // 绘制所有选项（包括返回按钮）
-        for (int i = 0; i < 3; ++i) {
-            QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                            width() - 100, optionHeight); // 设置菜单选项矩形
-            
-            // 设置菜单选项选中状态 - 只有一个选项被选中
-            bool isSelected = false;
+        // 设置菜单选项选中状态
+        bool isSelected = false;
+        if (hasReturnButton) {
+            // 有返回按钮的情况（游戏模式选择）
             if (i == 0) {
                 // 返回按钮
                 isSelected = m_backButtonSelected;
             } else {
-                // 游戏模式选项 - 只有在返回按钮未选中时才可能被选中
+                // 其他选项 - 只有在返回按钮未选中时才可能被选中
                 isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_gameModeOption));
             }
-            
-            // 选中项放大矩形
-            if (isSelected) {
-                optionRect.adjust(-selectionOffset, -selectionOffset, 
-                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
-            }
-            
-            drawOption(painter, optionRect, gameModeOptions[i], isSelected);
+        } else {
+            // 主菜单选项
+            isSelected = (i == static_cast<int>(m_option));
         }
-    } else {
-        // 显示主菜单选项
-        static const QString options[] = {"开始新游戏", "载入游戏", "退出游戏"}; // 设置菜单选项
-        static const int startY = 150; // 设置菜单选项起始位置
-        static const int optionHeight = 50; // 设置菜单选项高度
-        static const int spacing = 20; // 设置菜单选项间距
-        static const int cornerRadius = 10; // 设置菜单选项圆角
-        static const int selectionOffset = 5; // 设置菜单选项选中偏移
         
-        // 绘制菜单选项
-        for (int i = 0; i < OPTIONS; ++i) {
-            QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                            width() - 100, optionHeight); // 设置菜单选项矩形
-            
-            // 设置菜单选项选中状态
-            bool isSelected = (i == static_cast<int>(m_option)); 
-            
-            // 选中项放大矩形
-            if (isSelected) {
-                optionRect.adjust(-selectionOffset, -selectionOffset, 
-                                 selectionOffset, selectionOffset); //左边，上边，右边，下边的偏移量
-            }
-            
-            drawOption(painter, optionRect, options[i], isSelected);
+        // 选中项放大矩形
+        if (isSelected) {
+            optionRect.adjust(-selectionOffset, -selectionOffset, 
+                             selectionOffset, selectionOffset); // 左边，上边，右边，下边的偏移量
         }
+        
+        drawOption(painter, optionRect, optionArray[i], isSelected);
     }
 }
 
@@ -2435,40 +2253,15 @@ void GameWindow::drawGameBackground(QPainter& painter, int widgetWidth, int widg
 {
     // 绘制游戏背景图片
     if (!m_gameBackground.isNull()) {
-        // 计算背景图片的缩放比例，保持宽高比
-        QSize imageSize = m_gameBackground.size();
-        double imageRatio = (double)imageSize.width() / imageSize.height();
-        double widgetRatio = (double)widgetWidth / widgetHeight;
+        // 缩放图片以完全填满窗口，图片完整显示但可能改变宽高比
+        QPixmap scaledBackground = m_gameBackground.scaled(
+            QSize(widgetWidth, widgetHeight), 
+            Qt::IgnoreAspectRatio, // 忽略宽高比，完全填满窗口
+            Qt::SmoothTransformation
+        );
         
-        QPixmap scaledBackground;
-        QPoint drawPos(0, 0);
-        
-        if (imageRatio > widgetRatio) {
-            // 图片更宽，以高度为准进行缩放
-            int scaledHeight = widgetHeight;
-            int scaledWidth = static_cast<int>(widgetHeight * imageRatio);
-            scaledBackground = m_gameBackground.scaled(scaledWidth, scaledHeight, 
-                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            
-            // 水平居中
-            if (scaledBackground.width() > widgetWidth) {
-                drawPos.setX((scaledBackground.width() - widgetWidth) / 2);
-            }
-        } else {
-            // 图片更高，以宽度为准进行缩放
-            int scaledWidth = widgetWidth;
-            int scaledHeight = static_cast<int>(widgetWidth / imageRatio);
-            scaledBackground = m_gameBackground.scaled(scaledWidth, scaledHeight, 
-                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            
-            // 垂直居中
-            if (scaledBackground.height() > widgetHeight) {
-                drawPos.setY((scaledBackground.height() - widgetHeight) / 2);
-            }
-        }
-        
-        // 绘制背景图片（只绘制窗口范围内的部分）
-        painter.drawPixmap(0, 0, scaledBackground, drawPos.x(), drawPos.y(), widgetWidth, widgetHeight);
+        // 绘制完整的背景图片，填满整个窗口
+        painter.drawPixmap(0, 0, scaledBackground);
         
         // 添加一个半透明的遮罩层，让背景图片稍微暗一些，突出游戏元素
         painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(0, 0, 0, 30));
@@ -2483,40 +2276,15 @@ void GameWindow::drawSaveBackground(QPainter& painter, int widgetWidth, int widg
 {
     // 绘制保存/载入背景图片
     if (!m_saveBackground.isNull()) {
-        // 计算背景图片的缩放比例，保持宽高比
-        QSize imageSize = m_saveBackground.size();
-        double imageRatio = (double)imageSize.width() / imageSize.height();
-        double widgetRatio = (double)widgetWidth / widgetHeight;
+        // 缩放图片以完全填满窗口，图片完整显示但可能改变宽高比
+        QPixmap scaledBackground = m_saveBackground.scaled(
+            QSize(widgetWidth, widgetHeight), 
+            Qt::IgnoreAspectRatio, // 忽略宽高比，完全填满窗口
+            Qt::SmoothTransformation
+        );
         
-        QPixmap scaledBackground;
-        QPoint drawPos(0, 0);
-        
-        if (imageRatio > widgetRatio) {
-            // 图片更宽，以高度为准进行缩放
-            int scaledHeight = widgetHeight;
-            int scaledWidth = static_cast<int>(widgetHeight * imageRatio);
-            scaledBackground = m_saveBackground.scaled(scaledWidth, scaledHeight, 
-                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            
-            // 水平居中
-            if (scaledBackground.width() > widgetWidth) {
-                drawPos.setX((scaledBackground.width() - widgetWidth) / 2);
-            }
-        } else {
-            // 图片更高，以宽度为准进行缩放
-            int scaledWidth = widgetWidth;
-            int scaledHeight = static_cast<int>(widgetWidth / imageRatio);
-            scaledBackground = m_saveBackground.scaled(scaledWidth, scaledHeight, 
-                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            
-            // 垂直居中
-            if (scaledBackground.height() > widgetHeight) {
-                drawPos.setY((scaledBackground.height() - widgetHeight) / 2);
-            }
-        }
-        
-        // 绘制背景图片（只绘制窗口范围内的部分）
-        painter.drawPixmap(0, 0, scaledBackground, drawPos.x(), drawPos.y(), widgetWidth, widgetHeight);
+        // 绘制完整的背景图片，填满整个窗口
+        painter.drawPixmap(0, 0, scaledBackground);
         
         // 添加一个半透明的遮罩层，让背景图片稍微暗一些，突出菜单选项
         painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(0, 0, 0, 40));
