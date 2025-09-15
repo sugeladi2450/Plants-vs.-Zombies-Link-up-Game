@@ -2519,15 +2519,6 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
             } else {
                 painter.drawText(labelPos, "P2");
             }
-        } else {
-            // 圆形玩家模式下，标签显示在中心
-        painter.setPen(QColorConstants::Svg::white);
-        painter.setFont(QFont("Arial", 10, QFont::Bold));
-            if (playerId == 1) {
-                painter.drawText(playerRect.center(), m_twoPlayer ? "P1" : "玩家");
-            } else {
-                painter.drawText(playerRect.center(), "P2");
-            }
         }
     }
 }
@@ -2632,7 +2623,7 @@ int GameWindow::getBlockSunlight(int blockType)
     case 6: return 150; // 双胞向日葵
     case 7: return 50;  // 向日葵
     case 8: return 150; // 寒冰射手
-    default: return 0;  // 未知类型
+    default: return 0; 
     }
 } 
 
@@ -2749,8 +2740,6 @@ void GameWindow::loadGame(const QString& filename)
     
     // 停止背景音乐
     stopBackgroundMusic();
-    
-    // 注意：不重置游戏效果，因为loadGameEffects已经载入了存档中的效果数据
     
     // 更新窗口标题
     updateWindowTitle("游戏进行中");
@@ -2962,7 +2951,6 @@ void GameWindow::drawBlockImage(QPainter& painter, const QRectF& rect, int block
     painter.setBrush(Qt::transparent);
     painter.drawRoundedRect(rect, 5.0, 5.0);
     
-    // 绘制图片，缩放到方块大小，添加透明度让背景透过来
     painter.setOpacity(0.85); // 设置85%的不透明度，让背景图片能够透过来
     painter.drawPixmap(rect, pixmap, pixmap.rect());
     painter.setOpacity(1.0); // 恢复完全不透明
