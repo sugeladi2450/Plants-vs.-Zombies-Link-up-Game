@@ -9,6 +9,11 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+# 设置Qt6路径和编译器路径
+set(CMAKE_PREFIX_PATH "C:/Qt/6.9.0/mingw_64")
+set(CMAKE_C_COMPILER "C:/Qt/Tools/mingw1310_64/bin/gcc.exe")
+set(CMAKE_CXX_COMPILER "C:/Qt/Tools/mingw1310_64/bin/g++.exe")
+
 find_package(Qt6 REQUIRED COMPONENTS Widgets Test Multimedia)
 
 add_executable(QLink
