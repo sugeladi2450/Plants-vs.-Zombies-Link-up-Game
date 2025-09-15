@@ -2276,21 +2276,14 @@ void GameWindow::drawSaveBackground(QPainter& painter, int widgetWidth, int widg
 {
     // 绘制保存/载入背景图片
     if (!m_saveBackground.isNull()) {
-        // 缩放图片以完全填满窗口，图片完整显示但可能改变宽高比
         QPixmap scaledBackground = m_saveBackground.scaled(
             QSize(widgetWidth, widgetHeight), 
-            Qt::IgnoreAspectRatio, // 忽略宽高比，完全填满窗口
+            Qt::IgnoreAspectRatio, 
             Qt::SmoothTransformation
         );
         
         // 绘制完整的背景图片，填满整个窗口
         painter.drawPixmap(0, 0, scaledBackground);
-        
-        // 添加一个半透明的遮罩层，让背景图片稍微暗一些，突出菜单选项
-        painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(0, 0, 0, 40));
-    } else {
-        // 如果背景图片加载失败，使用明显的默认背景色（红色，便于识别问题）
-        painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(255, 0, 0));
     }
 }
 
@@ -2303,13 +2296,11 @@ void GameWindow::drawMapBlocks(QPainter& painter, float cellWidth, float cellHei
             int blockType = m_mapData[r][c];
             if (blockType == 0) continue;
 
-
-
             QRectF blockRect(c * cellWidth, r * cellHeight, cellWidth, cellHeight); //创建方块矩形
             blockRect.adjust(2, 2, -2, -2); //调整方块矩形大小，让方块之间有间隙，显得美观
             
             //绘制方块 - 根据状态画不同的样式：
-            //激活状态：红色边框（在drawBlockImage中绘制）
+            //激活状态：红色边框
             //普通状态：黑色边框，透明背景
             if (r == m_activeRow && c == m_activeCol) {
                 // 绘制激活状态的图片（包含红色边框）
@@ -2325,32 +2316,16 @@ void GameWindow::drawMapBlocks(QPainter& painter, float cellWidth, float cellHei
 //绘制道具函数
 void GameWindow::drawItems(QPainter& painter, float cellWidth, float cellHeight)
 {
-    // 绘制道具 - 使用大脑形状并绘制字母
+    // 绘制道具
     for (const auto& item : m_items) {
         QRectF itemRect(item.col * cellWidth, item.row * cellHeight,
-                       cellWidth, cellHeight);
-        itemRect.adjust(3, 3, -3, -3);
+                       cellWidth, cellHeight); //道具矩形
+        itemRect.adjust(3, 3, -3, -3); //调整道具矩形大小
         
         // 绘制大脑形状的道具
         if (!m_brainPropImage.isNull()) {
-            // 使用大脑图片作为道具形状
-            painter.drawPixmap(itemRect, m_brainPropImage, m_brainPropImage.rect());
-        } else {
-            // 如果大脑图片加载失败，使用默认的椭圆形状
-            QColor itemColor;
-            switch (item.type) {
-            case TIME_BONUS: itemColor = QColor(0x00ff00); break;  // 绿色
-            case SHUFFLE: itemColor = QColor(0xff00ff); break;     // 紫色
-            case HINT: itemColor = QColor(0xffff00); break;        // 黄色
-            case DIZZY: itemColor = QColor(0xff8800); break;       // 橙色
-            case FLASH: itemColor = QColor(0x00ffff); break;       // 青色
-            }
-            
-            painter.setBrush(itemColor);
-            painter.setPen(QPen(QColorConstants::Svg::black, 2));
-            painter.drawEllipse(itemRect); //绘制道具，形状为椭圆
+            painter.drawPixmap(itemRect, m_brainPropImage, m_brainPropImage.rect()); //绘制道具图片
         }
-        
         // 绘制道具字母标识
         painter.setFont(QFont("Arial", 10, QFont::Bold)); //设置字体，稍微大一些
         QString itemText;
@@ -2363,31 +2338,23 @@ void GameWindow::drawItems(QPainter& painter, float cellWidth, float cellHeight)
             break;
         case SHUFFLE: 
             itemText = "S"; 
-            textColor = QColor(255, 0, 255); // 亮紫色 - 重新排列
+            textColor = QColor(255, 0, 255); // 紫色 - 重新排列
             break;
         case HINT: 
             itemText = "H"; 
-            textColor = QColor(255, 255, 0); // 亮黄色 - 提示
+            textColor = QColor(255, 255, 0); // 黄色 - 提示
             break;
         case DIZZY: 
             itemText = "D"; 
-            textColor = QColor(255, 100, 0); // 亮橙色 - 眩晕
+            textColor = QColor(255, 100, 0); // 橙色 - 眩晕
             break;
         case FLASH: 
             itemText = "F"; 
-            textColor = QColor(0, 200, 255); // 亮蓝色 - 闪烁
+            textColor = QColor(0, 200, 255); // 蓝色 - 闪烁
             break;
         }
-        
-        // 绘制字母描边（黑色描边提高可见性）
-        painter.setPen(QPen(QColor(0, 0, 0), 3)); // 黑色描边，3像素宽度
+
         QRectF textRect = itemRect;
-        textRect.adjust(2, 2, -2, -2); // 稍微缩小文字区域
-        
-        // 先绘制描边
-        painter.drawText(textRect, Qt::AlignCenter, itemText);
-        
-        // 再绘制主颜色
         painter.setPen(QPen(textColor, 2)); // 主颜色，2像素宽度
         painter.drawText(textRect, Qt::AlignCenter, itemText);
     }
@@ -2396,7 +2363,6 @@ void GameWindow::drawItems(QPainter& painter, float cellWidth, float cellHeight)
 //绘制Hint高亮
 void GameWindow::drawHintHighlights(QPainter& painter, float cellWidth, float cellHeight)
 {
-    // 绘制Hint高亮
     if (m_hintOn && m_hintR1 != -1) { //如果Hint效果激活且Hint高亮的第一个方块不为-1，则绘制Hint高亮
         QRectF hintRect1(m_hintC1 * cellWidth, m_hintR1 * cellHeight,
                         cellWidth, cellHeight);
