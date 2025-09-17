@@ -133,7 +133,7 @@ public:
     static constexpr int TIME = 300; // 游戏时间（秒）
 
 protected:
-    // 重绘事件处理函数
+    // 事件处理函数
     void paintEvent(QPaintEvent *event) override;
     
     // 键盘按键事件处理函数
@@ -417,8 +417,6 @@ private:
     // 尝试两个拐角连接路径
     bool tryTwoCornerPath(int r1, int c1, int r2, int c2);
     
-    // 获取玩家颜色
-    QColor getPlayerColor(int id);
     
     // 获取方块对应的阳光值
     int getBlockSunlight(int blockType);

@@ -140,15 +140,14 @@ GameWindow::GameWindow(QWidget *parent)
     , m_itemSound(new QSoundEffect(this)) // 道具拾取音效播放器
     , m_winSound(new QSoundEffect(this)) // 游戏胜利音效播放器
     
-    // 背景音乐组件
+    // 背景音乐
     , m_backgroundMusic(new QMediaPlayer(this)) // 背景音乐播放器
     , m_gameMusic(new QMediaPlayer(this)) // 游戏背景音乐播放器
     , m_audioOutput(new QAudioOutput(this)) // 音频输出设备
     , m_gameAudioOutput(new QAudioOutput(this)) // 游戏音频输出设备
     , m_backgroundMusicPlaying(false) // 背景音乐未播放
     , m_gameMusicPlaying(false) // 游戏背景音乐未播放
-    
-    // 紧凑菜单组件
+
     , m_menuWidget(nullptr) // 菜单容器
     , m_menuLayout(nullptr) // 菜单布局
     , m_gameButton(nullptr) // 游戏按钮
@@ -164,7 +163,6 @@ GameWindow::GameWindow(QWidget *parent)
 {
     setWindowTitle("QLink");
     
-    // 设置窗口大小和最小尺寸
     setMinimumSize(800, 600);
     resize(1000, 700);
     
@@ -1185,7 +1183,7 @@ void GameWindow::fillGameArea(const std::vector<int>& blockTypes)
 //生成道具函数
 void GameWindow::generateItems()
 {
-    m_items.clear(); //清空道具
+    m_items.clear(); 
     std::random_device rd;
     std::mt19937 gen(rd());
     
@@ -2424,14 +2422,11 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
                           cellWidth, cellHeight);
         
         // 绘制僵尸GIF动图
-        bool hasValidGif = false;
         QPixmap currentFrame;
         bool isAttacking = false;
         
         if (playerId == 1) {
             // 玩家1使用zombie.gif和zombie_eat.gif
-            hasValidGif = (m_zombieMovie && m_zombieMovie->isValid() && !m_currentZombieFrame.isNull()) ||
-                         (m_zombieEatMovie && m_zombieEatMovie->isValid() && !m_currentZombieEatFrame.isNull());
             isAttacking = m_isZombieAttacking;
             
             if (isAttacking && !m_currentZombieEatFrame.isNull()) {
@@ -2443,8 +2438,6 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
             }
         } else if (playerId == 2) {
             // 玩家2使用zombie2.gif和zombie2_eat.gif
-            hasValidGif = (m_zombie2Movie && m_zombie2Movie->isValid() && !m_currentZombie2Frame.isNull()) ||
-                         (m_zombie2EatMovie && m_zombie2EatMovie->isValid() && !m_currentZombie2EatFrame.isNull());
             isAttacking = m_isZombie2Attacking;
             
             if (isAttacking && !m_currentZombie2EatFrame.isNull()) {
@@ -2456,7 +2449,8 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
             }
         }
         
-        if (hasValidGif) {
+        // 绘制僵尸动画
+        {
             // 增大僵尸尺寸，让僵尸占据更大的区域（增大两倍）
             QRectF zombieRect = playerRect.adjusted(-cellWidth/4, -cellHeight/4, cellWidth/4, cellHeight/4); // 僵尸增大两倍
             
@@ -2483,32 +2477,8 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
                 painter.setBrush(Qt::NoBrush); // 无填充
                 painter.drawEllipse(zombieRect); // 绘制眩晕效果边框
             }
-        } else {
-            // 如果GIF加载失败，绘制原来的圆形玩家
-            playerRect.adjust(5, 5, -5, -5); //调整玩家矩形大小
             
-            // 绘制玩家阴影效果
-            QRectF shadowRect = playerRect.adjusted(2, 2, 2, 2);
-            painter.setBrush(QColor(0, 0, 0, 100)); //设置玩家阴影效果颜色
-            painter.setPen(Qt::NoPen); //设置玩家阴影效果边框为透明
-            painter.drawEllipse(shadowRect); //绘制玩家阴影效果
-            
-            // 绘制玩家主体
-            painter.setBrush(getPlayerColor(playerId)); //设置玩家主体颜色
-            painter.setPen(QPen(QColorConstants::Svg::black, 2)); //设置玩家主体边框为黑色
-            painter.drawEllipse(playerRect); //绘制玩家主体
-            
-            // 玩家状态指示
-            if (player.isDizzy()) {
-                painter.setPen(QPen(QColorConstants::Svg::orange, 3)); //设置玩家眩晕效果边框为橙色
-                painter.drawEllipse(playerRect); //绘制玩家眩晕效果
-            }
-        }
-    
-        // 添加玩家标签
-        if (m_zombieMovie && m_zombieMovie->isValid() && !m_currentZombieFrame.isNull()) {
-            // 僵尸模式下，标签显示在僵尸下方
-            QRectF zombieRect = playerRect.adjusted(-cellWidth/4, -cellHeight/4, cellWidth/4, cellHeight/4);
+            // 添加玩家标签（标签显示在僵尸下方）
             QPointF labelPos = zombieRect.bottomLeft();
             labelPos.setY(labelPos.y() + 20); // 在僵尸下方显示标签，调整位置
             
@@ -2601,15 +2571,6 @@ void GameWindow::drawGameStatus(QPainter& painter, int widgetWidth, int widgetHe
 }
 
 
-//根据玩家ID获取颜色
-QColor GameWindow::getPlayerColor(int playerId)
-{
-    switch (playerId) {
-    case 1: return QColor(0xff0000); // 红色，更明显
-    case 2: return QColor(0xff00ff); // 紫色
-    default: return QColorConstants::Svg::white;
-    }
-}
 
 //根据方块类型获取阳光值
 int GameWindow::getBlockSunlight(int blockType)
