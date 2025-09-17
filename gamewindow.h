@@ -417,15 +417,8 @@ private:
     // 尝试两个拐角连接路径
     bool tryTwoCornerPath(int r1, int c1, int r2, int c2);
     
-    
     // 获取方块对应的阳光值
     int getBlockSunlight(int blockType);
-    
-
-
-    
-    // 其他工具函数
-
 
     // 停止所有计时器
     void stopAllTimers();

@@ -1189,10 +1189,10 @@ void GameWindow::generateItems()
     
     // 根据游戏模式选择道具类型,双人模式下生成时间加成、重新排列、提示、眩晕,单人模式下生成时间加成、重新排列、提示、闪烁
     std::vector<int> availableItems;
-    if (m_twoPlayer) { //双人模式下生成时间加成、重新排列、提示、眩晕
+    if (m_twoPlayer) { 
         availableItems = {TIME_BONUS, SHUFFLE, HINT, DIZZY};
 
-    } else { //单人模式下生成时间加成、重新排列、提示、闪烁
+    } else { 
         availableItems = {TIME_BONUS, SHUFFLE, HINT, FLASH};
 
     }
@@ -1230,22 +1230,18 @@ void GameWindow::generateItems()
 //检查道具碰撞函数
 void GameWindow::checkItemCollision(Player& player)
 {
-    const int playerRow = player.getRow(); //玩家行坐标
-    const int playerCol = player.getCol(); //玩家列坐标
-
     //遍历道具，检查是否与玩家碰撞
     auto it = std::find_if(m_items.begin(), m_items.end(),
-        [playerRow, playerCol](const Item& item) {
-            return item.row == playerRow && item.col == playerCol;
+        [player](const Item& item) { 
+            return item.row == player.getRow() && item.col == player.getCol();
         });
     
     if (it != m_items.end()) {
             activateItem(it->type, player); //激活道具效果
-            m_items.erase(it); //删除碰撞的道具
-            // 播放道具拾取音效
+            m_items.erase(it); 
             playItemSound();
             
-            // 触发僵尸攻击动画（吃道具）
+            // 触发僵尸攻击动画
             if (player.getId() == 1) {
                 triggerZombieAttackAnimation();
             } else if (player.getId() == 2) {
@@ -2103,6 +2099,7 @@ bool GameWindow::movePlayerToBlockSide(int blockRow, int blockCol)
                 m_mapData[sideRow][sideCol] == 0) { //如果方块周围的8个方向是空地，则移动玩家到方块旁边
                 
                 m_active->setPosition(sideRow, sideCol);
+                checkItemCollision(m_p1);
                 return true;
             }
         }
@@ -2145,6 +2142,7 @@ void GameWindow::handleEmptySpaceClick(const ClickInfo& clickInfo)
     m_active->setPosition(clickInfo.row, clickInfo.col);
     // 清除激活状态，因为移动了位置
     m_activeRow = m_activeCol = -1;
+    checkItemCollision(m_p1);
     update();
 }
 
