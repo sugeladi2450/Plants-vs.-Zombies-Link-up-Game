@@ -169,6 +169,7 @@ D:/qt/linking/gamewindow.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtCore/qyieldcpu.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/QAction
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/QColor
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/QIntValidator
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/QKeyEvent
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/QMouseEvent
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/QMovie
@@ -201,6 +202,7 @@ D:/qt/linking/gamewindow.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qpainterpath.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qpalette.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qpen.h
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qpicture.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qpixelformat.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qpixmap.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qpointingdevice.h
@@ -210,11 +212,15 @@ D:/qt/linking/gamewindow.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qrgba64.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qscreen.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qscreen_platform.h
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qtextcursor.h
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qtextdocument.h
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qtextformat.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qtextoption.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qtgui-config.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qtguiexports.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qtguiglobal.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qtransform.h
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qvalidator.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qvector2d.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qvectornd.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtGui/qwindowdefs.h
@@ -230,21 +236,28 @@ D:/qt/linking/gamewindow.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtMultimedia/qtmultimedia-config.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtMultimedia/qtmultimediaexports.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtMultimedia/qtmultimediaglobal.h
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QDialog
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QFileDialog
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QHBoxLayout
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QLabel
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QLineEdit
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QMenu
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QMenuBar
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QMessageBox
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QPushButton
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QVBoxLayout
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/QWidget
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qabstractbutton.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qboxlayout.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qdialog.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qdialogbuttonbox.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qfiledialog.h
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qframe.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qgridlayout.h
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qlabel.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qlayout.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qlayoutitem.h
+ mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qlineedit.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qmenu.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qmenubar.h
  mdp:C:/Qt/6.9.0/mingw_64/include/QtWidgets/qmessagebox.h

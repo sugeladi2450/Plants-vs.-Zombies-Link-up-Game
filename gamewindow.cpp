@@ -2222,8 +2222,8 @@ void GameWindow::drawGameState(QPainter& painter, int widgetWidth, int widgetHei
     int menuHeight = m_menuWidget->height();
     int gameHeight = widgetHeight - menuHeight;
     
-    float cellWidth = static_cast<float>(widgetWidth) / 16; 
-    float cellHeight = static_cast<float>(gameHeight) / 24;
+    float cellWidth = static_cast<float>(widgetWidth) / 24; 
+    float cellHeight = static_cast<float>(gameHeight) / 16;
 
     // 调整绘制位置到游戏区域
     painter.translate(0, menuHeight);
@@ -2308,15 +2308,15 @@ void GameWindow::drawItems(QPainter& painter, float cellWidth, float cellHeight)
         if (!m_brainPropImage.isNull()) {
             painter.drawPixmap(itemRect, m_brainPropImage, m_brainPropImage.rect()); //绘制道具图片
         }
-        // 绘制道具字母标识
-        painter.setFont(QFont("Arial", 10, QFont::Bold)); //设置字体，稍微大一些
+        // 绘制道具字母
+        painter.setFont(QFont("Arial", 10, QFont::Bold));
         QString itemText;
         QColor textColor;
         
         switch (item.type) {
         case TIME_BONUS: 
             itemText = "T"; 
-            textColor = QColor(0, 255, 0); // 亮绿色 - 时间加成
+            textColor = QColor(0, 255, 0); // 绿色 - 时间加成
             break;
         case SHUFFLE: 
             itemText = "S"; 
@@ -2348,14 +2348,13 @@ void GameWindow::drawHintHighlights(QPainter& painter, float cellWidth, float ce
     if (m_hintOn && m_hintR1 != -1) { //如果Hint效果激活且Hint高亮的第一个方块不为-1，则绘制Hint高亮
         QRectF hintRect1(m_hintC1 * cellWidth, m_hintR1 * cellHeight,
                         cellWidth, cellHeight);
-        hintRect1.adjust(1, 1, -1, -1); //调整Hint高亮矩形大小
-        painter.setBrush(Qt::transparent); //设置Hint高亮矩形背景为透明
+        hintRect1.adjust(1, 1, -1, -1); 
         painter.setPen(QPen(QColorConstants::Svg::yellow, 4)); //设置Hint高亮矩形边框为黄色
-        painter.drawRect(hintRect1); //绘制Hint高亮矩形
+        painter.drawRect(hintRect1);
         
         QRectF hintRect2(m_hintC2 * cellWidth, m_hintR2 * cellHeight,
                         cellWidth, cellHeight);
-        hintRect2.adjust(1, 1, -1, -1); //调整Hint高亮矩形大小
+        hintRect2.adjust(1, 1, -1, -1);
         painter.drawRect(hintRect2);
     }
     }
@@ -3510,7 +3509,7 @@ void GameWindow::createSaveMenu()
 void GameWindow::createSettingsMenu()
 {
     m_settingsMenu = new QMenu(this);
-    m_settingsMenu->setStyleSheet( // 设置菜单样式
+    m_settingsMenu->setStyleSheet( 
         "QMenu { "
         "    background-color: #2b2b2b; " // 深灰色背景
         "    border: 1px solid #555555; " // 灰色边框
@@ -3528,6 +3527,7 @@ void GameWindow::createSettingsMenu()
     QAction* soundToggle = m_settingsMenu->addAction("音效: 开启");
     QAction* musicToggle = m_settingsMenu->addAction("音乐: 开启");
     QAction* fullscreen = m_settingsMenu->addAction("全屏模式");
+    QAction* menuSize = m_settingsMenu->addAction("地图大小");
     
     soundToggle->setCheckable(true);
     soundToggle->setChecked(true);
@@ -3569,5 +3569,87 @@ void GameWindow::createSettingsMenu()
         } else {
             showFullScreen();
         }
+    });
+
+    connect(menuSize, &QAction::triggered, this, [this](){
+    // 创建设置对话框
+    QDialog dialog(this);
+    dialog.setWindowTitle("设置地图大小");
+    dialog.setFixedSize(320, 200);
+    dialog.setModal(true); 
+
+    // 主布局
+    QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);
+    mainLayout->setContentsMargins(30, 25, 30, 20); // 边距
+    mainLayout->setSpacing(18); // 控件间距
+
+    // 长度输入行
+    QHBoxLayout *lengthLayout = new QHBoxLayout();
+    QLabel *lengthLabel = new QLabel("长度:");
+    lengthLabel->setFixedWidth(50); // 固定标签宽度，对齐美观
+    QLineEdit *lengthEdit = new QLineEdit();
+    lengthEdit->setPlaceholderText("请输入长度（例如：100）");
+    lengthEdit->setClearButtonEnabled(true); // 显示清除按钮
+    // 限制输入为正整数（1-9999范围）
+    lengthEdit->setValidator(new QIntValidator(1, 20, &dialog));
+    lengthLayout->addWidget(lengthLabel);
+    lengthLayout->addWidget(lengthEdit);
+
+    // 宽度输入行
+    QHBoxLayout *widthLayout = new QHBoxLayout();
+    QLabel *widthLabel = new QLabel("宽度:");
+    widthLabel->setFixedWidth(50);
+    QLineEdit *widthEdit = new QLineEdit();
+    widthEdit->setPlaceholderText("请输入宽度（例如：80）");
+    widthEdit->setClearButtonEnabled(true);
+    widthEdit->setValidator(new QIntValidator(1, 12, &dialog)); // 同样限制为正整数
+    widthLayout->addWidget(widthLabel);
+    widthLayout->addWidget(widthEdit);
+
+    // 按钮行
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    btnLayout->setSpacing(15); // 按钮间距
+    QPushButton *confirmBtn = new QPushButton("确认");
+    QPushButton *cancelBtn = new QPushButton("取消");
+    confirmBtn->setMinimumWidth(80); // 按钮最小宽度
+    cancelBtn->setMinimumWidth(80);
+    btnLayout->addStretch(); // 拉伸空间，使按钮靠右对齐
+    btnLayout->addWidget(confirmBtn);
+    btnLayout->addWidget(cancelBtn);
+
+    // 添加所有布局到主布局
+    mainLayout->addLayout(lengthLayout);
+    mainLayout->addLayout(widthLayout);
+    mainLayout->addLayout(btnLayout);
+
+    // 连接按钮信号
+    connect(confirmBtn, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(cancelBtn, &QPushButton::clicked, &dialog, &QDialog::reject);
+
+    // 显示对话框并处理结果
+    if (dialog.exec() == QDialog::Accepted) {
+        // 获取并处理输入值
+        int length = lengthEdit->text().toInt();
+        int width = widthEdit->text().toInt();
+
+        // 验证输入有效性（虽然有验证器，仍做最后检查）
+        if (length <= 0 || width <= 0) {
+            QMessageBox::warning(this, "输入错误", "请输入有效的地图尺寸（正整数）！");
+            return;
+        }
+
+        // 应用地图大小设置（此处替换为实际业务逻辑）
+        QMessageBox::information(this, "设置成功", 
+            QString("地图大小已设置为：\n长度：%1 单位\n宽度：%2 单位")
+            .arg(length).arg(width));
+        
+        // 实际应用中可以在这里调用设置地图大小的函数
+        ROWS = width + 4;
+        COLS = length + 4;
+        start();
+        // setMapSize(length, width);
+    }
+    
+
     });
 }

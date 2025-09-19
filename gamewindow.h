@@ -23,6 +23,11 @@
 #include <QAction>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QDialog>         // 用于QDialog对话框
+#include <QVBoxLayout>     // 用于垂直布局管理器
+#include <QLabel>          // 用于标签控件
+#include <QLineEdit>       // 用于文本输入框
+#include <QIntValidator>   // 用于整数输入验证
 #include "linkjudger.h"
 
 // 玩家类，表示游戏中的玩家角色
@@ -128,8 +133,8 @@ public:
         }
     }
     
-    static constexpr int ROWS = 16; // 游戏地图行数
-    static constexpr int COLS = 24; // 游戏地图列数
+    int ROWS = 16; // 游戏地图行数
+    int COLS = 24; // 游戏地图列数
     static constexpr int TYPES = 8; // 方块类型数量
     static constexpr int TIME = 300; // 游戏时间（秒）
 
