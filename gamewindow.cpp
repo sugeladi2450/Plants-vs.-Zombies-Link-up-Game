@@ -996,7 +996,9 @@ void GameWindow::start()
     
     // 启动道具生成定时器，每10-20秒随机生成一个道具
     m_spawnTimer->start(std::uniform_int_distribution<>(10000, 20000)(gen));
-    
+
+    checkItemCollision(m_p1);
+    checkItemCollision(m_p2);
     
     // 更新窗口标题
     updateWindowTitle();
@@ -3571,83 +3573,79 @@ void GameWindow::createSettingsMenu()
         }
     });
 
+    //创建设置地图大小的对话框
     connect(menuSize, &QAction::triggered, this, [this](){
-    // 创建设置对话框
     QDialog dialog(this);
     dialog.setWindowTitle("设置地图大小");
     dialog.setFixedSize(320, 200);
-    dialog.setModal(true); 
+    dialog.setModal(true);  //表示对话框是模态的：弹出时会阻止用户操作父窗口，必须先处理对话框。
 
-    // 主布局
+    // 主布局情况，垂直分布
     QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);
-    mainLayout->setContentsMargins(30, 25, 30, 20); // 边距
-    mainLayout->setSpacing(18); // 控件间距
+    mainLayout->setContentsMargins(30, 25, 30, 20); // 边距，左上右下。
+    mainLayout->setSpacing(18); // 控件间距，即长度输入框与宽度输入框之间的间距
 
-    // 长度输入行
-    QHBoxLayout *lengthLayout = new QHBoxLayout();
-    QLabel *lengthLabel = new QLabel("长度:");
-    lengthLabel->setFixedWidth(50); // 固定标签宽度，对齐美观
-    QLineEdit *lengthEdit = new QLineEdit();
-    lengthEdit->setPlaceholderText("请输入长度（例如：100）");
-    lengthEdit->setClearButtonEnabled(true); // 显示清除按钮
-    // 限制输入为正整数（1-9999范围）
-    lengthEdit->setValidator(new QIntValidator(1, 20, &dialog));
-    lengthLayout->addWidget(lengthLabel);
-    lengthLayout->addWidget(lengthEdit);
+    // 行数输入行，水平分布
+    QHBoxLayout *RowsLayout = new QHBoxLayout();
+    QLabel *RowsLabel = new QLabel("行数:");
+    RowsLabel->setFixedWidth(30); 
+    QLineEdit *RowsEdit = new QLineEdit();
+    RowsEdit->setPlaceholderText("请输入行数（只能在1-12之间）"); //设置输入框的提示文字
+    RowsEdit->setClearButtonEnabled(true); // 显示输入数字后的清除按钮
+    RowsEdit->setValidator(new QIntValidator(1, 12, &dialog)); // 限制输入为正整数（1-12范围）
+    RowsLayout->addWidget(RowsLabel);
+    RowsLayout->addWidget(RowsEdit);
 
-    // 宽度输入行
-    QHBoxLayout *widthLayout = new QHBoxLayout();
-    QLabel *widthLabel = new QLabel("宽度:");
-    widthLabel->setFixedWidth(50);
-    QLineEdit *widthEdit = new QLineEdit();
-    widthEdit->setPlaceholderText("请输入宽度（例如：80）");
-    widthEdit->setClearButtonEnabled(true);
-    widthEdit->setValidator(new QIntValidator(1, 12, &dialog)); // 同样限制为正整数
-    widthLayout->addWidget(widthLabel);
-    widthLayout->addWidget(widthEdit);
+    // 列数输入行，水平分布
+    QHBoxLayout *ColsLayout = new QHBoxLayout();
+    QLabel *ColsLabel = new QLabel("列数:");
+    ColsLabel->setFixedWidth(30);
+    QLineEdit *ColsEdit = new QLineEdit();
+    ColsEdit->setPlaceholderText("请输入列数（只能在1-20之间）"); //设置输入框的提示文字
+    ColsEdit->setClearButtonEnabled(true); // 显示输入数字后的清除按钮
+    ColsEdit->setValidator(new QIntValidator(1, 20, &dialog)); // 限制输入为正整数（1-20范围）
+    ColsLayout->addWidget(ColsLabel);
+    ColsLayout->addWidget(ColsEdit);
 
-    // 按钮行
+    // 按钮行，水平分布
     QHBoxLayout *btnLayout = new QHBoxLayout();
     btnLayout->setSpacing(15); // 按钮间距
     QPushButton *confirmBtn = new QPushButton("确认");
     QPushButton *cancelBtn = new QPushButton("取消");
     confirmBtn->setMinimumWidth(80); // 按钮最小宽度
     cancelBtn->setMinimumWidth(80);
-    btnLayout->addStretch(); // 拉伸空间，使按钮靠右对齐
     btnLayout->addWidget(confirmBtn);
     btnLayout->addWidget(cancelBtn);
 
     // 添加所有布局到主布局
-    mainLayout->addLayout(lengthLayout);
-    mainLayout->addLayout(widthLayout);
+    mainLayout->addLayout(RowsLayout);
+    mainLayout->addLayout(ColsLayout);
     mainLayout->addLayout(btnLayout);
 
     // 连接按钮信号
     connect(confirmBtn, &QPushButton::clicked, &dialog, &QDialog::accept);
     connect(cancelBtn, &QPushButton::clicked, &dialog, &QDialog::reject);
 
-    // 显示对话框并处理结果
+    // 处理输入结果
     if (dialog.exec() == QDialog::Accepted) {
         // 获取并处理输入值
-        int length = lengthEdit->text().toInt();
-        int width = widthEdit->text().toInt();
+        int Rows = RowsEdit->text().toInt();
+        int Cols = ColsEdit->text().toInt();
 
-        // 验证输入有效性（虽然有验证器，仍做最后检查）
-        if (length <= 0 || width <= 0) {
-            QMessageBox::warning(this, "输入错误", "请输入有效的地图尺寸（正整数）！");
+        // 验证输入有效性，如果输入无效，则弹出警告框
+        if (Rows <= 0 || Rows > 12 || Cols <= 0 || Cols > 20) {
+            QMessageBox::warning(this, "输入错误", "请输入有效的地图尺寸（正整数，长度在1-20之间，宽度在1-12之间）！");
             return;
         }
 
-        // 应用地图大小设置（此处替换为实际业务逻辑）
+        // 弹出设置成功的对话框
         QMessageBox::information(this, "设置成功", 
-            QString("地图大小已设置为：\n长度：%1 单位\n宽度：%2 单位")
-            .arg(length).arg(width));
+            QString("地图大小已设置为：\n行数：%1 \n列数：%2 单位")
+            .arg(Rows).arg(Cols));
         
-        // 实际应用中可以在这里调用设置地图大小的函数
-        ROWS = width + 4;
-        COLS = length + 4;
+        ROWS = Rows + 4;
+        COLS = Cols + 4;
         start();
-        // setMapSize(length, width);
     }
     
 
