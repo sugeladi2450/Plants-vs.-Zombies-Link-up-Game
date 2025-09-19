@@ -2087,18 +2087,15 @@ void GameWindow::handleBlockClick(const ClickInfo& clickInfo)
 //将玩家移动到方块旁边
 bool GameWindow::movePlayerToBlockSide(int blockRow, int blockCol)
 {
-    for (int dr = -1; dr <= 1; ++dr) { //遍历方块周围的8个方向
-                    for (int dc = -1; dc <= 1; ++dc) {
-            if (dr == 0 && dc == 0) continue; // 跳过方块本身
-                        
-            int sideRow = blockRow + dr; //计算方块周围的8个方向的行
-            int sideCol = blockCol + dc; //计算方块周围的8个方向的列
-                        
+    for (int sideRow = blockRow - 1; sideRow <= blockRow + 1; ++sideRow) { 
+                    for (int sideCol = blockCol - 1; sideCol <= blockCol + 1; ++sideCol) {
+            if (sideRow == blockRow && sideCol == blockCol) continue; 
+
             if (sideRow >= 0 && sideRow < ROWS && 
                 sideCol >= 0 && sideCol < COLS && 
-                m_mapData[sideRow][sideCol] == 0) { //如果方块周围的8个方向是空地，则移动玩家到方块旁边
+                m_mapData[sideRow][sideCol] == 0) { //如果方块周围有空地
                 
-                m_active->setPosition(sideRow, sideCol);
+                m_active->setPosition(sideRow, sideCol); //移动玩家到方块旁边
                 checkItemCollision(m_p1);
                 return true;
             }
@@ -2221,12 +2218,12 @@ void GameWindow::drawSaveMenu(QPainter& painter)
 //绘制游戏状态
 void GameWindow::drawGameState(QPainter& painter, int widgetWidth, int widgetHeight)
 {
-    // 计算游戏区域（排除菜单栏）
-    int menuHeight = m_menuWidget ? m_menuWidget->height() : 0;
+    // 计算游戏区域
+    int menuHeight = m_menuWidget->height();
     int gameHeight = widgetHeight - menuHeight;
     
-    float cellWidth = static_cast<float>(widgetWidth) / COLS; 
-    float cellHeight = static_cast<float>(gameHeight) / ROWS;
+    float cellWidth = static_cast<float>(widgetWidth) / 16; 
+    float cellHeight = static_cast<float>(gameHeight) / 24;
 
     // 调整绘制位置到游戏区域
     painter.translate(0, menuHeight);
@@ -2234,7 +2231,6 @@ void GameWindow::drawGameState(QPainter& painter, int widgetWidth, int widgetHei
     // 绘制游戏背景图片
     drawGameBackground(painter, widgetWidth, gameHeight);
 
-    // 绘制各个游戏元素
     drawMapBlocks(painter, cellWidth, cellHeight); //绘制地图方块
     drawItems(painter, cellWidth, cellHeight); //绘制道具
     drawHintHighlights(painter, cellWidth, cellHeight); //绘制Hint高亮
@@ -2249,22 +2245,15 @@ void GameWindow::drawGameBackground(QPainter& painter, int widgetWidth, int widg
 {
     // 绘制游戏背景图片
     if (!m_gameBackground.isNull()) {
-        // 缩放图片以完全填满窗口，图片完整显示但可能改变宽高比
         QPixmap scaledBackground = m_gameBackground.scaled(
             QSize(widgetWidth, widgetHeight), 
-            Qt::IgnoreAspectRatio, // 忽略宽高比，完全填满窗口
+            Qt::IgnoreAspectRatio, // 完全填满窗口
             Qt::SmoothTransformation
         );
         
         // 绘制完整的背景图片，填满整个窗口
         painter.drawPixmap(0, 0, scaledBackground);
-        
-        // 添加一个半透明的遮罩层，让背景图片稍微暗一些，突出游戏元素
-        painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(0, 0, 0, 30));
-    } else {
-        // 如果背景图片加载失败，使用默认背景色
-        painter.fillRect(0, 0, widgetWidth, widgetHeight, QColor(30, 30, 60));
-    }
+    } 
 }
 
 //绘制保存/载入背景
@@ -2294,10 +2283,7 @@ void GameWindow::drawMapBlocks(QPainter& painter, float cellWidth, float cellHei
 
             QRectF blockRect(c * cellWidth, r * cellHeight, cellWidth, cellHeight); //创建方块矩形
             blockRect.adjust(2, 2, -2, -2); //调整方块矩形大小，让方块之间有间隙，显得美观
-            
-            //绘制方块 - 根据状态画不同的样式：
-            //激活状态：红色边框
-            //普通状态：黑色边框，透明背景
+
             if (r == m_activeRow && c == m_activeCol) {
                 // 绘制激活状态的图片（包含红色边框）
                 drawBlockImage(painter, blockRect, blockType, true);

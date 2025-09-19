@@ -119,8 +119,9 @@ public:
         // 玩家1位置：随机选择空地
         auto player1Pos = findValidPlayerPosition(gen, rowDist, colDist);
         m_p1.setPosition(player1Pos.first, player1Pos.second);
+        checkItemCollision(m_p1);
         
-        // 玩家2位置：随机选择空地（双人模式，可以重叠）
+        // 玩家2位置：随机选择空地
         if (m_twoPlayer) {
             auto player2Pos = findValidPlayerPosition(gen, rowDist, colDist);
             m_p2.setPosition(player2Pos.first, player2Pos.second);
