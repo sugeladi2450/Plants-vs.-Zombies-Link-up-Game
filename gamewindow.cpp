@@ -3617,6 +3617,7 @@ void GameWindow::createSettingsMenu()
     btnLayout->addWidget(confirmBtn);
     btnLayout->addWidget(cancelBtn);
 
+    
     // 添加所有布局到主布局
     mainLayout->addLayout(RowsLayout);
     mainLayout->addLayout(ColsLayout);
