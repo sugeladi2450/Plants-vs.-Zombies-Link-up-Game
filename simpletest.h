@@ -45,9 +45,7 @@ private slots:
     void testExtremeCases();
 
 private:
-    LinkJudger* m_judger; //测试类 SimpleTest 的成员指针，指向一个 LinkJudger 实例。它负责游戏“连线是否可消除”的判定逻辑。
-    
-    // 测试辅助函数
+    LinkJudger* m_judger;
     void createTestMap(std::vector<std::vector<int>>& map, int rows, int cols);
 };
 

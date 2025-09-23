@@ -3033,7 +3033,7 @@ void GameWindow::initializeZombie2Animation()
     if (m_zombie2Movie->isValid()) {
         // 设置缓存模式为CacheAll，将所有帧缓存到内存中，提高播放性能，避免重复解码GIF文件
         m_zombie2Movie->setCacheMode(QMovie::CacheAll);
-        
+
         // 连接帧改变信号到更新槽
         connect(m_zombie2Movie, &QMovie::frameChanged, this, [this]() {
             if (!m_isZombie2Attacking) { // 只在非攻击状态时更新普通帧
@@ -3041,7 +3041,7 @@ void GameWindow::initializeZombie2Animation()
                 update(); // 刷新界面
             }
         });
-        
+
         // 启动动画
         m_zombie2Movie->start();
     }
@@ -3397,11 +3397,11 @@ void GameWindow::createHelpMenu()
         "    background-color: #404040; "
         "}"
     );
-    
+
     QAction* help = m_helpMenu->addAction("操作指引");
     QAction* hints = m_helpMenu->addAction("操作提示");
     QAction* scoreRules = m_helpMenu->addAction("得分规则");
-    
+
     connect(help, &QAction::triggered, this, [this]() {
         QString helpText = 
             "=== QLink 游戏操作指引 ===\n\n"
@@ -3421,10 +3421,10 @@ void GameWindow::createHelpMenu()
             "• H(Hint): 显示可消除的方块\n"
             "• D(Dizzy): 让对手方向颠倒10秒（双人模式）\n"
             "• F(Flash): 5秒内可瞬移到任意位置（单人模式）";
-        
+
         QMessageBox::information(this, "操作指引", helpText); // 显示操作指引
     });
-    
+
     //得分规则
     connect(scoreRules, &QAction::triggered, this, [this]() {
         QString scoreText = 
@@ -3438,7 +3438,7 @@ void GameWindow::createHelpMenu()
             "双胞向日葵 : 150 阳光\n"
             "向日葵 : 50 阳光\n"
             "寒冰射手 : 150 阳光";
-        
+
         QMessageBox::information(this, "得分规则", scoreText);
     });
     

@@ -327,4 +327,4 @@ void SimpleTest::testExtremeCases()
     QVERIFY(m_judger->canEliminate(0, 0, 1, 1, map) == false);
 }
 
-QTEST_MAIN(SimpleTest)
+QTEST_MAIN
