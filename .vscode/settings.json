@@ -7,5 +7,9 @@
         "cassert": "cpp",
         "cstdio": "cpp",
         "vector": "cpp"
-    }
+    },
+    "C_Cpp.autocompleteAddParentheses": true,
+    "C_Cpp.default.browse.path": [
+        "${workspaceFolder}/../**"
+    ]
 }

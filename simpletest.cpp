@@ -1,27 +1,25 @@
 #include "simpletest.h"
 #include <vector>
 
-// Qt Test 框架的“测试套件初始化函数”。在所有测试用例开始前，做一次性的准备工作。
-// 创建一个 LinkJudger 实例，用于测试连线是否可消除的逻辑。
+// 创建一个 LinkJudger 实例
 void SimpleTest::initTestCase()
 {
     m_judger = new LinkJudger(16, 24);  
     QVERIFY(m_judger != nullptr); // 使用 QVERIFY 宏来断言m_judger不为空。
 }
 
-// Qt Test 框架的“测试套件清理函数”。在所有测试用例结束后，做一次性的清理工作。
-// 删除 LinkJudger 实例，释放资源。
+// 删除 LinkJudger 实例
 void SimpleTest::cleanupTestCase()
 {
     delete m_judger;
     m_judger = nullptr; // 将指针置空，防止悬空指针。
 }
 
-// 测试辅助函数，创建一个指定行数和列数的二维向量，用于测试连线是否可消除的逻辑。
+// 创建用于测试的小地图
 void SimpleTest::createTestMap(std::vector<std::vector<int>>& map, int rows, int cols)
 {
-    map.clear(); // 使用 clear 函数来清空地图。
-    map.resize(rows, std::vector<int>(cols, 0)); // 使用 resize 函数来调整地图的大小，并初始化所有方块为0。
+    map.clear();
+    map.resize(rows, std::vector<int>(cols, 0));
 }
 
 
@@ -50,7 +48,7 @@ void SimpleTest::testCanLineConnection_Horizontal()
     QVERIFY(m_judger->canEliminate(1, 0, 1, 3, map) == false);
 }
 
-//专门测试同一列的相同类型方块是否可以直线连接。先构造无障碍的情况，验证应为 true；再放一个障碍，验证应为 false。
+//测试同一列的相同类型方块是否可以直线连接。先构造无障碍的情况，验证应为 true；再放一个障碍，验证应为 false。
 void SimpleTest::testCanLineConnection_Vertical()
 {
     std::vector<std::vector<int>> map;
@@ -258,10 +256,10 @@ void SimpleTest::testBoundaryConditions()
     createTestMap(map, 4, 4);
     
     // 测试边界位置
-    map[0][0] = 1;  // 左上角
-    map[0][3] = 1;  // 右上角
-    map[3][0] = 1;  // 左下角
-    map[3][3] = 1;  // 右下角
+    map[0][0] = 1;
+    map[0][3] = 1;
+    map[3][0] = 1;
+    map[3][3] = 1;
     
     QVERIFY(m_judger->canEliminate(0, 0, 0, 3, map) == true);
     QVERIFY(m_judger->canEliminate(0, 0, 3, 0, map) == true);
@@ -288,27 +286,26 @@ void SimpleTest::testEdgePositions()
     createTestMap(map, 4, 4);
     
     // 测试边缘位置
-    map[0][1] = 1;  // 上边缘
-    map[0][2] = 1;  // 上边缘
+    map[0][1] = 1;
+    map[0][2] = 1;
     
     QVERIFY(m_judger->canEliminate(0, 1, 0, 2, map) == true);
 }
 
 // 异常情况测试
 
-//测试无效输入
+//测试无效输入是否会崩溃
 void SimpleTest::testInvalidInputs()
 {
     std::vector<std::vector<int>> map;
     createTestMap(map, 3, 3);
     
-    // 测试无效输入
     QVERIFY(m_judger->canEliminate(0, 0, 0, 0, map) == false);  // 相同位置
     QVERIFY(m_judger->canEliminate(-1, 0, 0, 0, map) == false); // 负坐标
     QVERIFY(m_judger->canEliminate(0, 0, 10, 10, map) == false); // 超出范围
 }
 
-//测试极端情况
+//测试极端情况是否会崩溃
 void SimpleTest::testExtremeCases()
 {
     std::vector<std::vector<int>> map;
@@ -320,7 +317,7 @@ void SimpleTest::testExtremeCases()
     
     QVERIFY(m_judger->canEliminate(0, 0, 1, 1, map) == true);
     
-    // 测试完全被阻挡的情况
+    // 测试完全被阻挡
     map[0][1] = 2;
     map[1][0] = 2;
     

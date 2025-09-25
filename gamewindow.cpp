@@ -61,7 +61,7 @@ void Player::updateEffects()
 }
 
 
-// 移动玩家
+// 移动玩家的函数
 void Player::move(int deltaRow, int deltaCol)
 {
         // 眩晕时方向颠倒
@@ -2277,20 +2277,19 @@ void GameWindow::drawSaveBackground(QPainter& painter, int widgetWidth, int widg
 //绘制地图方块
 void GameWindow::drawMapBlocks(QPainter& painter, float cellWidth, float cellHeight)
 {
-    // 绘制地图方块
     for (int r = 0; r < ROWS; ++r) {
         for (int c = 0; c < COLS; ++c) {
             int blockType = m_mapData[r][c];
             if (blockType == 0) continue;
 
             QRectF blockRect(c * cellWidth, r * cellHeight, cellWidth, cellHeight); //创建方块矩形
-            blockRect.adjust(2, 2, -2, -2); //调整方块矩形大小，让方块之间有间隙，显得美观
+            blockRect.adjust(2, 2, -2, -2); //让方块之间有间隙
 
             if (r == m_activeRow && c == m_activeCol) {
-                // 绘制激活状态的图片（包含红色边框）
+                // 绘制激活状态的图片
                 drawBlockImage(painter, blockRect, blockType, true);
             } else {
-                // 绘制普通状态的图片（包含边框）
+                // 绘制普通状态的图片
                 drawBlockImage(painter, blockRect, blockType, false);
             }
         }
@@ -2403,47 +2402,37 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
         
         // 确保位置在有效范围内
     if (playerRow >= 0 && playerRow < ROWS && playerCol >= 0 && playerCol < COLS) {
-        QRectF playerRect(playerCol * cellWidth, playerRow * cellHeight, //计算玩家矩形
-                          cellWidth, cellHeight);
+        QRectF zombieRect(playerCol * cellWidth - cellWidth / 2, playerRow * cellHeight - cellWidth / 2, 
+                          (cellWidth * 5) / 3 , (cellHeight * 5) / 3 ); 
         
         // 绘制僵尸GIF动图
         QPixmap currentFrame;
-        bool isAttacking = false;
-        
         if (playerId == 1) {
-            // 玩家1使用zombie.gif和zombie_eat.gif
-            isAttacking = m_isZombieAttacking;
-            
-            if (isAttacking && !m_currentZombieEatFrame.isNull()) {
-                // 攻击状态：使用攻击动画帧
+            // 玩家1
+            if (m_isZombieAttacking && !m_currentZombieEatFrame.isNull()) {
+                // 攻击状态
                 currentFrame = m_currentZombieEatFrame;
             } else if (!m_currentZombieFrame.isNull()) {
-                // 普通状态：使用普通动画帧
+                // 普通状态
                 currentFrame = m_currentZombieFrame;
             }
         } else if (playerId == 2) {
-            // 玩家2使用zombie2.gif和zombie2_eat.gif
-            isAttacking = m_isZombie2Attacking;
-            
-            if (isAttacking && !m_currentZombie2EatFrame.isNull()) {
-                // 攻击状态：使用攻击动画帧
+            // 玩家2
+            if (m_isZombie2Attacking && !m_currentZombie2EatFrame.isNull()) {
+                // 攻击状态
                 currentFrame = m_currentZombie2EatFrame;
             } else if (!m_currentZombie2Frame.isNull()) {
-                // 普通状态：使用普通动画帧
+                // 普通状态
                 currentFrame = m_currentZombie2Frame;
             }
         }
         
         // 绘制僵尸动画
         {
-            // 增大僵尸尺寸，让僵尸占据更大的区域（增大两倍）
-            QRectF zombieRect = playerRect.adjusted(-cellWidth/4, -cellHeight/4, cellWidth/4, cellHeight/4); // 僵尸增大两倍
-            
             if (!currentFrame.isNull()) {
-                // 缩放GIF动图以适应玩家矩形
                 QPixmap scaledZombie = currentFrame.scaled(
                     zombieRect.size().toSize(), 
-                    Qt::KeepAspectRatio, 
+                    Qt::IgnoreAspectRatio, 
                     Qt::SmoothTransformation
                 );
                 
@@ -2452,22 +2441,22 @@ void GameWindow::drawPlayer(QPainter& painter, const Player& player, int playerI
                 drawPos.setX(drawPos.x() + (zombieRect.width() - scaledZombie.width()) / 2);
                 drawPos.setY(drawPos.y() + (zombieRect.height() - scaledZombie.height()) / 2);
                 
-                // 绘制僵尸GIF动图（无边框，直接融入地图）
+                // 绘制僵尸
                 painter.drawPixmap(drawPos, scaledZombie);
             }
             
-            // 玩家状态指示（只在眩晕时显示，且使用透明边框）
+            // 玩家眩晕边框
             if (player.isDizzy()) {
                 painter.setPen(QPen(QColor(255, 165, 0, 150), 2)); // 半透明橙色边框
-                painter.setBrush(Qt::NoBrush); // 无填充
                 painter.drawEllipse(zombieRect); // 绘制眩晕效果边框
             }
             
-            // 添加玩家标签（标签显示在僵尸下方）
+            // 添加玩家标签（标签显示在僵尸左下方）
             QPointF labelPos = zombieRect.bottomLeft();
-            labelPos.setY(labelPos.y() + 20); // 在僵尸下方显示标签，调整位置
+            labelPos.setY(labelPos.y() + 10);
+            labelPos.setX(labelPos.x() + 5);
             
-            painter.setPen(QColorConstants::Svg::white);
+            painter.setPen(Qt::white);
             painter.setFont(QFont("Arial", 8, QFont::Bold));
             if (playerId == 1) {
                 painter.drawText(labelPos, m_twoPlayer ? "P1" : "玩家");
@@ -2653,7 +2642,7 @@ void GameWindow::saveGameEffects(QTextStream& out)
 void GameWindow::loadGame(const QString& filename)
 {
     QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { 
         QMessageBox::warning(static_cast<QWidget*>(this), "加载失败", "无法打开存档文件！");
         return;
     }
@@ -2667,7 +2656,7 @@ void GameWindow::loadGame(const QString& filename)
     if (!loadGameHeader(in)) { 
         file.close();
         return;
-    }
+    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
     
     loadGamePlayers(in); // 加载玩家信息
     loadGameMap(in); // 加载地图状态
@@ -2884,9 +2873,7 @@ void GameWindow::loadBlockImages()
 void GameWindow::drawBlockImage(QPainter& painter, const QRectF& rect, int blockType, bool isActivated)
 {
     int imageIndex = blockType - 1; 
-    // 获取对应的图片
     const QPixmap& pixmap = m_blockImages[imageIndex];
-    // 绘制边框
     if (isActivated) {
         // 激活状态：红色边框
         painter.setPen(QPen(Qt::red, 3));
@@ -2896,10 +2883,9 @@ void GameWindow::drawBlockImage(QPainter& painter, const QRectF& rect, int block
     }
     painter.setBrush(Qt::transparent);
     painter.drawRoundedRect(rect, 5.0, 5.0);
-    
-    painter.setOpacity(0.85); // 设置85%的不透明度，让背景图片能够透过来
+    painter.setOpacity(0.85); // 85%的不透明度
     painter.drawPixmap(rect, pixmap, pixmap.rect());
-    painter.setOpacity(1.0); // 恢复完全不透明
+    painter.setOpacity(1.0); // 完全不透明
 }
 
 
