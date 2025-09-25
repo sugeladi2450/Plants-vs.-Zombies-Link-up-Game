@@ -383,7 +383,7 @@ private:
 
     
     // 处理方块消除
-    void processElimination(int targetRow, int targetCol);
+    void processElimination();
     
     // 计算连接路径
     void calcPath(int r1, int c1, int r2, int c2);
@@ -498,6 +498,8 @@ private:
     // 激活状态
     int m_activeRow;                        // 激活行
     int m_activeCol;                        // 激活列
+    int m_activeRow2;                        // 玩家2激活行
+    int m_activeCol2;                        // 玩家2激活列
     
     // 道具
     struct Item {

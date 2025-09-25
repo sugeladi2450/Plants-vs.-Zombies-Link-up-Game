@@ -93,8 +93,10 @@ GameWindow::GameWindow(QWidget *parent)
     , m_p1(1, 0, 0) // 玩家1，初始位置为(0,0)
     , m_p2(2, 0, 0) // 玩家2，初始位置为(0,0)
     , m_active(&m_p1)
-    , m_activeRow(-1) // 激活行
-    , m_activeCol(-1) // 激活列
+    , m_activeRow(-1) // 第一个激活方块的行
+    , m_activeCol(-1) // 第一个激活方块的列
+    , m_activeRow2(-1) // 第二个激活方块的行
+    , m_activeCol2(-1) // 第二个激活方块的列
     , m_hintOn(false) // 提示开启
     , m_hintTime(0) // 提示时间
     , m_hintR1(-1), m_hintC1(-1), m_hintR2(-1), m_hintC2(-1)
@@ -1649,9 +1651,10 @@ void GameWindow::tryActivateBlock(Player& player, int deltaRow, int deltaCol)
             // 如果点击的是相同类型的方块，尝试消除
             if (m_mapData[m_activeRow][m_activeCol] == m_mapData[targetRow][targetCol] &&
                 (m_activeRow != targetRow || m_activeCol != targetCol)) { //相同类型的方块
-                
-                // 尝试消除
-                processElimination(targetRow, targetCol); //处理两个方块的消除逻辑，包括路径计算、分数计算和界面更新。
+
+                m_activeRow2 = targetRow; 
+                m_activeCol2 = targetCol; 
+                processElimination(); //处理两个方块的消除逻辑，包括路径计算、分数计算和界面更新。
             } else {
                 // 不同类型或相同位置，取消之前的激活，激活新的
                 m_activeRow = targetRow;
@@ -1667,12 +1670,13 @@ void GameWindow::tryActivateBlock(Player& player, int deltaRow, int deltaCol)
 }
 
 //处理两个方块的消除逻辑函数
-void GameWindow::processElimination(int targetRow, int targetCol)
+void GameWindow::processElimination()
 {
-    if (m_activeRow == -1 || m_activeCol == -1) return; //没有激活方块，返回
-
+    // 保存第一个激活方块的位置
     int r1 = m_activeRow, c1 = m_activeCol;
-    int r2 = targetRow, c2 = targetCol;
+    int r2 = m_activeRow2, c2 = m_activeCol2;
+    
+    // 注意：不要在这里重置激活状态，让调用者控制重置时机
 
     //判断两个方块是否可以消除
     if (m_judger.canEliminate(r1, c1, r2, c2, m_mapData)) {
@@ -2109,21 +2113,37 @@ bool GameWindow::movePlayerToBlockSide(int blockRow, int blockCol)
 //处理方块激活逻辑
 void GameWindow::handleBlockActivation(int clickedRow, int clickedCol)
 {
-    // 如果已经激活了方块，尝试消除
+    // 如果已经激活了第一个方块
     if (m_activeRow != -1 && m_activeCol != -1) {
+        // 如果点击的是相同类型的方块且不是同一个方块
         if (m_mapData[m_activeRow][m_activeCol] == m_mapData[clickedRow][clickedCol] &&
             (m_activeRow != clickedRow || m_activeCol != clickedCol)) {
-
-            // 尝试消除
-            processElimination(clickedRow, clickedCol); //处理两个方块的消除逻辑，包括路径计算、分数计算和界面更新。
-                    return;
-        } else {
             
-        // 不同类型，取消之前的激活，激活新的
-        m_activeRow = clickedRow;
-        m_activeCol = clickedCol;
-        update();
-        return; //如果不同类型，则结束
+            // 设置第二个激活方块
+            m_activeRow2 = clickedRow;
+            m_activeCol2 = clickedCol;
+            update(); // 更新显示，显示两个红色边框
+
+            // 添加一个小延迟，让红色边框能够显示出来
+            QTimer::singleShot(200, this, [this, clickedRow, clickedCol]() {
+                m_activeRow2 = clickedRow;
+                m_activeCol2 = clickedCol;
+                processElimination();
+                
+                // 消除后重置两个激活方块的位置
+                m_activeRow = m_activeRow2 = -1;
+                m_activeCol = m_activeCol2 = -1;
+                update();
+            });
+            return;
+        } else {
+            // 不同类型，取消之前的激活，激活新的
+            m_activeRow2 = -1;
+            m_activeCol2 = -1;
+            m_activeRow = clickedRow;
+            m_activeCol = clickedCol;
+            update();
+            return;
         }
     }
                 
@@ -2198,23 +2218,23 @@ void GameWindow::paintEvent(QPaintEvent *event)
     drawGameState(painter, widgetWidth, widgetHeight); 
 }
 
-//绘制存档菜单（不绘制背景图片）
+//绘制存档菜单
 void GameWindow::drawSaveMenu(QPainter& painter)
 {
     // 抗锯齿
     painter.setRenderHint(QPainter::Antialiasing, true); // 图形抗锯齿
     painter.setRenderHint(QPainter::TextAntialiasing, true); // 文本抗锯齿
     
-    // 绘制菜单选项（不绘制背景图片）
+    // 绘制菜单选项
     drawSaveOptions(painter);
     
     // 绘制操作提示
-    painter.setPen(QColorConstants::Svg::white); // 设置白色画笔
-    painter.setFont(QFont("Arial", 12)); // 设置字体
-    QRect hintRect = rect(); // 设置提示矩形
-    hintRect.setTop(height() - 100); // 设置提示矩形顶部位置
-    painter.drawText(hintRect, Qt::AlignCenter, // 设置提示文字居中
-                    "使用 ↑↓ 键选择，Enter 键确认，或使用鼠标点击选项"); // 设置提示文字
+    painter.setPen(QColorConstants::Svg::white); 
+    painter.setFont(QFont("Arial", 12)); 
+    QRect hintRect = rect();
+    hintRect.setTop(height() - 100); 
+    painter.drawText(hintRect, Qt::AlignCenter, 
+                    "使用 ↑↓ 键选择，Enter 键确认，或使用鼠标点击选项"); 
 }
 
 //绘制游戏状态
@@ -2285,8 +2305,10 @@ void GameWindow::drawMapBlocks(QPainter& painter, float cellWidth, float cellHei
             QRectF blockRect(c * cellWidth, r * cellHeight, cellWidth, cellHeight); //创建方块矩形
             blockRect.adjust(2, 2, -2, -2); //让方块之间有间隙
 
-            if (r == m_activeRow && c == m_activeCol) {
-                // 绘制激活状态的图片
+            bool isActive = (r == m_activeRow && c == m_activeCol) || 
+                         (r == m_activeRow2 && c == m_activeCol2);
+            if (isActive) {
+                // 绘制激活状态的图片（红色边框）
                 drawBlockImage(painter, blockRect, blockType, true);
             } else {
                 // 绘制普通状态的图片
@@ -3347,6 +3369,7 @@ void GameWindow::createGameMenu()
     
     QAction* returnToMenu = m_gameMenu->addAction("返回菜单");
     QAction* restart = m_gameMenu->addAction("重新开始");
+    QAction* stopGame = m_gameMenu->addAction("暂停游戏/继续游戏");
     QAction* exit = m_gameMenu->addAction("退出游戏");
     
     connect(returnToMenu, &QAction::triggered, this, [this]() {
@@ -3361,6 +3384,8 @@ void GameWindow::createGameMenu()
             start();
         }
     });
+
+    connect(stopGame, &QAction::triggered, this, &GameWindow::handleSpaceKey);
     
     connect(exit, &QAction::triggered, this, &QWidget::close);
 }
