@@ -646,8 +646,8 @@ private slots:
     // 停止游戏背景音乐
     void stopGameMusic();
     
-    // 初始化紧凑菜单
-    void initializeCompactMenu();
+    // 初始化菜单
+    void initializeMenu();
     
     // 创建游戏菜单
     void createGameMenu();
