@@ -278,6 +278,10 @@ private:
     // 处理菜单鼠标事件
     void handleMenuMouseEvent(QMouseEvent *event, bool isClick);
     
+    // 处理槽位菜单的通用逻辑（载入/保存/删除存档）
+    bool handleSlotMenuMouseEvent(QMouseEvent *event, bool isClick, bool& showFlag, 
+                                   int optionCount, const QPoint& adjustedPos);
+    
     // 处理上方向键
     void handleUpKey();
     
