@@ -23,35 +23,35 @@
 #include <QAction>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QDialog>         // 用于QDialog对话框
-#include <QVBoxLayout>     // 用于垂直布局管理器
-#include <QLabel>          // 用于标签控件
-#include <QLineEdit>       // 用于文本输入框
-#include <QIntValidator>   // 用于整数输入验证
+#include <QDialog>        
+#include <QVBoxLayout>   
+#include <QLabel>          
+#include <QLineEdit>     
+#include <QIntValidator>   
 #include "linkjudger.h"
 
-// 玩家类，表示游戏中的玩家角色
+// 玩家类
 class Player {
 public:
-    // 构造函数，初始化玩家对象
+    // 构造函数
     Player(int id, int startRow, int startCol);
     
-    // 获取玩家ID
+
     int getId() const { return m_id; }
     
-    // 获取玩家当前行坐标
+  
     int getRow() const { return m_row; }
     
-    // 获取玩家当前列坐标
+   
     int getCol() const { return m_col; }
     
-    // 获取玩家当前分数
+  
     int getScore() const { return m_score; }
     
-    // 检查玩家是否处于眩晕状态
+    // 是否眩晕
     bool isDizzy() const { return m_dizzy; }
     
-    // 获取眩晕状态剩余时间
+    // 获取眩晕剩余时间
     int getDizzyTime() const { return m_dizzyTime; }
     
     // 设置玩家位置
@@ -60,38 +60,38 @@ public:
     // 增加玩家分数
     void addScore(int points);
     
-    // 设置眩晕状态
+    // 设置眩晕状态，默认10秒
     void setDizzy(bool dizzy, int time = 10);
     
-    // 设置闪烁效果状态
+    // 设置闪烁状态，默认5秒
     void setFlashActive(bool active, int time = 5);
     
-    // 更新所有状态效果的时间
+    // 更新所有状态效果
     void updateEffects();
     
-    // 检查玩家是否处于闪烁状态
+    // 检查玩家是否处于闪烁状态中
     bool isFlashActive() const { return m_flashActive; }
     
-    // 移动玩家位置
+    // 移动玩家
     void move(int deltaRow, int deltaCol);
     
 private:
-    int m_id; // 玩家ID
-    int m_row, m_col; // 位置坐标
-    int m_score; // 分数
-    bool m_dizzy; // 是否眩晕
-    bool m_flashActive; // 是否激活闪烁效果
-    int m_dizzyTime; // 眩晕剩余时间
-    int m_flashTime; // 闪烁效果剩余时间
+    int m_id;
+    int m_row, m_col;
+    int m_score;
+    bool m_dizzy; 
+    bool m_flashActive; // 是否在闪烁效果中
+    int m_dizzyTime;
+    int m_flashTime;
 };
 
-// 鼠标点击信息结构体
+// 鼠标点击信息
 struct ClickInfo {
-    int row; // 点击位置的行坐标
-    int col; // 点击位置的列坐标
+    int row; 
+    int col; 
     bool isValid; // 点击位置是否有效
     
-    // 构造函数
+   
     ClickInfo(int r, int c, bool valid) : row(r), col(c), isValid(valid) {}
 };
 
@@ -100,62 +100,62 @@ class GameWindow : public QWidget {
     Q_OBJECT
 
 public:
-    // 构造函数，初始化游戏窗口
+   
     GameWindow(QWidget *parent = nullptr);
     
-    // 析构函数，清理资源
+   
     ~GameWindow();
     
     
-    // 保存游戏
+  
     void saveGame(const QString& filename);
     
-    // 加载游戏
+   
     void loadGame(const QString& filename);
     
     
-    // 重新初始化玩家位置（测试接口）
+    // 重新初始化玩家位置
     void reinitializePlayerPositions() { 
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> rowDist(0, ROWS - 1);
         std::uniform_int_distribution<> colDist(0, COLS - 1);
         
-        // 玩家1位置：随机选择空地
+        // 玩家1随机选择空地
         auto player1Pos = findValidPlayerPosition(gen, rowDist, colDist);
         m_p1.setPosition(player1Pos.first, player1Pos.second);
         checkItemCollision(m_p1);
         
-        // 玩家2位置：随机选择空地
+        // 玩家2随机选择空地
         if (m_twoPlayer) {
             auto player2Pos = findValidPlayerPosition(gen, rowDist, colDist);
             m_p2.setPosition(player2Pos.first, player2Pos.second);
         }
     }
     
-    int ROWS = 16; // 游戏地图行数
-    int COLS = 24; // 游戏地图列数
-    static constexpr int TYPES = 8; // 方块类型数量
-    static constexpr int TIME = 300; // 游戏时间（秒）
+    int ROWS = 16; // 游戏地图的行数
+    int COLS = 24; // 游戏地图的列数
+    static constexpr int TYPES = 8; // 方块类型数量为8种
+    static constexpr int TIME = 300; // 游戏时间300秒
 
 protected:
     // 事件处理函数
     void paintEvent(QPaintEvent *event) override;
     
-    // 键盘按键事件处理函数
+    // 键盘按键 事件处理函数
     void keyPressEvent(QKeyEvent *event) override;
     
-    // 鼠标按下事件处理函数
+    // 鼠标按下 事件处理函数
     void mousePressEvent(QMouseEvent *event) override;
     
-    // 鼠标移动事件处理函数
+    // 鼠标移动 事件处理函数
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
-    std::vector<QPixmap> m_blockImages; // 方块图片资源数组
+    std::vector<QPixmap> m_blockImages; // 方块图片数组
     
     
-    // 加载方块图片资源
+   
     void loadBlockImages();
     
     // 绘制方块图片
@@ -174,21 +174,23 @@ private:
         EXIT_GAME = 2
     };
     
+    //游戏模式选项
     enum GameModeOption {
         SINGLE_PLAYER = 0,
         TWO_PLAYER = 1
     };
     
+    //存档槽位选项
     enum SaveSlot {
         SAVE_SLOT_1 = 0,
         SAVE_SLOT_2 = 1,
         SAVE_SLOT_3 = 2
     };
     
-    // 显示菜单界面
+   
     void showMenu();
     
-    // 隐藏菜单界面
+        
     void hideMenu();
     
     // 选择菜单选项
@@ -228,7 +230,7 @@ private:
     // 绘制单个菜单选项
     void drawOption(QPainter& painter, const QRect& rect, const QString& text, bool selected);
     
-    // 绘制菜单选项的通用辅助函数
+    // 绘制菜单选项的函数
     void drawMenuOptionsHelper(QPainter& painter, const std::initializer_list<QString>& options, int optionCount, bool hasReturnButton);
     
     // 绘制游戏状态界面
@@ -246,7 +248,7 @@ private:
     // 绘制道具
     void drawItems(QPainter& painter, float cellWidth, float cellHeight);
     
-    // 绘制提示高亮
+    // 绘制提示高亮边框
     void drawHintHighlights(QPainter& painter, float cellWidth, float cellHeight);
     
     // 绘制连接线
@@ -264,23 +266,21 @@ private:
     // 绘制玩家状态
     void drawPlayerStatus(QPainter& painter);
     
-    // 绘制操作提示
-    void drawOperationHints(QPainter& painter, int widgetWidth, int widgetHeight);
-    
     // 绘制游戏状态信息
     void drawGameStatus(QPainter& painter, int widgetWidth, int widgetHeight);
     
     // 处理键盘按键事件
     void handleKey(QKeyEvent *event);
     
-
-    
     // 处理菜单鼠标事件
     void handleMenuMouseEvent(QMouseEvent *event, bool isClick);
     
-    // 处理槽位菜单的通用逻辑（载入/保存/删除存档）
+    // 处理槽位菜单
     bool handleSlotMenuMouseEvent(QMouseEvent *event, bool isClick, bool& showFlag, 
                                    int optionCount, const QPoint& adjustedPos);
+    
+    // 处理存档槽位菜单的键盘导航（上下键）
+    void handleSlotMenuNavigation(bool isUpKey, int maxSlotIndex);
     
     // 处理上方向键
     void handleUpKey();

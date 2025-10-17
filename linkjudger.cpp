@@ -80,7 +80,7 @@ bool LinkJudger::canOneCornerConnection(int r1, int c1, int r2, int c2, const st
     if (mapRows == 0) return false;
     int mapCols = static_cast<int>(map[0].size());
     
-    // 确保坐标在有效范围内
+ 
     if (r1 < 0 || r1 >= mapRows || c1 < 0 || c1 >= mapCols ||
         r2 < 0 || r2 >= mapRows || c2 < 0 || c2 >= mapCols) {
         return false;
@@ -125,7 +125,7 @@ bool LinkJudger::hasSolutions(const std::vector<std::vector<int>>& map)
 //检查直线连接
 bool LinkJudger::canLineConnection(int r1, int c1, int r2, int c2, const std::vector<std::vector<int>>& map)
 {
-    // 使用实际地图大小进行边界检查
+  
     int mapRows = static_cast<int>(map.size());
     if (mapRows == 0) return false;
     int mapCols = static_cast<int>(map[0].size());

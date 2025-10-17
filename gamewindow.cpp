@@ -109,12 +109,12 @@ GameWindow::GameWindow(QWidget *parent)
     
     , m_zombieMovie(nullptr) // 玩家1僵尸GIF动图
     , m_zombieEatMovie(nullptr) // 玩家1僵尸攻击GIF动图
-    , m_currentZombieFrame() // 玩家1当前僵尸帧
+    , m_currentZombieFrame() // 玩家1当前帧
     , m_currentZombieEatFrame() // 玩家1当前僵尸攻击帧
     , m_isZombieAttacking(false) // 玩家1僵尸未在攻击
     , m_attackTimer(new QTimer(this)) // 玩家1攻击动画定时器
     
-    // 玩家2 GIF动图相关
+    // 玩家2 相关
     , m_zombie2Movie(nullptr) // 玩家2僵尸GIF动图
     , m_zombie2EatMovie(nullptr) // 玩家2僵尸攻击GIF动图
     , m_currentZombie2Frame() // 玩家2当前僵尸帧
@@ -131,7 +131,7 @@ GameWindow::GameWindow(QWidget *parent)
     // 其他组件
     , m_judger(ROWS, COLS) // 连接判断器
     
-    // 音效组件 - 每个音效使用独立的QSoundEffect实例以支持同时播放
+    // 音效
     , m_eliminationSound(new QSoundEffect(this)) // 方块消除音效播放器
     , m_itemSound(new QSoundEffect(this)) // 道具拾取音效播放器
     , m_winSound(new QSoundEffect(this)) // 游戏胜利音效播放器
@@ -239,23 +239,23 @@ void GameWindow::hideMenu()
     update();
 }
 
-// 选择菜单选项
+
 void GameWindow::selectOption(MenuOption option)
 {
     switch (option) {
-    case START_NEW_GAME: // 开始新游戏
-        m_showGameModeSelection = true; // 显示游戏模式选择
+    case START_NEW_GAME:
+        m_showGameModeSelection = true; 
         update();
         break;
         
-    case LOAD_GAME: // 载入游戏
-        m_showLoadSlots = true; // 显示载入存档槽位选择
-        m_selectedSaveSlot = SAVE_SLOT_1; // 默认选中第一个槽位
+    case LOAD_GAME: 
+        m_showLoadSlots = true;
+        m_selectedSaveSlot = SAVE_SLOT_1; 
         update();
         break;
         
-    case EXIT_GAME: // 退出游戏
-        close(); // 关闭窗口
+    case EXIT_GAME:
+        close(); 
         break;
     }
 }
@@ -353,7 +353,7 @@ void GameWindow::drawMenu(QPainter& painter)
     painter.setPen(QColorConstants::Svg::white); // 设置白色画笔
     painter.setFont(QFont("Arial", 12)); // 设置字体
     QRect hintRect = rect(); // 设置提示矩形
-    hintRect.setTop(height() - 100); // 设置提示矩形顶部位置,100是提示矩形高度
+    hintRect.setTop(height() - 100); 
     painter.drawText(hintRect, Qt::AlignCenter, // 设置提示文字居中
                     "使用 ↑↓ 键选择，Enter 键确认，或使用鼠标点击选项"); // 设置提示文字
 }
@@ -362,27 +362,27 @@ void GameWindow::drawMenu(QPainter& painter)
 // 绘制存档菜单选项
 void GameWindow::drawSaveOptions(QPainter& painter)
 {
-    // 菜单选项参数
+   
     static const int startY = 150; // 设置菜单选项起始位置
     static const int optionHeight = 50; // 设置菜单选项高度
     static const int spacing = 20; // 设置菜单选项间距
     static const int selectionOffset = 5; // 设置菜单选项选中偏移
     
-    // 准备选项文本
+  
     QString options[] = {"返回", getSaveDisplayName(SAVE_SLOT_1), getSaveDisplayName(SAVE_SLOT_2), getSaveDisplayName(SAVE_SLOT_3)};
     
-    // 绘制所有选项（返回按钮 + 存档槽位）
+   
     for (int i = 0; i < 4; ++i) {
         QRect optionRect(50, startY + i * (optionHeight + spacing), 
                         width() - 100, optionHeight); // 设置菜单选项矩形
         
-        // 设置菜单选项选中状态
+  
         bool isSelected = false;
         if (i == 0) {
             // 返回按钮
             isSelected = m_backButtonSelected;
         } else {
-            // 存档槽位 - 只有在返回按钮未选中时才可能被选中
+      
             isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
         }
         
@@ -404,25 +404,25 @@ void GameWindow::drawOptions(QPainter& painter)
         int windowWidth = width();
         int windowHeight = height();
         
-        // 缩放图片以完全填满窗口，图片完整显示但可能改变宽高比
+       
         QPixmap scaledBackground = m_menuBackground.scaled(
             QSize(windowWidth, windowHeight), 
-            Qt::IgnoreAspectRatio, // 忽略宽高比，完全填满窗口
+            Qt::IgnoreAspectRatio, 
             Qt::SmoothTransformation
         );
         
-        // 绘制完整的背景图片，填满整个窗口
+        
         painter.drawPixmap(0, 0, scaledBackground);
     }
     
     if (m_showLoadSlots || m_showSaveSlots || m_showDeleteSlots) {
-        // 显示存档相关界面，调用专门的存档选项绘制函数
+       
         drawSaveOptions(painter);
     } else if (m_showGameModeSelection) {
-        // 显示游戏模式选择
+      
         drawMenuOptionsHelper(painter, {"返回", "单人模式", "双人模式"}, 3, true);
     } else {
-        // 显示主菜单选项
+      
         drawMenuOptionsHelper(painter, {"开始新游戏", "载入游戏", "退出游戏"}, OPTIONS, false);
     }
 }
@@ -431,12 +431,12 @@ void GameWindow::drawOptions(QPainter& painter)
 void GameWindow::drawMenuOptionsHelper(QPainter& painter, const std::initializer_list<QString>& options, int optionCount, bool hasReturnButton)
 {
     // 统一的菜单选项参数
-    static const int startY = 150; // 设置菜单选项起始位置
-    static const int optionHeight = 50; // 设置菜单选项高度
-    static const int spacing = 20; // 设置菜单选项间距
-    static const int selectionOffset = 5; // 设置菜单选项选中偏移
+    static const int startY = 150; 
+    static const int optionHeight = 50; 
+    static const int spacing = 20; 
+    static const int selectionOffset = 5;
     
-    // 将选项列表转换为数组以便索引访问
+   
     std::vector<QString> optionArray(options);
     
     // 绘制所有选项
@@ -449,7 +449,7 @@ void GameWindow::drawMenuOptionsHelper(QPainter& painter, const std::initializer
         if (hasReturnButton) {
             // 有返回按钮的情况（游戏模式选择）
             if (i == 0) {
-                // 返回按钮
+            
                 isSelected = m_backButtonSelected;
             } else {
                 // 其他选项 - 只有在返回按钮未选中时才可能被选中
@@ -508,123 +508,53 @@ void GameWindow::handleKey(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Up: // 上键
-        if (m_showLoadSlots) {
-            if (m_backButtonSelected) {
-                // 从返回按钮移动到最后一个存档槽位
-                m_backButtonSelected = false;
-                m_selectedSaveSlot = SAVE_SLOT_3; // 存档槽位3
-            } else if (m_selectedSaveSlot > 0) {
-                m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot - 1);
-            } else {
-                // 从第一个存档槽位移动到返回按钮
-                m_backButtonSelected = true;
-                m_selectedSaveSlot = SAVE_SLOT_1; // 重置存档槽位选择
-            }
-        } else if (m_showSaveSlots) {
-            if (m_backButtonSelected) {
-                // 从返回按钮移动到最后一个存档槽位
-                m_backButtonSelected = false;
-                m_selectedSaveSlot = SAVE_SLOT_3; // 存档槽位3
-            } else if (m_selectedSaveSlot > 0) {
-                m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot - 1);
-            } else {
-                // 从第一个存档槽位移动到返回按钮
-                m_backButtonSelected = true;
-                m_selectedSaveSlot = SAVE_SLOT_1; // 重置存档槽位选择
-            }
-        } else if (m_showDeleteSlots) {
-            if (m_backButtonSelected) {
-                // 从返回按钮移动到最后一个存档槽位
-                m_backButtonSelected = false;
-                m_selectedSaveSlot = SAVE_SLOT_3; // 存档槽位3
-            } else if (m_selectedSaveSlot > 0) {
-                m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot - 1);
-            } else {
-                // 从第一个存档槽位移动到返回按钮
-                m_backButtonSelected = true;
-                m_selectedSaveSlot = SAVE_SLOT_1; // 重置存档槽位选择
-            }
+        
+        if (m_showLoadSlots || m_showSaveSlots || m_showDeleteSlots) {
+            handleSlotMenuNavigation(true, 2); // true表示向上，2表示最大索引SAVE_SLOT_3
         } else if (m_showGameModeSelection) {
+            // 游戏模式选择菜单导航
             if (m_backButtonSelected) {
-                // 从返回按钮移动到最后一个游戏模式选项
                 m_backButtonSelected = false;
-                m_gameModeOption = static_cast<GameModeOption>(1); // 双人模式
+                m_gameModeOption = TWO_PLAYER;
             } else if (m_gameModeOption > 0) {
                 m_gameModeOption = static_cast<GameModeOption>(m_gameModeOption - 1);
             } else {
-                // 从第一个游戏模式选项移动到返回按钮
                 m_backButtonSelected = true;
-                m_gameModeOption = SINGLE_PLAYER; // 重置游戏模式选项
+                m_gameModeOption = SINGLE_PLAYER;
             }
         } else {
-            if (m_option > 0) { //不是最上面的选项
-                m_option = static_cast<MenuOption>(m_option - 1); // 选择上一个选项
-        } else {
-            // 循环到最后一个选项
-                m_option = static_cast<MenuOption>(OPTIONS - 1); // 选择最后一个选项
+            // 主菜单导航（循环）
+            if (m_option > 0) {
+                m_option = static_cast<MenuOption>(m_option - 1);
+            } else {
+                m_option = static_cast<MenuOption>(OPTIONS - 1);
+            }
         }
-        }
-        // 键盘导航：更新高亮显示
         update();
         break;
     case Qt::Key_Down:
-        if (m_showLoadSlots) {
-            if (m_backButtonSelected) {
-                // 从返回按钮移动到第一个存档槽位
-                m_backButtonSelected = false;
-                m_selectedSaveSlot = SAVE_SLOT_1; // 存档槽位1
-            } else if (m_selectedSaveSlot < 2) {
-                m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot + 1);
-            } else {
-                // 从最后一个存档槽位移动到返回按钮
-                m_backButtonSelected = true;
-                m_selectedSaveSlot = SAVE_SLOT_1; // 重置存档槽位选择
-            }
-        } else if (m_showSaveSlots) {
-            if (m_backButtonSelected) {
-                // 从返回按钮移动到第一个存档槽位
-                m_backButtonSelected = false;
-                m_selectedSaveSlot = SAVE_SLOT_1; // 存档槽位1
-            } else if (m_selectedSaveSlot < 2) {
-                m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot + 1);
-            } else {
-                // 从最后一个存档槽位移动到返回按钮
-                m_backButtonSelected = true;
-                m_selectedSaveSlot = SAVE_SLOT_1; // 重置存档槽位选择
-            }
-        } else if (m_showDeleteSlots) {
-            if (m_backButtonSelected) {
-                // 从返回按钮移动到第一个存档槽位
-                m_backButtonSelected = false;
-                m_selectedSaveSlot = SAVE_SLOT_1; // 存档槽位1
-            } else if (m_selectedSaveSlot < 2) {
-                m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot + 1);
-            } else {
-                // 从最后一个存档槽位移动到返回按钮
-                m_backButtonSelected = true;
-                m_selectedSaveSlot = SAVE_SLOT_1; // 重置存档槽位选择
-            }
+        // 统一处理存档槽位菜单的向下导航
+        if (m_showLoadSlots || m_showSaveSlots || m_showDeleteSlots) {
+            handleSlotMenuNavigation(false, 2); // false表示向下，2表示最大索引SAVE_SLOT_3
         } else if (m_showGameModeSelection) {
+            // 游戏模式选择菜单导航
             if (m_backButtonSelected) {
-                // 从返回按钮移动到第一个游戏模式选项
                 m_backButtonSelected = false;
-                m_gameModeOption = static_cast<GameModeOption>(0); // 单人模式
+                m_gameModeOption = SINGLE_PLAYER;
             } else if (m_gameModeOption < 1) {
                 m_gameModeOption = static_cast<GameModeOption>(m_gameModeOption + 1);
             } else {
-                // 从最后一个游戏模式选项移动到返回按钮
                 m_backButtonSelected = true;
-                m_gameModeOption = SINGLE_PLAYER; // 重置游戏模式选项
-            } 
+                m_gameModeOption = SINGLE_PLAYER;
+            }
         } else {
-            if (m_option < OPTIONS - 1) { //不是最下面的选项
-                m_option = static_cast<MenuOption>(m_option + 1); // 选择下一个选项
-        } else {
-            // 循环到第一个选项
-                m_option = static_cast<MenuOption>(0); // 选择第一个选项
+            // 主菜单导航（循环）
+            if (m_option < OPTIONS - 1) {
+                m_option = static_cast<MenuOption>(m_option + 1);
+            } else {
+                m_option = static_cast<MenuOption>(0);
+            }
         }
-        }
-   
         update();
         break;
     case Qt::Key_Return:
@@ -667,7 +597,39 @@ void GameWindow::handleKey(QKeyEvent *event)
     }
 }
 
-// 处理槽位菜单的逻辑（载入/保存/删除存档）
+// 处理存档槽位菜单的键盘导航（上下键）
+void GameWindow::handleSlotMenuNavigation(bool isUpKey, int maxSlotIndex)
+{
+    if (isUpKey) {
+        
+        if (m_backButtonSelected) {
+          
+            m_backButtonSelected = false;
+            m_selectedSaveSlot = static_cast<SaveSlot>(maxSlotIndex);
+        } else if (m_selectedSaveSlot > 0) {
+            m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot - 1);
+        } else {
+          
+            m_backButtonSelected = true;
+            m_selectedSaveSlot = SAVE_SLOT_1;
+        }
+    } else {
+       
+        if (m_backButtonSelected) {
+       
+            m_backButtonSelected = false;
+            m_selectedSaveSlot = SAVE_SLOT_1;
+        } else if (m_selectedSaveSlot < maxSlotIndex) {
+            m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot + 1);
+        } else {
+          
+            m_backButtonSelected = true;
+            m_selectedSaveSlot = SAVE_SLOT_1;
+        }
+    }
+}
+
+// 处理槽位菜单的逻辑
 bool GameWindow::handleSlotMenuMouseEvent(QMouseEvent *event, bool isClick, bool& showFlag, 
                                           int optionCount, const QPoint& adjustedPos)
 {
@@ -711,20 +673,20 @@ bool GameWindow::handleSlotMenuMouseEvent(QMouseEvent *event, bool isClick, bool
     return false; // 鼠标不在选项上
 }
 
-// 处理菜单鼠标事件（移动高亮和点击选择）
+// 处理菜单鼠标事件
 void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
 {
     if (m_state != MENU_STATE && !m_showSaveSlots && !m_showLoadSlots && !m_showDeleteSlots) return; // 如果不是菜单状态且不显示存档槽位选择，则返回
     
-    // 计算游戏区域（排除菜单栏）
-    int menuHeight = m_menuWidget ? m_menuWidget->height() : 0;
+    // 计算游戏区域
+    int menuHeight = m_menuWidget->height();
     QPoint adjustedPos = event->pos();
     adjustedPos.setY(adjustedPos.y() - menuHeight); // 调整鼠标位置
     
     // 默认设置为普通光标
     bool isOverOption = false;
     
-    // 统一处理载入/保存/删除存档槽位选择
+  
     if (m_showLoadSlots) {
         isOverOption = handleSlotMenuMouseEvent(event, isClick, m_showLoadSlots, 4, adjustedPos);
     } else if (m_showSaveSlots) {
@@ -732,11 +694,11 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
     } else if (m_showDeleteSlots) {
         isOverOption = handleSlotMenuMouseEvent(event, isClick, m_showDeleteSlots, 4, adjustedPos);
     } else if (m_showGameModeSelection) {
-        int startY = 150; // 设置菜单选项起始位置
-        int optionHeight = 50; // 设置菜单选项高度
-        int spacing = 20; // 设置菜单选项间距
+        int startY = 150; 
+        int optionHeight = 50; 
+        int spacing = 20; 
         
-        // 检查所有选项（包括返回按钮）
+       
         for (int i = 0; i < 3; ++i) {
         QRect optionRect(50, startY + i * (optionHeight + spacing), 
                             width() - 100, optionHeight); // 设置菜单选项矩形
@@ -747,7 +709,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                     // 返回按钮
                     bool oldSelected = m_backButtonSelected;
                     m_backButtonSelected = true;
-                    m_gameModeOption = SINGLE_PLAYER; // 重置游戏模式选项
+                    m_gameModeOption = SINGLE_PLAYER;
                     
                     if (isClick && event->button() == Qt::LeftButton) {
                         m_showGameModeSelection = false;
@@ -773,19 +735,19 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
             }
         }
     } else {
-        // 主菜单选项
-        int startY = 150; // 菜单选项起始位置
-        int optionHeight = 50; // 菜单选项高度
-        int spacing = 20; // 菜单选项间距
+      
+        int startY = 150;
+        int optionHeight = 50; 
+        int spacing = 20;
         
-        for (int i = 0; i < OPTIONS; ++i) { // 遍历菜单选项
+        for (int i = 0; i < OPTIONS; ++i) { 
         QRect optionRect(50, startY + i * (optionHeight + spacing), 
-                            width() - 100, optionHeight); // 设置菜单选项矩形
+                            width() - 100, optionHeight); 
             
             if (optionRect.contains(adjustedPos)) {
-                isOverOption = true; // 鼠标在选项上，设置为小手光标
-                MenuOption oldOption = m_option; // 保存旧的选项
-                m_option = static_cast<MenuOption>(i); // 设置当前选中的菜单选项
+                isOverOption = true; // 鼠标在选项上，则设置为小手光标
+                MenuOption oldOption = m_option; 
+                m_option = static_cast<MenuOption>(i); 
 
                 if (isClick && event->button() == Qt::LeftButton) {
                     // 鼠标点击：执行选择
@@ -799,7 +761,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
     }
     
  
-    if (!isClick) { // 只在鼠标移动时设置光标，点击时不需要
+    if (!isClick) { 
         if (isOverOption) {
             setCursor(Qt::PointingHandCursor); // 设置小手光标
         } else {
@@ -808,7 +770,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
     }
 }
 
-// 析构函数
+
 GameWindow::~GameWindow()
 {
 }
@@ -816,9 +778,9 @@ GameWindow::~GameWindow()
 // 开始游戏
 void GameWindow::start()
 {
-    // 停止所有定时器并重置状态
+    // 停止所有定时器，重置状态
     stopAllTimers();
-    resetGameEffects(); // 重置游戏效果
+    resetGameEffects();
     
     // 停止背景音乐
     stopBackgroundMusic();
@@ -835,24 +797,24 @@ void GameWindow::start()
     generateMap(); // 生成地图
     
     // 初始化玩家位置
-    std::random_device rd; // 随机数生成器
+    std::random_device rd; 
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> rowDist(0, ROWS - 1); // 行随机分布
-    std::uniform_int_distribution<> colDist(0, COLS - 1); // 列随机分布
+    std::uniform_int_distribution<> rowDist(0, ROWS - 1); 
+    std::uniform_int_distribution<> colDist(0, COLS - 1);
     
     // 初始化玩家1位置
     initializePlayerPosition(m_p1, gen, rowDist, colDist);
     
-    // 玩家2位置：随机选择空地（双人模式）
+    // 玩家2位置
     if (m_twoPlayer) {
         initializePlayerPosition(m_p2, gen, rowDist, colDist);
     }
     
     m_active = &m_p1;
-    m_p1.addScore(-m_p1.getScore()); // 重置阳光值
-    m_p2.addScore(-m_p2.getScore()); // 重置阳光值
+    m_p1.addScore(-m_p1.getScore()); //重置
+    m_p2.addScore(-m_p2.getScore()); 
     
-    generateItems(); //在地图的空白位置随机生成道具，包括时间加成、重新排列、提示等。 根据游戏模式（单人/双人）生成不同的道具类型。
+    generateItems(); //在地图的空白位置随机生成道具
     m_time = TIME;
     m_running = true;
     m_timer->start(1000);
@@ -915,7 +877,7 @@ void GameWindow::resume()
             if (m_p2.isDizzy() && m_p2.getDizzyTime() > 0) { // 如果玩家2眩晕还在生效中，重新启动玩家2眩晕定时器
                 m_dizzy2->start(1000);
             }
-            // 重新启动道具生成定时器,每隔10-20秒随机生成一个道具
+            // 每隔10-20秒随机生成一个道具
             std::random_device rd;
             std::mt19937 gen(rd());
             std::uniform_int_distribution<> dist(10000, 20000); 
@@ -952,29 +914,29 @@ void GameWindow::showGameResult()
     }
     
     QMessageBox::information(static_cast<QWidget*>(this), "游戏结束", result); 
-    showMenu();  // 返回开始菜单
+    showMenu();  // 开始菜单
 }
 
 // 生成地图
 void GameWindow::generateMap()
 {
-    std::random_device rd; // 随机数生成器
+    std::random_device rd; 
     std::mt19937 gen(rd());
     
     initializeMapData();
-    auto blockTypes = createBlockTypes(gen); //创建各种方块类型
+    auto blockTypes = createBlockTypes(gen); //创建方块类型
     fillGameArea(blockTypes); //填充游戏区域
 }
 
 // 初始化地图数据
 void GameWindow::initializeMapData()
 {
-    m_mapData.resize(ROWS); // 设置地图行数
+    m_mapData.resize(ROWS); 
     for (int i = 0; i < ROWS; ++i) {
-        m_mapData[i].resize(COLS); // 设置地图列数
+        m_mapData[i].resize(COLS);
     }
 
-    // 初始化地图为空白（值为0）
+    // 初始化地图
     for (int r = 0; r < ROWS; ++r) {
         for (int c = 0; c < COLS; ++c) {
             m_mapData[r][c] = 0;
@@ -985,7 +947,7 @@ void GameWindow::initializeMapData()
 // 创建方块类型
 std::vector<int> GameWindow::createBlockTypes(std::mt19937& gen)
 {
-    // 计算中间部分游戏区域
+    // 计算实际游戏区域
     int startRow = 2;  
     int endRow = ROWS - 3; 
     int startCol = 2;  
@@ -995,16 +957,16 @@ std::vector<int> GameWindow::createBlockTypes(std::mt19937& gen)
     int gameAreaCols = endCol - startCol + 1; 
     int totalGameCells = gameAreaRows * gameAreaCols;
     
-    // 确保游戏区域有偶数个方块，以便成对消除
+    // 确保游戏区域有偶数个方块，以便可以成对消除
     if (totalGameCells % 2 != 0) { // 奇数
-        totalGameCells--;  // 奇数则减1变成偶数
+        totalGameCells--;  // 如果是奇数，则减1变成偶数
     }
     
-    // 计算每种类型需要多少对方块
+    // 计算每种类型需要多少对方块，大致均分
     int pairsPerType = totalGameCells / (TYPES * 2); // 每种类型需要多少对方块
     int remainingCells = totalGameCells % (TYPES * 2); // 剩余方块数
     
-    // 创建方块类型数组，确保每种类型成对出现
+  
     std::vector<int> blockTypes;
     for (int type = 1; type <= TYPES; ++type) {
         for (int pair = 0; pair < pairsPerType; ++pair) {
@@ -1013,16 +975,16 @@ std::vector<int> GameWindow::createBlockTypes(std::mt19937& gen)
         }
     }
     
-    // 如果还有剩余位置，随机选择类型填充（确保成对）
+    // 如果还有剩余位置，随机选择类型填充
     for (int i = 0; i < remainingCells; i += 2) {
-        if (i + 1 < remainingCells) { // 如果剩余方块数大于2
+        if (i + 1 < remainingCells) { 
             int randomType = std::uniform_int_distribution<>(1, TYPES)(gen); // 随机选择类型
             blockTypes.push_back(randomType);
             blockTypes.push_back(randomType);
         }
     }
     
-    // 随机打乱方块类型
+    
     std::shuffle(blockTypes.begin(), blockTypes.end(), gen);
     return blockTypes;
 }
@@ -1030,13 +992,12 @@ std::vector<int> GameWindow::createBlockTypes(std::mt19937& gen)
 // 填充游戏区域
 void GameWindow::fillGameArea(const std::vector<int>& blockTypes)
 {
-    // 计算游戏区域
+   
     int startRow = 2;  
     int endRow = ROWS - 3; 
     int startCol = 2;  
     int endCol = COLS - 3;  
-    
-    // 在游戏区域填充方块
+  
     int index = 0;
     for (int r = startRow; r <= endRow && index < blockTypes.size(); ++r) {
         for (int c = startCol; c <= endCol && index < blockTypes.size(); ++c) {
@@ -1052,7 +1013,7 @@ void GameWindow::generateItems()
     std::random_device rd;
     std::mt19937 gen(rd());
     
-    // 根据游戏模式选择道具类型,双人模式下生成时间加成、重新排列、提示、眩晕,单人模式下生成时间加成、重新排列、提示、闪烁
+   
     std::vector<int> availableItems;
     if (m_twoPlayer) { 
         availableItems = {TIME_BONUS, SHUFFLE, HINT, DIZZY};
@@ -1062,13 +1023,13 @@ void GameWindow::generateItems()
 
     }
     
-    // 收集所有空白位置作为道具生成点
+    // 空白位置作为道具生成点
     std::vector<std::pair<int, int>> emptyPositions;
     
     for (int r = 0; r < ROWS; ++r) {
         for (int c = 0; c < COLS; ++c) {
             if (m_mapData[r][c] == 0) {
-                emptyPositions.emplace_back(r, c); //收集所有空白位置作为道具生成点
+                emptyPositions.emplace_back(r, c);
             }
         }
     }
@@ -1076,14 +1037,14 @@ void GameWindow::generateItems()
     // 生成3-5个道具
     int numItems = std::uniform_int_distribution<>(3, 5)(gen);
     
-    // 随机打乱空白位置，以确保道具生成位置随机
+   
     std::shuffle(emptyPositions.begin(), emptyPositions.end(), gen);
     
     for (int i = 0; i < numItems; ++i) {
         int row = emptyPositions[i].first;
         int col = emptyPositions[i].second;
         
-        // 从可用道具中随机选择，确保道具类型随机
+        
         std::uniform_int_distribution<> itemIndexDist(0, availableItems.size() - 1);
         int itemType = availableItems[itemIndexDist(gen)];
         
@@ -1102,7 +1063,7 @@ void GameWindow::checkItemCollision(Player& player)
         });
     
     if (it != m_items.end()) {
-            activateItem(it->type, player); //激活道具效果
+            activateItem(it->type, player); //激活道具
             m_items.erase(it); 
             playItemSound();
             
@@ -1120,57 +1081,57 @@ void GameWindow::activateItem(int itemType, Player& player)
 {
     switch (itemType) {
     case TIME_BONUS:
-        addTime(); //增加时间
+        addTime();
         break;
     case SHUFFLE:
-        shuffle(); //重新排列
+        shuffle();
         break;
     case HINT:
-        hint(); //提示
+        hint();
         break;
     case DIZZY:
-        // Dizzy道具只在双人模式下有效
+       
         if (m_twoPlayer) {
-        // 对对手使用Dizzy
-        if (player.getId() == 1) { //玩家1使用Dizzy道具
-                dizzy(m_p2); //眩晕玩家2
+       
+        if (player.getId() == 1) {
+                dizzy(m_p2); 
         } else {
-                dizzy(m_p1); //眩晕玩家1
+                dizzy(m_p1); 
         }
         }
 
         break;
     case FLASH:
-        flash(player); //闪烁
+        flash(player);
         break;
     }
 }
 
-//增加时间函数
+
 void GameWindow::addTime()
 {
-    m_time += 30; //增加30秒
+    m_time += 30; 
     update();
 }
 
 //重新排列道具效果函数
 void GameWindow::shuffle()
 {
-    // 收集所有非空方块
-    std::vector<int> blocks;
-    blocks.reserve(ROWS * COLS / 2); // 预分配空间
     
+    std::vector<int> blocks;
+    blocks.reserve(ROWS * COLS / 2); 
+
     for (const auto& row : m_mapData) {
         std::copy_if(row.begin(), row.end(), std::back_inserter(blocks),
                     [](int blockType) { return blockType > 0; });
     }
     
-    // 随机打乱
+    
     std::random_device rd;
     std::mt19937 gen(rd());
     std::shuffle(blocks.begin(), blocks.end(), gen);
     
-    // 重新填充地图,保持方块类型不变但位置随机化。
+    
     auto blockIt = blocks.begin();
     for (auto& row : m_mapData) {
         for (int& cell : row) {
@@ -1180,11 +1141,11 @@ void GameWindow::shuffle()
         }
     }
     
-    // 重新生成道具并重置状态
+  
     generateItems();
-    m_activeRow = m_activeCol = -1; //重置激活位置
+    m_activeRow = m_activeCol = -1;
     
-    // 如果高亮提示道具还在生效中，重新查找可消除的方块对
+  
     if (m_hintOn) {
         findNextHintPair();
     }
@@ -1229,7 +1190,7 @@ void GameWindow::flash(Player& player)
     update();
 }
 
-//计算实际的连接路径用于显示连接线
+//计算实际的连接路径，显示连接线
 void GameWindow::calcPath(int r1, int c1, int r2, int c2)
 {
     m_linePath.clear(); 
@@ -1260,7 +1221,7 @@ void GameWindow::calcPath(int r1, int c1, int r2, int c2)
         m_linePath.emplace_back(r2, c2);
 }
 
-//尝试一个拐角连接路径
+//尝试一个拐角的连接路径
 bool GameWindow::tryOneCornerPath(int r1, int c1, int r2, int c2)
 {
     // 检查水平-垂直路径（一个拐角）
@@ -1290,7 +1251,6 @@ bool GameWindow::tryOneCornerPath(int r1, int c1, int r2, int c2)
 bool GameWindow::tryTwoCornerPath(int r1, int c1, int r2, int c2)
 {
     // 情况1：水平-垂直-水平连接
-    // 路径：(r1,c1) -> (r1,c) -> (r2,c) -> (r2,c2)
     for (int c = 0; c < COLS; ++c) {
         if (m_mapData[r1][c] == 0 && m_mapData[r2][c] == 0) {
             if (m_judger.canLineConnection(r1, c1, r1, c, m_mapData) &&
@@ -1306,7 +1266,6 @@ bool GameWindow::tryTwoCornerPath(int r1, int c1, int r2, int c2)
     }
     
     // 情况2：垂直-水平-垂直连接
-    // 路径：(r1,c1) -> (r,c1) -> (r,c2) -> (r2,c2)
     for (int r = 0; r < ROWS; ++r) {
         if (m_mapData[r][c1] == 0 && m_mapData[r][c2] == 0) {
             if (m_judger.canLineConnection(r1, c1, r, c1, m_mapData) &&
@@ -1355,17 +1314,17 @@ void GameWindow::endDizzy(Player& player)
 //定时器超时函数
 void GameWindow::onTimerTimeout()
 {
-    if (m_running && !m_paused) { //如果游戏正在运行且没有暂停
-        m_time--; //时间减一
+    if (m_running && !m_paused) { 
+        m_time--; 
         update();
 
-        // 更新玩家效果
+     
         m_p1.updateEffects();
         m_p2.updateEffects();
         
         
-        if (m_time <= 0) { //如果时间结束
-            end(); //结束游戏
+        if (m_time <= 0) { 
+            end(); 
         }
     }
 }
@@ -1384,9 +1343,9 @@ void GameWindow::onHintTimerTimeout()
 //眩晕定时器超时函数
 void GameWindow::onDizzyTimerTimeout(Player& player, QTimer* timer)
 {
-    player.updateEffects(); //更新玩家效果
+    player.updateEffects(); 
     if (!player.isDizzy()) {
-        timer->stop(); //停止眩晕定时器
+        timer->stop(); 
     }
     update();
 }
@@ -1401,20 +1360,20 @@ void GameWindow::onItemSpawnTimerTimeout()
     
     int itemType;
     if (m_twoPlayer) {
-        // 双人模式下不生成Flash道具
+       
         std::vector<int> availableItems = {TIME_BONUS, SHUFFLE, HINT, DIZZY};
         std::uniform_int_distribution<> itemIndexDist(0, availableItems.size() - 1);
         itemType = availableItems[itemIndexDist(gen)];  //随机选择一种道具
 
     } else {
-        // 单人模式不包括Dizzy
+       
         std::vector<int> availableItems = {TIME_BONUS, SHUFFLE, HINT, FLASH};
         std::uniform_int_distribution<> itemIndexDist(0, availableItems.size() - 1);
         itemType = availableItems[itemIndexDist(gen)];
 
     }
     
-    // 随机选择空白位置
+  
     std::vector<std::pair<int, int>> emptyPositions;
     
     for (int r = 0; r < ROWS; ++r) { 
@@ -1426,13 +1385,13 @@ void GameWindow::onItemSpawnTimerTimeout()
     }
     
     if (!emptyPositions.empty()) {
-        // 随机选择一个道具生成点
+       
         std::uniform_int_distribution<> posDist(0, emptyPositions.size() - 1);
         int posIndex = posDist(gen);
         int row = emptyPositions[posIndex].first;
         int col = emptyPositions[posIndex].second;
         
-        // 检查位置是否已有道具
+        //是否已有道具
         bool positionOccupied = false;
         for (const auto& item : m_items) {
             if (item.row == row && item.col == col) {
@@ -1542,7 +1501,7 @@ void GameWindow::processElimination()
         
         m_active->addScore(points);
 
-        // 计算连接路径并显示连接线
+        // 计算连接路径，显示连接线
         calcPath(r1, c1, r2, c2);
         m_showLine = true; 
         
@@ -2260,7 +2219,7 @@ void GameWindow::drawPlayers(QPainter& painter, float cellWidth, float cellHeigh
     // 绘制玩家1
     drawPlayer(painter, m_p1, 1, cellWidth, cellHeight);
     
-    // 绘制玩家2（双人模式）
+    // 如果是双人模式，则绘制玩家2
     if (m_twoPlayer) {
         drawPlayer(painter, m_p2, 2, cellWidth, cellHeight);
     }
@@ -2551,10 +2510,10 @@ void GameWindow::loadGame(const QString& filename)
 
     updateWindowTitle("游戏进行中");
     
-    // 启动游戏定时器
-    m_timer->start(1000); // 每秒更新一次
+    // 游戏定时器
+    m_timer->start(1000);
     
-    // 启动道具生成定时器
+    // 道具生成定时器
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(10000, 20000);
@@ -2885,14 +2844,14 @@ void GameWindow::initializeZombieAnimation()
 // 初始化玩家2僵尸GIF动图
 void GameWindow::initializeZombie2Animation()
 {
-    // 创建QMovie对象加载玩家2普通僵尸GIF动图
+  
     m_zombie2Movie = new QMovie(":/zombie2.gif", QByteArray(), this);
     
     if (m_zombie2Movie->isValid()) {
-        // 设置缓存模式为CacheAll，将所有帧缓存到内存中，提高播放性能，避免重复解码GIF文件
+        
         m_zombie2Movie->setCacheMode(QMovie::CacheAll);
 
-        // 连接帧改变信号到更新槽
+      
         connect(m_zombie2Movie, &QMovie::frameChanged, this, [this]() {
             if (!m_isZombie2Attacking) { // 只在非攻击状态时更新普通帧
                 m_currentZombie2Frame = m_zombie2Movie->currentPixmap();
@@ -2900,18 +2859,18 @@ void GameWindow::initializeZombie2Animation()
             }
         });
 
-        // 启动动画
+      
         m_zombie2Movie->start();
     }
     
-    // 创建QMovie对象加载玩家2攻击僵尸GIF动图
+ 
     m_zombie2EatMovie = new QMovie(":/zombie2_eat.gif", QByteArray(), this);
     
     if (m_zombie2EatMovie->isValid()) {
-        // 设置动画循环模式
+      
         m_zombie2EatMovie->setCacheMode(QMovie::CacheAll);
         
-        // 连接帧改变信号到更新槽
+      
         connect(m_zombie2EatMovie, &QMovie::frameChanged, this, [this]() {
             if (m_isZombie2Attacking) { // 只在攻击状态时更新攻击帧
                 m_currentZombie2EatFrame = m_zombie2EatMovie->currentPixmap();
@@ -2919,11 +2878,10 @@ void GameWindow::initializeZombie2Animation()
             }
         });
     }
-    
-    // 设置玩家2攻击定时器
+ 
     m_attack2Timer->setSingleShot(true); // 单次触发
     connect(m_attack2Timer, &QTimer::timeout, this, [this]() {
-        // 攻击动画结束，恢复普通动画
+     
         m_isZombie2Attacking = false;
         m_zombie2EatMovie->stop();
         m_zombie2Movie->start();
@@ -3439,7 +3397,7 @@ void GameWindow::createSettingsMenu()
     QDialog dialog(this);
     dialog.setWindowTitle("设置地图大小");
     dialog.setFixedSize(320, 200);
-    dialog.setModal(true);  //表示对话框是模态的：弹出时会阻止用户操作父窗口，必须先处理对话框。
+    dialog.setModal(true); 
 
     // 主布局情况，垂直分布
     QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);

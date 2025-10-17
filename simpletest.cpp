@@ -1,18 +1,18 @@
 #include "simpletest.h"
 #include <vector>
 
-// 创建一个 LinkJudger 实例
+
 void SimpleTest::initTestCase()
 {
     m_judger = new LinkJudger(16, 24);  
-    QVERIFY(m_judger != nullptr); // 使用 QVERIFY 宏来断言m_judger不为空。
+    QVERIFY(m_judger != nullptr);
 }
 
-// 删除 LinkJudger 实例
+
 void SimpleTest::cleanupTestCase()
 {
     delete m_judger;
-    m_judger = nullptr; // 将指针置空，防止悬空指针。
+    m_judger = nullptr;
 }
 
 // 创建用于测试的小地图
@@ -25,7 +25,7 @@ void SimpleTest::createTestMap(std::vector<std::vector<int>>& map, int rows, int
 
 // 直线连接测试 
 
-//专门测试同一行的相同类型方块是否可以直线连接。先构造无障碍的情况，验证应为 true；再放一个障碍，验证应为 false。
+
 void SimpleTest::testCanLineConnection_Horizontal()
 {
     std::vector<std::vector<int>> map;
@@ -34,7 +34,7 @@ void SimpleTest::testCanLineConnection_Horizontal()
     // 测试水平直线(无障碍),测试起点为(1,0),终点为(1,3)。
     map[1][0] = 1;  // 起点
     map[1][3] = 1;  // 终点
-    // 中间路径为空
+  
     
     QVERIFY(m_judger->canLineConnection(1, 0, 1, 3, map) == true);
     QVERIFY(m_judger->canEliminate(1, 0, 1, 3, map) == true);
@@ -48,7 +48,7 @@ void SimpleTest::testCanLineConnection_Horizontal()
     QVERIFY(m_judger->canEliminate(1, 0, 1, 3, map) == false);
 }
 
-//测试同一列的相同类型方块是否可以直线连接。先构造无障碍的情况，验证应为 true；再放一个障碍，验证应为 false。
+//测试同一列的相同类型方块是否可以直线连接。
 void SimpleTest::testCanLineConnection_Vertical()
 {
     std::vector<std::vector<int>> map;
@@ -87,7 +87,7 @@ void SimpleTest::testCanLineConnection_EdgeCases()
 
 // 单拐角连接测试
 
-//专门测试L形路径(无障碍)的情况,测试起点为(0,0),终点为(2,2)。
+//测试L形路径(无障碍)的情况,测试起点为(0,0),终点为(2,2)。
 void SimpleTest::testHasOneCornerPath_Valid()
 {
     std::vector<std::vector<int>> map;
@@ -101,17 +101,17 @@ void SimpleTest::testHasOneCornerPath_Valid()
     QVERIFY(m_judger->canEliminate(0, 0, 2, 2, map) == true);
 }
 
-//专门测试L形路径(有障碍)的情况,测试起点为(0,0),终点为(2,2),障碍为(0,1)和(1,0)。
+//测试L形路径(有障碍)的情况,测试起点为(0,0),终点为(2,2),障碍为(0,1)和(1,0)。
 void SimpleTest::testHasOneCornerPath_Invalid()
 {
     std::vector<std::vector<int>> map;
     createTestMap(map, 4, 4);
     
-    // 测试L形路径 - 有障碍，阻挡所有可能的单拐角路径
-    map[0][0] = 1;  // 起点
-    map[2][2] = 1;  // 终点
-    map[0][1] = 2;  // 阻挡水平路径
-    map[1][0] = 2;  // 阻挡垂直路径
+    // 测试L形路径 有障碍，阻挡所有可能的单拐角路径
+    map[0][0] = 1;  
+    map[2][2] = 1;  
+    map[0][1] = 2;  
+    map[1][0] = 2;  
     
     QVERIFY(m_judger->canEliminate(0, 0, 2, 2, map) == false);
 }
@@ -122,8 +122,7 @@ void SimpleTest::testHasOneCornerPath_EdgeCases()
     std::vector<std::vector<int>> map;
     createTestMap(map, 3, 3);
     
-    // 单拐角贴边转弯：起点(0,0)，终点(2,2)，拐角取在(0,2)
-    // 路径：(0,0)->(0,2)->(2,2)
+  
     map[0][0] = 1; // 起点
     map[2][2] = 1; // 终点
 
@@ -209,7 +208,7 @@ void SimpleTest::testCanEliminate_SamePosition()
     
     map[1][1] = 1;
     
-    QVERIFY(m_judger->canEliminate(1, 1, 1, 1, map) == false); //相同位置不能消除
+    QVERIFY(m_judger->canEliminate(1, 1, 1, 1, map) == false); 
 }
 
 //测试不同类型的方块能否消除
@@ -218,8 +217,8 @@ void SimpleTest::testCanEliminate_DifferentTypes()
     std::vector<std::vector<int>> map;
     createTestMap(map, 3, 3);
     
-    map[0][0] = 1;  // 类型1
-    map[0][2] = 2;  // 类型2
+    map[0][0] = 1;  
+    map[0][2] = 2;  
     
     QVERIFY(m_judger->canEliminate(0, 0, 0, 2, map) == false);
 }
@@ -294,7 +293,7 @@ void SimpleTest::testEdgePositions()
 
 // 异常情况测试
 
-//测试无效输入是否会崩溃
+//测试无效输入是否会导致崩溃
 void SimpleTest::testInvalidInputs()
 {
     std::vector<std::vector<int>> map;
@@ -311,13 +310,13 @@ void SimpleTest::testExtremeCases()
     std::vector<std::vector<int>> map;
     createTestMap(map, 2, 2);
     
-    // 测试最小地图
+    // 测试最小地图的情况
     map[0][0] = 1;
     map[1][1] = 1;
     
     QVERIFY(m_judger->canEliminate(0, 0, 1, 1, map) == true);
     
-    // 测试完全被阻挡
+    // 测试完全被阻挡的情况
     map[0][1] = 2;
     map[1][0] = 2;
     
