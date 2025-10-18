@@ -480,11 +480,11 @@ private:
     MenuOption m_option;                    // 选中选项
     GameModeOption m_gameModeOption;        // 选中的游戏模式选项
     bool m_showGameModeSelection;           // 是否显示游戏模式选择
-    bool m_backButtonSelected;              // 返回按钮是否被选中
     bool m_showLoadSlots;                   // 是否显示载入存档槽位选择
     bool m_showSaveSlots;                   // 是否显示保存存档槽位选择
     bool m_showDeleteSlots;                 // 是否显示删除存档槽位选择
-    SaveSlot m_selectedSaveSlot;            // 选中的存档槽位
+    int m_selectedSaveOption;                // 选中的存档菜单选项索引 (0=返回, 1-3=存档槽位)
+    int m_selectedGameModeOption;             // 选中的游戏模式菜单选项索引 (0=返回, 1=单人模式, 2=双人模式)
     static const int OPTIONS = 3;
     
     // 游戏数据

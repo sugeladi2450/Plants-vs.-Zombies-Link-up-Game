@@ -75,11 +75,11 @@ GameWindow::GameWindow(QWidget *parent)
     , m_option(START_NEW_GAME) // 菜单选项，初始选中开始新游戏
     , m_gameModeOption(SINGLE_PLAYER) // 游戏模式选项，默认单人模式
     , m_showGameModeSelection(false) // 不显示游戏模式选择
-    , m_backButtonSelected(false) // 返回按钮未选中
     , m_showLoadSlots(false) // 不显示载入存档槽位选择
     , m_showSaveSlots(false) // 不显示保存存档槽位选择
     , m_showDeleteSlots(false) // 不显示删除存档槽位选择
-    , m_selectedSaveSlot(SAVE_SLOT_1) // 默认选中存档槽位1
+    , m_selectedSaveOption(0) // 默认选中返回选项
+    , m_selectedGameModeOption(0) // 默认选中返回选项
     , m_running(false) // 游戏运行
     , m_paused(false) // 游戏暂停
     , m_twoPlayer(false)  // 双人模式标志，由菜单选择决定
@@ -199,7 +199,7 @@ GameWindow::GameWindow(QWidget *parent)
     // 根据背景图片比例调整窗口大小
     adjustWindowSizeToBackground();
     
-    // 初始化紧凑菜单
+    // 初始化菜单
     initializeMenu();
     
     // 显示开始菜单
@@ -212,10 +212,11 @@ void GameWindow::showMenu()
     m_state = MENU_STATE; // 菜单状态
     m_option = START_NEW_GAME; // 默认开始新游戏
     m_showGameModeSelection = false; // 不显示游戏模式选择
-    m_backButtonSelected = false; // 返回按钮未选中
     m_showLoadSlots = false; // 不显示载入存档槽位选择
     m_showSaveSlots = false; // 不显示保存存档槽位选择
     m_showDeleteSlots = false; // 不显示删除存档槽位选择
+    m_selectedSaveOption = 0; // 默认选中返回选项
+    m_selectedGameModeOption = 0; // 默认选中返回选项
     
     
     setWindowTitle("QLink");
@@ -250,7 +251,7 @@ void GameWindow::selectOption(MenuOption option)
         
     case LOAD_GAME: 
         m_showLoadSlots = true;
-        m_selectedSaveSlot = SAVE_SLOT_1; 
+        m_selectedSaveOption = 1; // 默认选中第一个存档槽位
         update();
         break;
         
@@ -376,15 +377,8 @@ void GameWindow::drawSaveOptions(QPainter& painter)
         QRect optionRect(50, startY + i * (optionHeight + spacing), 
                         width() - 100, optionHeight); // 设置菜单选项矩形
         
-  
-        bool isSelected = false;
-        if (i == 0) {
-            // 返回按钮
-            isSelected = m_backButtonSelected;
-        } else {
-      
-            isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_selectedSaveSlot));
-        }
+        // 统一的选中逻辑：当前选项索引等于选中的选项索引
+        bool isSelected = (i == m_selectedSaveOption);
         
         // 选中项放大矩形
         if (isSelected) {
@@ -448,13 +442,7 @@ void GameWindow::drawMenuOptionsHelper(QPainter& painter, const std::initializer
         bool isSelected = false;
         if (hasReturnButton) {
             // 有返回按钮的情况（游戏模式选择）
-            if (i == 0) {
-            
-                isSelected = m_backButtonSelected;
-            } else {
-                // 其他选项 - 只有在返回按钮未选中时才可能被选中
-                isSelected = !m_backButtonSelected && (i - 1 == static_cast<int>(m_gameModeOption));
-            }
+            isSelected = (i == m_selectedGameModeOption);
         } else {
             // 主菜单选项
             isSelected = (i == static_cast<int>(m_option));
@@ -513,14 +501,10 @@ void GameWindow::handleKey(QKeyEvent *event)
             handleSlotMenuNavigation(true, 2); // true表示向上，2表示最大索引SAVE_SLOT_3
         } else if (m_showGameModeSelection) {
             // 游戏模式选择菜单导航
-            if (m_backButtonSelected) {
-                m_backButtonSelected = false;
-                m_gameModeOption = TWO_PLAYER;
-            } else if (m_gameModeOption > 0) {
-                m_gameModeOption = static_cast<GameModeOption>(m_gameModeOption - 1);
+            if (m_selectedGameModeOption == 0) {
+                m_selectedGameModeOption = 2; // 跳到最后一个选项(双人模式)
             } else {
-                m_backButtonSelected = true;
-                m_gameModeOption = SINGLE_PLAYER;
+                m_selectedGameModeOption--;
             }
         } else {
             // 主菜单导航（循环）
@@ -538,14 +522,10 @@ void GameWindow::handleKey(QKeyEvent *event)
             handleSlotMenuNavigation(false, 2); // false表示向下，2表示最大索引SAVE_SLOT_3
         } else if (m_showGameModeSelection) {
             // 游戏模式选择菜单导航
-            if (m_backButtonSelected) {
-                m_backButtonSelected = false;
-                m_gameModeOption = SINGLE_PLAYER;
-            } else if (m_gameModeOption < 1) {
-                m_gameModeOption = static_cast<GameModeOption>(m_gameModeOption + 1);
+            if (m_selectedGameModeOption == 2) {
+                m_selectedGameModeOption = 0; // 跳到第一个选项(返回)
             } else {
-                m_backButtonSelected = true;
-                m_gameModeOption = SINGLE_PLAYER;
+                m_selectedGameModeOption++;
             }
         } else {
             // 主菜单导航（循环）
@@ -560,18 +540,29 @@ void GameWindow::handleKey(QKeyEvent *event)
     case Qt::Key_Return:
     case Qt::Key_Enter:
         // 统一处理确认逻辑
-        if (m_backButtonSelected) {
-            // 返回主菜单
-            m_showLoadSlots = false;
-            m_showSaveSlots = false;
-            m_showDeleteSlots = false;
-            m_showGameModeSelection = false;
-            m_backButtonSelected = false;
-            update();
-        } else if (m_showLoadSlots || m_showSaveSlots || m_showDeleteSlots) {
-            selectSaveSlot(m_selectedSaveSlot);
+        if (m_showLoadSlots || m_showSaveSlots || m_showDeleteSlots) {
+            if (m_selectedSaveOption == 0) {
+                // 返回主菜单
+                m_showLoadSlots = false;
+                m_showSaveSlots = false;
+                m_showDeleteSlots = false;
+                m_showGameModeSelection = false;
+                update();
+            } else {
+               
+                SaveSlot selectedSlot = static_cast<SaveSlot>(m_selectedSaveOption - 1);
+                selectSaveSlot(selectedSlot);
+            }
         } else if (m_showGameModeSelection) {
-            selectGameMode(m_gameModeOption);
+            if (m_selectedGameModeOption == 0) {
+                // 返回主菜单
+                m_showGameModeSelection = false;
+                update();
+            } else {
+               
+                GameModeOption selectedMode = static_cast<GameModeOption>(m_selectedGameModeOption - 1);
+                selectGameMode(selectedMode);
+            }
         } else {
             selectOption(m_option);
         }
@@ -582,7 +573,7 @@ void GameWindow::handleKey(QKeyEvent *event)
             m_showLoadSlots = false;
             m_showSaveSlots = false;
             m_showDeleteSlots = false;
-            m_backButtonSelected = false;
+            m_selectedSaveOption = 0; // 重置为返回选项
             update();
         } else if (m_showGameModeSelection) {
             m_showGameModeSelection = false;
@@ -601,30 +592,18 @@ void GameWindow::handleKey(QKeyEvent *event)
 void GameWindow::handleSlotMenuNavigation(bool isUpKey, int maxSlotIndex)
 {
     if (isUpKey) {
-        
-        if (m_backButtonSelected) {
-          
-            m_backButtonSelected = false;
-            m_selectedSaveSlot = static_cast<SaveSlot>(maxSlotIndex);
-        } else if (m_selectedSaveSlot > 0) {
-            m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot - 1);
+       
+        if (m_selectedSaveOption == 0) {
+            m_selectedSaveOption = maxSlotIndex + 1; 
         } else {
-          
-            m_backButtonSelected = true;
-            m_selectedSaveSlot = SAVE_SLOT_1;
+            m_selectedSaveOption--;
         }
     } else {
        
-        if (m_backButtonSelected) {
-       
-            m_backButtonSelected = false;
-            m_selectedSaveSlot = SAVE_SLOT_1;
-        } else if (m_selectedSaveSlot < maxSlotIndex) {
-            m_selectedSaveSlot = static_cast<SaveSlot>(m_selectedSaveSlot + 1);
+        if (m_selectedSaveOption == maxSlotIndex + 1) { 
+            m_selectedSaveOption = 0;
         } else {
-          
-            m_backButtonSelected = true;
-            m_selectedSaveSlot = SAVE_SLOT_1;
+            m_selectedSaveOption++;
         }
     }
 }
@@ -642,30 +621,21 @@ bool GameWindow::handleSlotMenuMouseEvent(QMouseEvent *event, bool isClick, bool
                         width() - 100, optionHeight);
         
         if (optionRect.contains(adjustedPos)) {
-            if (i == 0) {
-                // 返回按钮
-                bool oldSelected = m_backButtonSelected;
-                m_backButtonSelected = true;
-                m_selectedSaveSlot = SAVE_SLOT_1;
-                
-                if (isClick && event->button() == Qt::LeftButton) {
+            int oldSelected = m_selectedSaveOption;
+            m_selectedSaveOption = i;
+            
+            if (isClick && event->button() == Qt::LeftButton) {
+                if (i == 0) {
+                  
                     showFlag = false;
-                    m_backButtonSelected = false;
                     update();
-                } else if (!isClick && oldSelected != m_backButtonSelected) {
-                    update();
+                } else {
+                  
+                    SaveSlot selectedSlot = static_cast<SaveSlot>(i - 1);
+                    selectSaveSlot(selectedSlot);
                 }
-            } else {
-                // 存档槽位
-                SaveSlot oldSlot = m_selectedSaveSlot;
-                m_selectedSaveSlot = static_cast<SaveSlot>(i - 1);
-                m_backButtonSelected = false;
-                
-                if (isClick && event->button() == Qt::LeftButton) {
-                    selectSaveSlot(m_selectedSaveSlot);
-                } else if (oldSlot != m_selectedSaveSlot) {
-                    update();
-                }
+            } else if (!isClick && oldSelected != m_selectedSaveOption) {
+                update();
             }
             return true; // 鼠标在选项上
         }
@@ -705,31 +675,21 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
             
             if (optionRect.contains(adjustedPos)) {
                 isOverOption = true; // 鼠标在选项上，设置为小手光标
-                if (i == 0) {
-                    // 返回按钮
-                    bool oldSelected = m_backButtonSelected;
-                    m_backButtonSelected = true;
-                    m_gameModeOption = SINGLE_PLAYER;
-                    
-                    if (isClick && event->button() == Qt::LeftButton) {
+                int oldSelected = m_selectedGameModeOption;
+                m_selectedGameModeOption = i;
+                
+                if (isClick && event->button() == Qt::LeftButton) {
+                    if (i == 0) {
+                        // 返回按钮
                         m_showGameModeSelection = false;
-                        m_backButtonSelected = false;
-            update();
-                    } else if (!isClick && oldSelected != m_backButtonSelected) {
                         update();
+                    } else {
+                        // 游戏模式选项 (i - 1 因为索引0是返回选项)
+                        GameModeOption selectedMode = static_cast<GameModeOption>(i - 1);
+                        selectGameMode(selectedMode);
                     }
-                } else {
-                    // 游戏模式选项
-                    GameModeOption oldOption = m_gameModeOption; // 保存旧的选项
-                    m_gameModeOption = static_cast<GameModeOption>(i - 1); // 设置当前选中的游戏模式选项
-                    m_backButtonSelected = false; // 取消返回按钮选中
-
-                    if (isClick && event->button() == Qt::LeftButton) {
-                        // 鼠标点击：执行选择
-                        selectGameMode(m_gameModeOption);
-                    } else { 
-                        update();
-                    }
+                } else if (!isClick && oldSelected != m_selectedGameModeOption) {
+                    update();
                 }
             break;
             }
@@ -3301,8 +3261,7 @@ void GameWindow::createSaveMenu()
         // 显示保存存档槽位选择
         m_showSaveSlots = true;
         m_showLoadSlots = false;    
-        m_selectedSaveSlot = SAVE_SLOT_1;
-        m_backButtonSelected = false;   
+        m_selectedSaveOption = 1; // 默认选中第一个存档槽位
         update();
     });
     
@@ -3310,8 +3269,7 @@ void GameWindow::createSaveMenu()
         // 显示载入存档槽位选择
         m_showLoadSlots = true;
         m_showSaveSlots = false; // 确保保存界面关闭
-        m_selectedSaveSlot = SAVE_SLOT_1;
-        m_backButtonSelected = false;   
+        m_selectedSaveOption = 1; // 默认选中第一个存档槽位
         update();
     });
     
@@ -3320,8 +3278,7 @@ void GameWindow::createSaveMenu()
         m_showDeleteSlots = true;
         m_showSaveSlots = false; // 确保其他界面关闭
         m_showLoadSlots = false;
-        m_selectedSaveSlot = SAVE_SLOT_1;
-        m_backButtonSelected = false;   
+        m_selectedSaveOption = 1; // 默认选中第一个存档槽位
         update();
     });
 }
