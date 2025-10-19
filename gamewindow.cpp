@@ -688,7 +688,7 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                         m_showGameModeSelection = false;
                         update();
                     } else {
-                        // 游戏模式选项 (i - 1 因为索引0是返回选项)
+                        
                         GameModeOption selectedMode = static_cast<GameModeOption>(i - 1);
                         selectGameMode(selectedMode);
                     }
@@ -709,12 +709,12 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
                             width() - 100, optionHeight); 
             
             if (optionRect.contains(adjustedPos)) {
-                isOverOption = true; // 鼠标在选项上，则设置为小手光标
+                isOverOption = true; 
                 MenuOption oldOption = m_option; 
                 m_option = static_cast<MenuOption>(i); 
 
                 if (isClick && event->button() == Qt::LeftButton) {
-                    // 鼠标点击：执行选择
+                  
                     selectOption(m_option);
                 } else { 
                   update();
@@ -723,13 +723,12 @@ void GameWindow::handleMenuMouseEvent(QMouseEvent *event, bool isClick)
             }
         }
     }
-    
  
     if (!isClick) { 
         if (isOverOption) {
-            setCursor(Qt::PointingHandCursor); // 设置小手光标
+            setCursor(Qt::PointingHandCursor); 
         } else {
-            setCursor(Qt::ArrowCursor); // 设置默认箭头光标
+            setCursor(Qt::ArrowCursor); 
         }
     }
 }
@@ -761,6 +760,7 @@ void GameWindow::start()
     m_paused = false;
     m_running = true;
     
+    m_judger = LinkJudger(ROWS, COLS);
     generateMap(); // 生成地图
     
     // 初始化玩家位置
@@ -1915,8 +1915,8 @@ bool GameWindow::movePlayerToBlockSide(int blockRow, int blockCol)
                 sideCol >= 0 && sideCol < COLS && 
                 m_mapData[sideRow][sideCol] == 0) { 
                 
-                m_active->setPosition(sideRow, sideCol); 
-                checkItemCollision(m_p1);
+                m_active->setPosition(sideRow, sideCol);
+                checkItemCollision(*m_active);
                 return true;
             }
         }
@@ -1932,7 +1932,7 @@ void GameWindow::handleBlockActivation(int clickedRow, int clickedCol)
     int* activeCol = (m_active->getId() == 1) ? &m_p1ActiveCol : &m_p2ActiveCol;
     int* activeRow2 = (m_active->getId() == 1) ? &m_p1ActiveRow2 : &m_p2ActiveRow2;
     int* activeCol2 = (m_active->getId() == 1) ? &m_p1ActiveCol2 : &m_p2ActiveCol2;
-    
+
     // 如果已经激活了第一个方块
     if (*activeRow != -1 && *activeCol != -1) {
         // 如果点击的是相同类型的方块且不是同一个方块
@@ -1979,7 +1979,7 @@ void GameWindow::handleEmptySpaceClick(const ClickInfo& clickInfo)
     // 点击空地，直接移动当前玩家
     m_active->setPosition(clickInfo.row, clickInfo.col);
 
-    checkItemCollision(m_p1);
+    checkItemCollision(*m_active);
     update();
 }
 
@@ -2061,8 +2061,8 @@ void GameWindow::drawGameState(QPainter& painter, int widgetWidth, int widgetHei
     int menuHeight = m_menuWidget->height();
     int gameHeight = widgetHeight - menuHeight;
     
-    float cellWidth = static_cast<float>(widgetWidth) / 24; 
-    float cellHeight = static_cast<float>(gameHeight) / 16;
+    float cellWidth = static_cast<float>(widgetWidth) / COLS;
+    float cellHeight = static_cast<float>(gameHeight) / ROWS;
 
     // 调整绘制位置到游戏区域
     painter.translate(0, menuHeight);
