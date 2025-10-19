@@ -499,11 +499,17 @@ private:
     bool m_paused;                          // 暂停状态
     bool m_twoPlayer;                       // 双人模式
     
-    // 激活状态
-    int m_activeRow;                        // 激活行
-    int m_activeCol;                        // 激活列
-    int m_activeRow2;                        // 玩家2激活行
-    int m_activeCol2;                        // 玩家2激活列
+    // 玩家1激活状态
+    int m_p1ActiveRow;                       // 玩家1激活行
+    int m_p1ActiveCol;                       // 玩家1激活列
+    int m_p1ActiveRow2;                      // 玩家1第二个激活行
+    int m_p1ActiveCol2;                      // 玩家1第二个激活列
+    
+    // 玩家2激活状态
+    int m_p2ActiveRow;                       // 玩家2激活行
+    int m_p2ActiveCol;                       // 玩家2激活列
+    int m_p2ActiveRow2;                      // 玩家2第二个激活行
+    int m_p2ActiveCol2;                      // 玩家2第二个激活列
     
     // 道具
     struct Item {
@@ -530,7 +536,7 @@ private:
     QTimer* m_spawnTimer;                   // 道具生成定时器
     QTimer* m_animationTimer;               // 动画定时器
     
-    // GIF动图相关
+    // 玩家1 GIF动图相关
     QMovie* m_zombieMovie;                  // 玩家1僵尸GIF动图
     QMovie* m_zombieEatMovie;               // 玩家1僵尸攻击GIF动图
     QPixmap m_currentZombieFrame;           // 玩家1当前僵尸帧
@@ -546,7 +552,7 @@ private:
     bool m_isZombie2Attacking;              // 玩家2僵尸是否正在攻击
     QTimer* m_attack2Timer;                 // 玩家2攻击动画定时器
     
-    // 背景图片相关
+    
     QPixmap m_menuBackground;               // 菜单背景图片
     QPixmap m_gameBackground;               // 游戏背景图片
     QPixmap m_saveBackground;               // 保存/载入背景图片

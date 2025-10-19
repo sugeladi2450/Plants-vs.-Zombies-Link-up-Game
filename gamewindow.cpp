@@ -87,10 +87,14 @@ GameWindow::GameWindow(QWidget *parent)
     , m_p1(1, 0, 0) // 玩家1，初始位置为(0,0)
     , m_p2(2, 0, 0) // 玩家2，初始位置为(0,0)
     , m_active(&m_p1)
-    , m_activeRow(-1) // 第一个激活方块的行
-    , m_activeCol(-1) // 第一个激活方块的列
-    , m_activeRow2(-1) // 第二个激活方块的行
-    , m_activeCol2(-1) // 第二个激活方块的列
+    , m_p1ActiveRow(-1) // 玩家1第一个激活方块的行
+    , m_p1ActiveCol(-1) // 玩家1第一个激活方块的列
+    , m_p1ActiveRow2(-1) // 玩家1第二个激活方块的行
+    , m_p1ActiveCol2(-1) // 玩家1第二个激活方块的列
+    , m_p2ActiveRow(-1) // 玩家2第一个激活方块的行
+    , m_p2ActiveCol(-1) // 玩家2第一个激活方块的列
+    , m_p2ActiveRow2(-1) // 玩家2第二个激活方块的行
+    , m_p2ActiveCol2(-1) // 玩家2第二个激活方块的列
     , m_hintOn(false) // 提示开启
     , m_hintTime(0) // 提示时间
     , m_hintR1(-1), m_hintC1(-1), m_hintR2(-1), m_hintC2(-1)
@@ -110,16 +114,16 @@ GameWindow::GameWindow(QWidget *parent)
     , m_zombieMovie(nullptr) // 玩家1僵尸GIF动图
     , m_zombieEatMovie(nullptr) // 玩家1僵尸攻击GIF动图
     , m_currentZombieFrame() // 玩家1当前帧
-    , m_currentZombieEatFrame() // 玩家1当前僵尸攻击帧
-    , m_isZombieAttacking(false) // 玩家1僵尸未在攻击
+    , m_currentZombieEatFrame() // 玩家1当前攻击帧
+    , m_isZombieAttacking(false) // 玩家1未在攻击
     , m_attackTimer(new QTimer(this)) // 玩家1攻击动画定时器
     
     // 玩家2 相关
     , m_zombie2Movie(nullptr) // 玩家2僵尸GIF动图
     , m_zombie2EatMovie(nullptr) // 玩家2僵尸攻击GIF动图
-    , m_currentZombie2Frame() // 玩家2当前僵尸帧
-    , m_currentZombie2EatFrame() // 玩家2当前僵尸攻击帧
-    , m_isZombie2Attacking(false) // 玩家2僵尸未在攻击
+    , m_currentZombie2Frame() // 玩家2当前帧
+    , m_currentZombie2EatFrame() // 玩家2当前攻击帧
+    , m_isZombie2Attacking(false) // 玩家2未在攻击
     , m_attack2Timer(new QTimer(this)) // 玩家2攻击动画定时器
     
     // 背景图片相关
@@ -377,7 +381,7 @@ void GameWindow::drawSaveOptions(QPainter& painter)
         QRect optionRect(50, startY + i * (optionHeight + spacing), 
                         width() - 100, optionHeight); // 设置菜单选项矩形
         
-        // 统一的选中逻辑：当前选项索引等于选中的选项索引
+     
         bool isSelected = (i == m_selectedSaveOption);
         
         // 选中项放大矩形
@@ -441,10 +445,10 @@ void GameWindow::drawMenuOptionsHelper(QPainter& painter, const std::initializer
         // 设置菜单选项选中状态
         bool isSelected = false;
         if (hasReturnButton) {
-            // 有返回按钮的情况（游戏模式选择）
+          
             isSelected = (i == m_selectedGameModeOption);
         } else {
-            // 主菜单选项
+           
             isSelected = (i == static_cast<int>(m_option));
         }
         
@@ -462,23 +466,23 @@ void GameWindow::drawMenuOptionsHelper(QPainter& painter, const std::initializer
 void GameWindow::drawOption(QPainter& painter, const QRect& rect, 
                            const QString& text, bool isSelected)
 {
-        // 绘制圆角矩形背景
+        
         QPainterPath path;
-    path.addRoundedRect(rect, 10, 10); // 设置圆角矩形
+        path.addRoundedRect(rect, 10, 10); 
         
         if (isSelected) {
             // 绘制发光效果
             QPainterPath glowPath; 
         glowPath.addRoundedRect(rect.adjusted(-2, -2, 2, 2), 12, 12); 
             painter.setBrush(QColor(255, 165, 0, 50)); // 半透明橙色
-            painter.setPen(Qt::NoPen); // 不画边框
+            painter.setPen(Qt::NoPen); 
             painter.drawPath(glowPath); // 绘制发光效果
             
-        // 选中项样式
+        // 选中项
             painter.setBrush(QColorConstants::Svg::orange); // 设置橙色画刷
             painter.setPen(QPen(QColorConstants::Svg::yellow, 3)); // 设置黄色画笔
         } else {
-        // 未选中项样式
+        // 未选中项
             painter.setBrush(QColorConstants::Svg::lightgray); // 设置浅灰色画刷
             painter.setPen(QPen(QColorConstants::Svg::white, 1)); // 设置白色画笔
         }
@@ -539,7 +543,7 @@ void GameWindow::handleKey(QKeyEvent *event)
         break;
     case Qt::Key_Return:
     case Qt::Key_Enter:
-        // 统一处理确认逻辑
+      
         if (m_showLoadSlots || m_showSaveSlots || m_showDeleteSlots) {
             if (m_selectedSaveOption == 0) {
                 // 返回主菜单
@@ -568,7 +572,7 @@ void GameWindow::handleKey(QKeyEvent *event)
         }
         break;
     case Qt::Key_Escape:
-        // 统一处理返回逻辑
+       
         if (m_showLoadSlots || m_showSaveSlots || m_showDeleteSlots) {
             m_showLoadSlots = false;
             m_showSaveSlots = false;
@@ -750,7 +754,10 @@ void GameWindow::start()
     
     m_hintTime = 0;
     m_hintR1 = m_hintC1 = m_hintR2 = m_hintC2 = -1; // 重置提示位置
-    m_activeRow = m_activeCol = -1; // 重置激活位置
+    m_p1ActiveRow = m_p1ActiveCol = -1; // 重置玩家1激活位置
+    m_p1ActiveRow2 = m_p1ActiveCol2 = -1;
+    m_p2ActiveRow = m_p2ActiveCol = -1; // 重置玩家2激活位置
+    m_p2ActiveRow2 = m_p2ActiveCol2 = -1;
     m_paused = false;
     m_running = true;
     
@@ -1103,7 +1110,10 @@ void GameWindow::shuffle()
     
   
     generateItems();
-    m_activeRow = m_activeCol = -1;
+    m_p1ActiveRow = m_p1ActiveCol = -1;
+    m_p1ActiveRow2 = m_p1ActiveCol2 = -1;
+    m_p2ActiveRow = m_p2ActiveCol = -1;
+    m_p2ActiveRow2 = m_p2ActiveCol2 = -1;
     
   
     if (m_hintOn) {
@@ -1145,7 +1155,13 @@ void GameWindow::flash(Player& player)
     player.setFlashActive(true, FLASH_DURATION); //设置闪烁状态
     
     // 清除激活状态
-    m_activeRow = m_activeCol = -1;
+    if (player.getId() == 1) {
+        m_p1ActiveRow = m_p1ActiveCol = -1;
+        m_p1ActiveRow2 = m_p1ActiveCol2 = -1;
+    } else {
+        m_p2ActiveRow = m_p2ActiveCol = -1;
+        m_p2ActiveRow2 = m_p2ActiveCol2 = -1;
+    }
     
     update();
 }
@@ -1424,23 +1440,29 @@ void GameWindow::tryActivateBlock(Player& player, int deltaRow, int deltaCol)
         // 当前激活的玩家
         m_active = &player;
 
-        // 如果已经激活了方块
-        if (m_activeRow != -1 && m_activeCol != -1) {
-            if (m_mapData[m_activeRow][m_activeCol] == m_mapData[targetRow][targetCol] &&
-                (m_activeRow != targetRow || m_activeCol != targetCol)) {
+        // 根据玩家ID获取对应的激活状态变量
+        int* activeRow = (player.getId() == 1) ? &m_p1ActiveRow : &m_p2ActiveRow;
+        int* activeCol = (player.getId() == 1) ? &m_p1ActiveCol : &m_p2ActiveCol;
+        int* activeRow2 = (player.getId() == 1) ? &m_p1ActiveRow2 : &m_p2ActiveRow2;
+        int* activeCol2 = (player.getId() == 1) ? &m_p1ActiveCol2 : &m_p2ActiveCol2;
 
-                m_activeRow2 = targetRow; 
-                m_activeCol2 = targetCol; 
+        // 如果已经激活了方块
+        if (*activeRow != -1 && *activeCol != -1) {
+            if (m_mapData[*activeRow][*activeCol] == m_mapData[targetRow][targetCol] &&
+                (*activeRow != targetRow || *activeCol != targetCol)) {
+
+                *activeRow2 = targetRow; 
+                *activeCol2 = targetCol; 
                 processElimination(); 
             } else {
                 // 不同类型或相同位置，取消之前的激活，激活新的
-                m_activeRow = targetRow;
-                m_activeCol = targetCol;
+                *activeRow = targetRow;
+                *activeCol = targetCol;
             }
         } else {
             // 第一次激活
-            m_activeRow = targetRow;
-            m_activeCol = targetCol;
+            *activeRow = targetRow;
+            *activeCol = targetCol;
         }
         update();
     }
@@ -1449,9 +1471,15 @@ void GameWindow::tryActivateBlock(Player& player, int deltaRow, int deltaCol)
 //处理两个方块的消除逻辑
 void GameWindow::processElimination()
 {
+    // 根据当前激活的玩家获取对应的激活状态变量
+    int* activeRow = (m_active->getId() == 1) ? &m_p1ActiveRow : &m_p2ActiveRow;
+    int* activeCol = (m_active->getId() == 1) ? &m_p1ActiveCol : &m_p2ActiveCol;
+    int* activeRow2 = (m_active->getId() == 1) ? &m_p1ActiveRow2 : &m_p2ActiveRow2;
+    int* activeCol2 = (m_active->getId() == 1) ? &m_p1ActiveCol2 : &m_p2ActiveCol2;
+    
     // 保存第一个激活方块的位置
-    int r1 = m_activeRow, c1 = m_activeCol;
-    int r2 = m_activeRow2, c2 = m_activeCol2;
+    int r1 = *activeRow, c1 = *activeCol;
+    int r2 = *activeRow2, c2 = *activeCol2;
 
     //判断两个方块是否可以消除
     if (m_judger.canEliminate(r1, c1, r2, c2, m_mapData)) {
@@ -1478,7 +1506,16 @@ void GameWindow::processElimination()
         QTimer::singleShot(500, this, [this, r1, c1, r2, c2]() { 
             m_mapData[r1][c1] = 0;
             m_mapData[r2][c2] = 0; 
-            m_activeRow = m_activeCol = -1; 
+            
+            // 根据当前激活的玩家重置对应的激活状态
+            if (m_active->getId() == 1) {
+                m_p1ActiveRow = m_p1ActiveCol = -1; 
+                m_p1ActiveRow2 = m_p1ActiveCol2 = -1;
+            } else {
+                m_p2ActiveRow = m_p2ActiveCol = -1; 
+                m_p2ActiveRow2 = m_p2ActiveCol2 = -1;
+            }
+            
             m_showLine = false;
             m_linePath.clear(); 
             
@@ -1515,7 +1552,12 @@ void GameWindow::processElimination()
         update();
     } else {
 
-        m_activeRow = m_activeCol = -1;
+        // 根据当前激活的玩家重置对应的激活状态
+        if (m_active->getId() == 1) {
+            m_p1ActiveRow = m_p1ActiveCol = -1;
+        } else {
+            m_p2ActiveRow = m_p2ActiveCol = -1;
+        }
         update();
     }
 }
@@ -1885,42 +1927,48 @@ bool GameWindow::movePlayerToBlockSide(int blockRow, int blockCol)
 //处理方块激活逻辑
 void GameWindow::handleBlockActivation(int clickedRow, int clickedCol)
 {
+    // 根据当前激活的玩家获取对应的激活状态变量
+    int* activeRow = (m_active->getId() == 1) ? &m_p1ActiveRow : &m_p2ActiveRow;
+    int* activeCol = (m_active->getId() == 1) ? &m_p1ActiveCol : &m_p2ActiveCol;
+    int* activeRow2 = (m_active->getId() == 1) ? &m_p1ActiveRow2 : &m_p2ActiveRow2;
+    int* activeCol2 = (m_active->getId() == 1) ? &m_p1ActiveCol2 : &m_p2ActiveCol2;
+    
     // 如果已经激活了第一个方块
-    if (m_activeRow != -1 && m_activeCol != -1) {
+    if (*activeRow != -1 && *activeCol != -1) {
         // 如果点击的是相同类型的方块且不是同一个方块
-        if (m_mapData[m_activeRow][m_activeCol] == m_mapData[clickedRow][clickedCol] &&
-            (m_activeRow != clickedRow || m_activeCol != clickedCol)) {
+        if (m_mapData[*activeRow][*activeCol] == m_mapData[clickedRow][clickedCol] &&
+            (*activeRow != clickedRow || *activeCol != clickedCol)) {
             
-            m_activeRow2 = clickedRow;
-            m_activeCol2 = clickedCol;
+            *activeRow2 = clickedRow;
+            *activeCol2 = clickedCol;
             update(); 
 
           
-            QTimer::singleShot(200, this, [this, clickedRow, clickedCol]() {
-                m_activeRow2 = clickedRow;
-                m_activeCol2 = clickedCol;
+            QTimer::singleShot(200, this, [this, clickedRow, clickedCol, activeRow, activeCol, activeRow2, activeCol2]() {
+                *activeRow2 = clickedRow;
+                *activeCol2 = clickedCol;
                 processElimination();
                 
                 // 重置两个激活方块的位置
-                m_activeRow = m_activeRow2 = -1;
-                m_activeCol = m_activeCol2 = -1;
+                *activeRow = *activeRow2 = -1;
+                *activeCol = *activeCol2 = -1;
                 update();
             });
             return;
         } else {
             // 不同类型，取消之前的激活，激活新的
-            m_activeRow2 = -1;
-            m_activeCol2 = -1;
-            m_activeRow = clickedRow;
-            m_activeCol = clickedCol;
+            *activeRow2 = -1;
+            *activeCol2 = -1;
+            *activeRow = clickedRow;
+            *activeCol = clickedCol;
             update();
             return;
         }
     }
                 
     // 激活新方块
-    m_activeRow = clickedRow;
-    m_activeCol = clickedCol;
+    *activeRow = clickedRow;
+    *activeCol = clickedCol;
     update();
 }
 
@@ -2074,9 +2122,14 @@ void GameWindow::drawMapBlocks(QPainter& painter, float cellWidth, float cellHei
             QRectF blockRect(c * cellWidth, r * cellHeight, cellWidth, cellHeight); //创建方块矩形
             blockRect.adjust(2, 2, -2, -2); //让方块之间有间隙
 
-            bool isActive = (r == m_activeRow && c == m_activeCol) || 
-                         (r == m_activeRow2 && c == m_activeCol2);
-            if (isActive) {
+            // 检查是否被玩家1激活
+            bool isP1Active = (r == m_p1ActiveRow && c == m_p1ActiveCol) || 
+                             (r == m_p1ActiveRow2 && c == m_p1ActiveCol2);
+            // 检查是否被玩家2激活
+            bool isP2Active = (r == m_p2ActiveRow && c == m_p2ActiveCol) || 
+                             (r == m_p2ActiveRow2 && c == m_p2ActiveCol2);
+            
+            if (isP1Active || isP2Active) {
                 // 绘制激活状态的图片（红色边框）
                 drawBlockImage(painter, blockRect, blockType, true);
             } else {
@@ -2392,7 +2445,8 @@ void GameWindow::saveGamePlayers(QTextStream& out)
     out << "Time: " << m_time << "\n";
     out << "GameRunning: " << (m_running ? "1" : "0") << "\n";
     out << "Paused: " << (m_paused ? "1" : "0") << "\n\n";
-    out << "Activated: " << m_activeRow << " " << m_activeCol << "\n\n";
+    out << "P1Activated: " << m_p1ActiveRow << " " << m_p1ActiveCol << " " << m_p1ActiveRow2 << " " << m_p1ActiveCol2 << "\n";
+    out << "P2Activated: " << m_p2ActiveRow << " " << m_p2ActiveCol << " " << m_p2ActiveRow2 << " " << m_p2ActiveCol2 << "\n\n";
 }
 
 // 保存地图状态
@@ -2556,12 +2610,24 @@ void GameWindow::loadGamePlayers(QTextStream& in)
     
     in.readLine(); 
     
-    // 读取激活的方块
-    QString activatedLine = in.readLine();
-    QStringList activatedParts = activatedLine.split(" ");
-    if (activatedParts.size() >= 3) {
-        m_activeRow = activatedParts[1].toInt();
-        m_activeCol = activatedParts[2].toInt();
+    // 读取玩家1激活的方块
+    QString p1ActivatedLine = in.readLine();
+    QStringList p1ActivatedParts = p1ActivatedLine.split(" ");
+    if (p1ActivatedParts.size() >= 5) {
+        m_p1ActiveRow = p1ActivatedParts[1].toInt();
+        m_p1ActiveCol = p1ActivatedParts[2].toInt();
+        m_p1ActiveRow2 = p1ActivatedParts[3].toInt();
+        m_p1ActiveCol2 = p1ActivatedParts[4].toInt();
+    }
+    
+    // 读取玩家2激活的方块
+    QString p2ActivatedLine = in.readLine();
+    QStringList p2ActivatedParts = p2ActivatedLine.split(" ");
+    if (p2ActivatedParts.size() >= 5) {
+        m_p2ActiveRow = p2ActivatedParts[1].toInt();
+        m_p2ActiveCol = p2ActivatedParts[2].toInt();
+        m_p2ActiveRow2 = p2ActivatedParts[3].toInt();
+        m_p2ActiveCol2 = p2ActivatedParts[4].toInt();
     }
     
     in.readLine();
@@ -3307,8 +3373,8 @@ void GameWindow::createSettingsMenu()
     QAction* fullscreen = m_settingsMenu->addAction("全屏模式");
     QAction* menuSize = m_settingsMenu->addAction("地图大小");
     
-    soundToggle->setCheckable(true);
-    soundToggle->setChecked(true);
+    soundToggle->setCheckable(true);  //让按钮变成可切换状态
+    soundToggle->setChecked(true);   //初始选中状态
     musicToggle->setCheckable(true);
     musicToggle->setChecked(true);
     
